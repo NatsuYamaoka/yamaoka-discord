@@ -11,6 +11,8 @@ import Joi from "joi";
     DATABASE_PASSWORD: Joi.string().required(),
     DATABASE_HOST: Joi.string().required(),
     DATABASE_NAME: Joi.string().required(),
+    CLIENTID: Joi.string().required(),
+    OWNER: Joi.string().required(),
   }).unknown();
 
   try {
