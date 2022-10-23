@@ -7,7 +7,7 @@ import { CommandType } from "../../typings/base-command.types";
 export default class EvalCommand extends BaseCommand<CommandType.MESSAGE_COMMAND> {
   public options = {
     name: "eval",
-    allowedUsersOrRoles: [YamaokaConfig.owner],
+    allowedUsersOrRoles: [YamaokaConfig.richard, YamaokaConfig.owner],
   };
 
   public async execute(argument: Message<boolean>): Promise<void> {
