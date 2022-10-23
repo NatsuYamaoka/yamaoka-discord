@@ -2,6 +2,7 @@ import {
   CacheType,
   ChatInputCommandInteraction,
   EmbedBuilder,
+  SlashCommandBuilder,
 } from "discord.js";
 import { sleep } from "../../../helpers/utils";
 import { BaseCommand } from "../../core/base/base.command";
