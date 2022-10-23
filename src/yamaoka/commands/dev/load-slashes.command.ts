@@ -7,7 +7,7 @@ import { CommandType } from "../../typings/base-command.types";
 export default class LoadedSlashesCommand extends BaseCommand<CommandType.MESSAGE_COMMAND> {
   public options = {
     name: "load-slashes",
-    allowedUsersOrRoles: [YamaokaConfig.owner],
+    allowedUsersOrRoles: [YamaokaConfig.richard, YamaokaConfig.owner],
   };
 
   public async execute(argument: Message<boolean>) {
