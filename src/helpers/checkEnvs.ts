@@ -17,9 +17,7 @@ import Joi from "joi";
     await envSchema.validateAsync(process.env);
 
     console.log("✅ ENV SCHEMA VALIDATION SUCCESSFULLY PASSED!");
-  } catch (err) {
-    console.log(err);
-
-    throw new Error("⚠️ ENV SCHEMA VALIDATION FAILED!");
+  } catch (err: any) {
+    throw new Error(err.message);
   }
 })();
