@@ -25,17 +25,15 @@ export default class RegisterCommand extends BaseCommand<CommandType.SLASH_COMMA
     });
 
     if (userData) {
-      argument.reply({
-        embeds: [
-          JSON.parse(
-            JSON.stringify(embeds.Error).replace(
-              "%errorMessage%",
-              "You are already registered in system!"
-            )
-          ),
-        ],
-      });
+      const errorMessage = { ...embeds.Error };
+      errorMessage.description = errorMessage.description.replace(
+        "%errorMessage%",
+        "You are already registered in system!"
+      );
 
+      argument.reply({
+        embeds: [errorMessage],
+      });
       return;
     }
 
@@ -44,8 +42,14 @@ export default class RegisterCommand extends BaseCommand<CommandType.SLASH_COMMA
       wallet: {},
     }).save();
 
+    const UserProfile = { ...embeds.UserProfile };
+    UserProfile.description = UserProfile.description.replace(
+      "%description%",
+      `Thanks for registering!\n 👀 You'r \`uuid\` is: \`${registeredUser.uuid}\``
+    );
+
     argument.reply({
-      content: `Thanks for registering! 👀\nYou'r \`uuid\` is: \`${registeredUser.uuid}\``,
+      embeds: [UserProfile],
     });
   }
 }

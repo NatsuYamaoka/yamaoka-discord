@@ -55,7 +55,7 @@ export default class MeCommand extends BaseCommand<CommandType.SLASH_COMMAND> {
             .replace("%uuid%", userData.uuid)
             .replace("%uid%", userData.uid)
             .replace("%balance%", `${userData.wallet.balance} $`)
-            .replace("%userAvatar%", user.avatarURL() as string)
+            .replace("%userAvatar%", user.displayAvatarURL())
         ),
       ],
     });
