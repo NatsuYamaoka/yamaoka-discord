@@ -6,6 +6,7 @@ import {
 import { BaseCommand } from "../../core/base/base.command";
 import { User } from "../../entities";
 import { CommandType } from "../../typings/base-command.types";
+import { embeds } from "../../../configs/yamaoka/config.json";
 
 export default class RegisterCommand extends BaseCommand<CommandType.SLASH_COMMAND> {
   public options = {
@@ -25,7 +26,14 @@ export default class RegisterCommand extends BaseCommand<CommandType.SLASH_COMMA
 
     if (userData) {
       argument.reply({
-        content: "You are already registered in system!",
+        embeds: [
+          JSON.parse(
+            JSON.stringify(embeds.Error).replace(
+              "%errorMessage%",
+              "You are already registered in system!"
+            )
+          ),
+        ],
       });
 
       return;
