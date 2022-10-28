@@ -3,7 +3,6 @@ import {
   RESTPostAPIApplicationCommandsJSONBody,
   Routes,
 } from "discord.js";
-import { YamaokaConfig } from "../configs";
 import { promisify } from "util";
 import { join } from "path";
 import glob from "glob";
@@ -19,7 +18,7 @@ export const loadSlashCommands = async (
 
   const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
 
-  await rest.put(Routes.applicationCommands(YamaokaConfig.clientId), {
+  await rest.put(Routes.applicationCommands(process.env.CLIENTID as string), {
     body,
   });
 };

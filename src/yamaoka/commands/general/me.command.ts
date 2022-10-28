@@ -6,6 +6,7 @@ import {
 import { BaseCommand } from "../../core/base/base.command";
 import { User } from "../../entities";
 import { CommandType } from "../../typings/base-command.types";
+import { embeds } from "../../../configs/yamaoka/config.json";
 
 export default class MeCommand extends BaseCommand<CommandType.SLASH_COMMAND> {
   public options = {
@@ -34,14 +35,29 @@ export default class MeCommand extends BaseCommand<CommandType.SLASH_COMMAND> {
 
     if (!userData) {
       argument.reply({
-        content: "You/or user you mention need to be registered in system!",
+        embeds: [
+          JSON.parse(
+            JSON.stringify(embeds.Error).replace(
+              "%errorMessage%",
+              "You/or user you mention need to be registered in system!"
+            )
+          ),
+        ],
       });
-
       return;
     }
 
     argument.reply({
-      content: codeBlock("json", JSON.stringify(userData, null, 2)),
+      embeds: [
+        JSON.parse(
+          JSON.stringify(embeds.UserProfile)
+            .replace("%user%", user.username.replace(/"/g, "'"))
+            .replace("%uuid%", userData.uuid)
+            .replace("%uid%", userData.uid)
+            .replace("%balance%", `${userData.wallet.balance} $`)
+            .replace("%userAvatar%", user.avatarURL() as string)
+        ),
+      ],
     });
   }
 }

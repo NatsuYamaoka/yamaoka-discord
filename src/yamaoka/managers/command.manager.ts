@@ -3,7 +3,11 @@ import { join } from "path";
 import { importFiles } from "../../helpers/utils";
 import { Base } from "../core/base/base";
 import { BaseCommand } from "../core/base/base.command";
-import { CommandArguments, CommandType } from "../typings/base-command.types";
+import {
+  AllowedUsersOrRolesType,
+  CommandArguments,
+  CommandType,
+} from "../typings/base-command.types";
 
 export class CommandManager extends Base {
   public slashCommands: Collection<
@@ -82,7 +86,7 @@ export class CommandManager extends Base {
   }
 
   public async checkPermissions(
-    allowedUsersOrRoles: string[],
+    allowedUsersOrRoles: AllowedUsersOrRolesType[],
     commandArgument: CommandArguments<CommandType.MESSAGE_COMMAND>
   ) {
     if (allowedUsersOrRoles.includes(commandArgument.author.id)) return true;
@@ -90,7 +94,11 @@ export class CommandManager extends Base {
     const fetchedMember = await commandArgument.member?.fetch();
 
     if (!fetchedMember) return false;
-    if (allowedUsersOrRoles.some((val) => fetchedMember.roles.cache.has(val)))
+    if (
+      allowedUsersOrRoles.some((val) =>
+        val !== undefined ? fetchedMember.roles.cache.has(val) : null
+      )
+    )
       return true;
   }
 }

@@ -4,6 +4,8 @@ import {
   RESTPostAPIApplicationCommandsJSONBody,
 } from "discord.js";
 
+export type AllowedUsersOrRolesType = string | undefined;
+
 export enum CommandType {
   SLASH_COMMAND = "SLASH_COMMAND",
   MESSAGE_COMMAND = "MESSAGE_COMMAND",
@@ -16,7 +18,7 @@ interface SlashCommandOptions {
 
 interface MessageCommandOptions {
   name: string;
-  allowedUsersOrRoles: string[];
+  allowedUsersOrRoles: AllowedUsersOrRolesType[];
 }
 
 export type CommandOptions<T extends CommandType> =

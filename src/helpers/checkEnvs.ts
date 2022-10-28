@@ -11,13 +11,15 @@ import Joi from "joi";
     DATABASE_PASSWORD: Joi.string().required(),
     DATABASE_HOST: Joi.string().required(),
     DATABASE_NAME: Joi.string().required(),
+    CLIENTID: Joi.string().required(),
+    OWNER: Joi.string().required(),
   }).unknown();
 
   try {
     await envSchema.validateAsync(process.env);
 
     console.log("✅ ENV SCHEMA VALIDATION SUCCESSFULLY PASSED!");
-  } catch (err) {
-    throw new Error("⚠️ ENV SCHEMA VALIDATION FAILED!");
+  } catch (err: any) {
+    throw new Error(err.message);
   }
 })();
