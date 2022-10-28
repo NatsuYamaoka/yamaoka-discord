@@ -32,8 +32,9 @@ export default class ClearCommand extends BaseCommand<CommandType.SLASH_COMMAND>
 
     if ("bulkDelete" in channel) {
       await channel.bulkDelete(amount);
-      const successEmbed = embeds.Success;
-      const plurarizeWord = amount - 1 ? "messages" : "message";
+      const successEmbed = { ...embeds.Success };
+      let plurarizeWord = amount - 1 ? "messages" : "message";
+
       successEmbed.description = successEmbed.description.replace(
         "%description%",
         `${amount} ${plurarizeWord} was deleted in <#${channel.id}>!`

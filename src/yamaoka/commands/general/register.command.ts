@@ -42,10 +42,10 @@ export default class RegisterCommand extends BaseCommand<CommandType.SLASH_COMMA
       wallet: {},
     }).save();
 
-    const UserProfile = { ...embeds.UserProfile };
+    const UserProfile = { ...embeds.Success };
     UserProfile.description = UserProfile.description.replace(
       "%description%",
-      `Thanks for registering!\n 👀 You'r \`uuid\` is: \`${registeredUser.uuid}\``
+      `Thanks for registering!\n 👀 Your's uuid: \`${registeredUser.uuid}\``
     );
 
     argument.reply({

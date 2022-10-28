@@ -34,15 +34,13 @@ export default class MeCommand extends BaseCommand<CommandType.SLASH_COMMAND> {
     });
 
     if (!userData) {
+      const errorMessage = { ...embeds.Error };
+      errorMessage.description = errorMessage.description.replace(
+        "%errorMessage%",
+        "You/or user you mention need to be registered in system!"
+      );
       argument.reply({
-        embeds: [
-          JSON.parse(
-            JSON.stringify(embeds.Error).replace(
-              "%errorMessage%",
-              "You/or user you mention need to be registered in system!"
-            )
-          ),
-        ],
+        embeds: [errorMessage],
       });
       return;
     }
