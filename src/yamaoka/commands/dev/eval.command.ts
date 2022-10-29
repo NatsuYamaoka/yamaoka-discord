@@ -1,6 +1,5 @@
 import { codeBlock, Message } from "discord.js";
 import { inspect } from "util";
-import { YamaokaConfig } from "../../../configs";
 import { BaseCommand } from "../../core/base/base.command";
 import { CommandType } from "../../typings/base-command.types";
 

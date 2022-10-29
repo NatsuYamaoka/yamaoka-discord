@@ -1,5 +1,4 @@
 import { Message } from "discord.js";
-import { YamaokaConfig } from "../../../configs";
 import { loadSlashCommands } from "../../../helpers/utils";
 import { BaseCommand } from "../../core/base/base.command";
 import { CommandType } from "../../typings/base-command.types";

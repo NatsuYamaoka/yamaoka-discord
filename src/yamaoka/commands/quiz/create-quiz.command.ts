@@ -3,12 +3,17 @@ import {
   ChatInputCommandInteraction,
   EmbedBuilder,
   SlashCommandBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
 } from "discord.js";
 import { sleep } from "../../../helpers/utils";
 import { BaseCommand } from "../../core/base/base.command";
 import { Quiz, QuizQuestion, User } from "../../entities";
 import { CommandType } from "../../typings/base-command.types";
-
+import { embeds } from "../../../configs/yamaoka/config.json";
+import { userInfo } from "os";
+import { string } from "joi";
 export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
   public options = {
     name: "create-quiz",
@@ -56,11 +61,15 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
     });
 
     if (!userData) {
+      const errorMessage = { ...embeds.Error };
+      errorMessage.description = errorMessage.description.replace(
+        "%errorMessage%",
+        "You need to be registered in our system!"
+      );
       argument.reply({
-        content: "You need to be registered in our system!",
+        embeds: [errorMessage],
         ephemeral: true,
       });
-
       return;
     }
 
@@ -70,17 +79,21 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
     });
 
     if (!messageCollector) {
+      const errorMessage = { ...embeds.Error };
+      errorMessage.description = errorMessage.description.replace(
+        "%errorMessage%",
+        "Sorry! Cannot create message collector on this channel."
+      );
       argument.reply({
-        content: "Sorry! Cannot create message collector on this channel.",
+        embeds: [errorMessage],
         ephemeral: true,
       });
-
       return;
     }
 
     const questions: IQuizQuestion[] = [];
     const embed = new EmbedBuilder({
-      title: "Overall info 👀",
+      title: "Overall info",
       description:
         `⚠️ Right now you will be asked to provide questions for your quiz\n\n` +
         `You must type one question per message.\n` +
@@ -97,11 +110,11 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
     });
 
     await sleep(2000);
-
-    argument.followUp({
-      content: "👀 You can start writing down your first question!",
-      ephemeral: true,
+    const canStartTyping = new EmbedBuilder({
+      title: `You can start writing down your first question! 👀`,
+      color: 4631546,
     });
+    argument.followUp({ embeds: [canStartTyping], ephemeral: true });
 
     messageCollector
       .on("collect", (message) => {
@@ -114,35 +127,51 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
         }
 
         if (!message.content.match(";")?.length) {
-          message.reply("Please, provide correct quiz question.");
-
+          const errorMessage = { ...embeds.Error };
+          errorMessage.description = errorMessage.description.replace(
+            "%errorMessage%",
+            "Please, provide correct quiz question."
+          );
+          argument.followUp({
+            embeds: [errorMessage],
+            ephemeral: true,
+          });
           return;
         }
 
         const content = message.content.split(";");
         const question = content[0];
         const answers = content[1].split(":").map((answer) => answer.trim());
-
-        const questionEmbed = new EmbedBuilder({
-          title: "New question",
-          description:
-            `🍃 You can continue sending new questions!\n\n` +
-            `Question: \`${question}\`\n` +
-            `Answers: \`${answers.join(", ")}\`\n\n` +
-            `*If you want to completly stop, type in: \`cancel\`\n` +
-            `To finish and save your quiz, type in: \`save\`*`,
-        });
-
-        argument.followUp({
-          embeds: [questionEmbed],
-          ephemeral: true,
-        });
-
         questions.push({
           answers,
           question,
         });
+
+        const quizQuestions = { ...embeds.QuizMakingQuestions };
+        const questionsAndAnswers = questions
+          .map(
+            (element, index) =>
+              `**Question no.${index + 1}**\nQuestion: ${
+                element.question
+              }.\nAnswers: ${element.answers.join(", ")}\n`
+          )
+          .join(" ");
+        quizQuestions.description = quizQuestions.description.replace(
+          "%questions%",
+          questionsAndAnswers as any
+        );
+
+        argument.editReply({
+          embeds: [quizQuestions],
+        });
+
+        const SuccessEmbed = new EmbedBuilder({
+          title: `Question "${question}" was successfully added!`,
+          color: 5025616,
+        });
+        argument.followUp({ embeds: [SuccessEmbed], ephemeral: true });
       })
+
       .on("end", async () => {
         if (!questions.length) return;
 
@@ -168,8 +197,17 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
           completePercentage: quizPercentage,
         }).save();
 
+        const successEmbed = { ...embeds.Success };
+        successEmbed.title = successEmbed.title.replace(
+          "%proccess%",
+          "Creating of quiz"
+        );
+        successEmbed.description = successEmbed.description.replace(
+          "%description%",
+          `Quiz successfuly saved in database!\nQuiz id: ${savedQuiz.uuid}`
+        );
         argument.followUp({
-          content: `Quiz successfuly saved in database!\nQuiz id: \`${savedQuiz.uuid}\``,
+          embeds: [successEmbed],
           ephemeral: true,
         });
       });

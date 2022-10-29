@@ -1,6 +1,5 @@
 import {
   ChatInputCommandInteraction,
-  codeBlock,
   SlashCommandBuilder,
 } from "discord.js";
 import { BaseCommand } from "../../core/base/base.command";

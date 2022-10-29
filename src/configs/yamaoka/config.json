@@ -2,7 +2,7 @@
   "prefix": "$",
   "embeds": {
     "Success": {
-      "title": "Command is finished!",
+      "title": "%proccess% is finished!",
       "color": 5025616,
       "description": "📃 %description%"
     },
@@ -10,6 +10,10 @@
       "title": "Something's wrong, I can feel it...",
       "color": 16402504,
       "description": "⚠️ %errorMessage%"
+    },
+    "QuizMakingQuestions": {
+      "title": "Quiz questions 🌻",
+      "description": "🍃 You can continue sending new questions!\n\n %questions% \n *If you want to completly stop, type in: **cancel** \n To finish and save your quiz, type in: **save** *"
     },
     "UserProfile": {
       "title": "Welcome, %user%",
