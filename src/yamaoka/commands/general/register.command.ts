@@ -6,6 +6,7 @@ import {
 import { BaseCommand } from "../../core/base/base.command";
 import { User } from "../../entities";
 import { CommandType } from "../../typings/base-command.types";
+import { embeds } from "../../../configs/yamaoka/config.json";
 
 export default class RegisterCommand extends BaseCommand<CommandType.SLASH_COMMAND> {
   public options = {
@@ -24,10 +25,15 @@ export default class RegisterCommand extends BaseCommand<CommandType.SLASH_COMMA
     });
 
     if (userData) {
-      argument.reply({
-        content: "You are already registered in system!",
-      });
+      const errorMessage = { ...embeds.Error };
+      errorMessage.description = errorMessage.description.replace(
+        "%errorMessage%",
+        "You are already registered in system!"
+      );
 
+      argument.reply({
+        embeds: [errorMessage],
+      });
       return;
     }
 
@@ -36,8 +42,14 @@ export default class RegisterCommand extends BaseCommand<CommandType.SLASH_COMMA
       wallet: {},
     }).save();
 
+    const UserProfile = { ...embeds.Success };
+    UserProfile.description = UserProfile.description.replace(
+      "%description%",
+      `Thanks for registering!\n 👀 Your's uuid: \`${registeredUser.uuid}\``
+    );
+
     argument.reply({
-      content: `Thanks for registering! 👀\nYou'r \`uuid\` is: \`${registeredUser.uuid}\``,
+      embeds: [UserProfile],
     });
   }
 }
