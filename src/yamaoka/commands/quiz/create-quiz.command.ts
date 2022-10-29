@@ -3,17 +3,13 @@ import {
   ChatInputCommandInteraction,
   EmbedBuilder,
   SlashCommandBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
 } from "discord.js";
 import { sleep } from "../../../helpers/utils";
 import { BaseCommand } from "../../core/base/base.command";
 import { Quiz, QuizQuestion, User } from "../../entities";
 import { CommandType } from "../../typings/base-command.types";
-import { embeds } from "../../../configs/yamaoka/config.json";
-import { userInfo } from "os";
-import { string } from "joi";
+import { YamaokaConfig } from "../../../configs";
+
 export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
   public options = {
     name: "create-quiz",
@@ -61,7 +57,7 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
     });
 
     if (!userData) {
-      const errorMessage = { ...embeds.Error };
+      const errorMessage = { ...YamaokaConfig.embeds.Error };
       errorMessage.description = errorMessage.description.replace(
         "%errorMessage%",
         "You need to be registered in our system!"
@@ -79,7 +75,7 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
     });
 
     if (!messageCollector) {
-      const errorMessage = { ...embeds.Error };
+      const errorMessage = { ...YamaokaConfig.embeds.Error };
       errorMessage.description = errorMessage.description.replace(
         "%errorMessage%",
         "Sorry! Cannot create message collector on this channel."
@@ -127,7 +123,7 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
         }
 
         if (!message.content.match(";")?.length) {
-          const errorMessage = { ...embeds.Error };
+          const errorMessage = { ...YamaokaConfig.embeds.Error };
           errorMessage.description = errorMessage.description.replace(
             "%errorMessage%",
             "Please, provide correct quiz question."
@@ -147,7 +143,7 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
           question,
         });
 
-        const quizQuestions = { ...embeds.QuizMakingQuestions };
+        const quizQuestions = { ...YamaokaConfig.embeds.QuizMakingQuestions };
         const questionsAndAnswers = questions
           .map(
             (element, index) =>
@@ -197,7 +193,7 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
           completePercentage: quizPercentage,
         }).save();
 
-        const successEmbed = { ...embeds.Success };
+        const successEmbed = { ...YamaokaConfig.embeds.Success };
         successEmbed.title = successEmbed.title.replace(
           "%proccess%",
           "Creating of quiz"
