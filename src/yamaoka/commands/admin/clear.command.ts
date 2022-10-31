@@ -1,4 +1,8 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import {
+  channelMention,
+  ChatInputCommandInteraction,
+  SlashCommandBuilder,
+} from "discord.js";
 import { BaseCommand } from "../../core/base/base.command";
 import { CommandType } from "../../typings/base-command.types";
 import { YamaokaConfig } from "../../../configs";
@@ -31,18 +35,27 @@ export default class ClearCommand extends BaseCommand<CommandType.SLASH_COMMAND>
 
     if ("bulkDelete" in channel) {
       await channel.bulkDelete(amount);
-      const successEmbed = { ...YamaokaConfig.embeds.Success };
+
+      const successEmbed = {
+        ...YamaokaConfig.embeds.Success,
+      };
+
       const plurarizeWord = amount - 1 ? "messages" : "message";
+      const description = `${amount} ${plurarizeWord} was deleted in ${channelMention(
+        channel.id
+      )}!`;
+
       successEmbed.title = successEmbed.title.replace("%proccess%", "Command");
       successEmbed.description = successEmbed.description.replace(
         "%description%",
-        `${amount} ${plurarizeWord} was deleted in <#${channel.id}>!`
+        description
       );
 
       argument.reply({
         embeds: [successEmbed],
         ephemeral: true,
       });
+
       return;
     }
   }

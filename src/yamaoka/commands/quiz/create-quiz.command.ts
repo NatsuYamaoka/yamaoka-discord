@@ -41,32 +41,34 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
       .toJSON(),
   };
 
-  public async execute(
-    argument: ChatInputCommandInteraction<CacheType>
-  ): Promise<void> {
+  public async execute(argument: ChatInputCommandInteraction<CacheType>) {
     const quizName = argument.options.getString("quiz-name", true);
     const quizReward = argument.options.getString("quiz-reward", true);
     const quizPercentage = argument.options.getNumber(
       "complete-percentage",
       true
     );
+
     const userData = await User.findOne({
       where: {
         uid: argument.user.id,
       },
     });
 
+    const errorEmbed = {
+      ...YamaokaConfig.embeds.Error,
+    };
+
     if (!userData) {
-      const errorMessage = { ...YamaokaConfig.embeds.Error };
-      errorMessage.description = errorMessage.description.replace(
+      errorEmbed.description = errorEmbed.description.replace(
         "%errorMessage%",
         "You need to be registered in our system!"
       );
-      argument.reply({
-        embeds: [errorMessage],
+
+      return argument.reply({
+        embeds: [errorEmbed],
         ephemeral: true,
       });
-      return;
     }
 
     const messageCollector = argument.channel?.createMessageCollector({
@@ -75,137 +77,163 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
     });
 
     if (!messageCollector) {
-      const errorMessage = { ...YamaokaConfig.embeds.Error };
-      errorMessage.description = errorMessage.description.replace(
+      const errorMsg =
+        "Sorry! Cannot create message collector on this channel.";
+
+      errorEmbed.description = errorEmbed.description.replace(
         "%errorMessage%",
-        "Sorry! Cannot create message collector on this channel."
+        errorMsg
       );
-      argument.reply({
-        embeds: [errorMessage],
+
+      return argument.reply({
+        embeds: [errorEmbed],
         ephemeral: true,
       });
-      return;
     }
 
     const questions: IQuizQuestion[] = [];
-    const embed = new EmbedBuilder({
-      title: "Overall info",
-      description:
+
+    const infoEmbed = new EmbedBuilder()
+      .setTitle("Overall info")
+      .setDescription(
         `⚠️ Right now you will be asked to provide questions for your quiz\n\n` +
-        `You must type one question per message.\n` +
-        `To construct your question, follow example below:\n` +
-        `\`<How many many there?>;[5:10:15]\`\n\n` +
-        `Text in \`<>\` is your question. Answers placed in \`[]\`\n` +
-        `You can provide several answers. To do so you must split them using \`:\` symbol.\n\n` +
-        `*Do not include \`<>\` and \`[]\` when you create your questions it's just here for example!*`,
-    });
+          `You must type one question per message\n` +
+          `To construct your question, follow example below:\n` +
+          `\`<How many many there?>;[5:10:15]\`\n\n` +
+          `Text in \`<>\` is your question. Answers placed in \`[]\`\n` +
+          `You can provide several answers. To do so you must split them using \`:\` symbol.\n\n` +
+          `*Do not include \`<>\` and \`[]\` when you create your questions it's just here for example!*`
+      );
 
     await argument.reply({
+      embeds: [infoEmbed],
       ephemeral: true,
-      embeds: [embed],
     });
 
     await sleep(2000);
-    const canStartTyping = new EmbedBuilder({
-      title: `You can start writing down your first question! 👀`,
-      color: 4631546,
+
+    const followUp = await argument.followUp({
+      content: "You can start sending your questions!",
+      ephemeral: true,
     });
-    argument.followUp({ embeds: [canStartTyping], ephemeral: true });
 
     messageCollector
       .on("collect", (message) => {
         message.delete().catch();
 
         if (["cancel", "save"].includes(message.content.toLowerCase())) {
-          messageCollector.stop();
+          messageCollector.stop(message.content.toLowerCase());
 
           return;
         }
 
+        // TODO: Create more complex regexp to check if question was builded correctly
         if (!message.content.match(";")?.length) {
-          const errorMessage = { ...YamaokaConfig.embeds.Error };
-          errorMessage.description = errorMessage.description.replace(
+          errorEmbed.description = errorEmbed.description.replace(
             "%errorMessage%",
             "Please, provide correct quiz question."
           );
+
           argument.followUp({
-            embeds: [errorMessage],
+            embeds: [errorEmbed],
             ephemeral: true,
           });
+
           return;
         }
 
         const content = message.content.split(";");
         const question = content[0];
         const answers = content[1].split(":").map((answer) => answer.trim());
+
         questions.push({
           answers,
           question,
         });
 
-        const quizQuestions = { ...YamaokaConfig.embeds.QuizMakingQuestions };
+        const quizQuestions = {
+          ...YamaokaConfig.embeds.QuizMakingQuestions,
+        };
+
         const questionsAndAnswers = questions
-          .map(
-            (element, index) =>
-              `**Question no.${index + 1}**\nQuestion: ${
-                element.question
-              }.\nAnswers: ${element.answers.join(", ")}\n`
-          )
-          .join(" ");
+          .map((element, index) => {
+            const quizTitle =
+              `**Question no.${++index} ` + `${element.question}**\n`;
+
+            const quizAnswers = `**Answers**: ${element.answers.join(", ")}`;
+
+            return `${quizTitle}\n${quizAnswers}`;
+          })
+          .join("\n\n");
+
         quizQuestions.description = quizQuestions.description.replace(
           "%questions%",
-          questionsAndAnswers as any
+          questionsAndAnswers
         );
 
-        argument.editReply({
-          embeds: [quizQuestions],
-        });
-
-        const SuccessEmbed = new EmbedBuilder({
-          title: `Question "${question}" was successfully added!`,
-          color: 5025616,
-        });
-        argument.followUp({ embeds: [SuccessEmbed], ephemeral: true });
+        followUp.edit({ embeds: [quizQuestions] });
       })
 
-      .on("end", async () => {
-        if (!questions.length) return;
-
-        const formatedQuestions = questions.reduce<QuizQuestion[]>(
-          (prev, curr) => {
-            const questionEntity = QuizQuestion.create({
-              question: curr.question,
-              answers: curr.answers,
+      .on("end", async (collected, reason) => {
+        switch (reason) {
+          case "time":
+            argument.editReply({
+              content:
+                "Seems like we need to stop... Thanks for using create-quiz command!",
+              embeds: [],
             });
 
-            prev.push(questionEntity);
+            break;
+          case "cancel":
+            argument.editReply({
+              content: "create-quiz command was canceled by you!",
+              embeds: [],
+            });
 
-            return prev;
-          },
-          []
-        );
+            break;
+          case "save":
+            if (!questions.length) {
+              argument.editReply({
+                content: "Not enough questions was provided to save this quiz",
+                embeds: [],
+              });
 
-        const savedQuiz = await Quiz.create({
-          author: userData,
-          name: quizName,
-          reward: quizReward,
-          questions: formatedQuestions,
-          completePercentage: quizPercentage,
-        }).save();
+              return;
+            }
 
-        const successEmbed = { ...YamaokaConfig.embeds.Success };
-        successEmbed.title = successEmbed.title.replace(
-          "%proccess%",
-          "Creating of quiz"
-        );
-        successEmbed.description = successEmbed.description.replace(
-          "%description%",
-          `Quiz successfuly saved in database!\nQuiz id: ${savedQuiz.uuid}`
-        );
-        argument.followUp({
-          embeds: [successEmbed],
-          ephemeral: true,
-        });
+            const formatedQuestions = questions.map(({ question, answers }) =>
+              QuizQuestion.create({ answers, question })
+            );
+
+            const savedQuiz = await Quiz.create({
+              author: userData,
+              name: quizName,
+              reward: quizReward,
+              questions: formatedQuestions,
+              completePercentage: quizPercentage,
+            }).save();
+
+            const successEmbed = {
+              ...YamaokaConfig.embeds.Success,
+            };
+
+            const description =
+              `Quiz successfuly saved in database!\n` +
+              `Quiz id: ${savedQuiz.uuid}`;
+
+            successEmbed.title = successEmbed.title.replace(
+              "%proccess%",
+              "Creating of quiz"
+            );
+
+            successEmbed.description = successEmbed.description.replace(
+              "%description%",
+              description
+            );
+
+            argument.followUp({ embeds: [successEmbed], ephemeral: true });
+            break;
+        }
       });
   }
 }

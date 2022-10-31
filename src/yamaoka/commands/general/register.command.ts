@@ -17,24 +17,22 @@ export default class RegisterCommand extends BaseCommand<CommandType.SLASH_COMMA
       .toJSON(),
   };
 
-  public async execute(
-    argument: ChatInputCommandInteraction<CacheType>
-  ): Promise<void> {
+  public async execute(argument: ChatInputCommandInteraction<CacheType>) {
     const userData = await User.findOneBy({
       uid: argument.user.id,
     });
 
     if (userData) {
-      const errorMessage = { ...YamaokaConfig.embeds.Error };
-      errorMessage.description = errorMessage.description.replace(
+      const errorEmbed = {
+        ...YamaokaConfig.embeds.Error,
+      };
+
+      errorEmbed.description = errorEmbed.description.replace(
         "%errorMessage%",
         "You are already registered in system!"
       );
 
-      argument.reply({
-        embeds: [errorMessage],
-      });
-      return;
+      return argument.reply({ embeds: [errorEmbed] });
     }
 
     const registeredUser = await User.create({
@@ -42,14 +40,18 @@ export default class RegisterCommand extends BaseCommand<CommandType.SLASH_COMMA
       wallet: {},
     }).save();
 
-    const UserProfile = { ...YamaokaConfig.embeds.Success };
-    UserProfile.description = UserProfile.description.replace(
+    const profileEmbed = {
+      ...YamaokaConfig.embeds.Success,
+    };
+
+    const description =
+      `Thanks for registering!\n` + `Your's uuid: \`${registeredUser.uuid}\``;
+
+    profileEmbed.description = profileEmbed.description.replace(
       "%description%",
-      `Thanks for registering!\n 👀 Your's uuid: \`${registeredUser.uuid}\``
+      description
     );
 
-    argument.reply({
-      embeds: [UserProfile],
-    });
+    argument.reply({ embeds: [profileEmbed] });
   }
 }

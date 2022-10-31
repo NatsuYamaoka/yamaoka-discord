@@ -1,7 +1,4 @@
-import {
-  ChatInputCommandInteraction,
-  SlashCommandBuilder,
-} from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { BaseCommand } from "../../core/base/base.command";
 import { User } from "../../entities";
 import { CommandType } from "../../typings/base-command.types";
@@ -33,15 +30,19 @@ export default class MeCommand extends BaseCommand<CommandType.SLASH_COMMAND> {
     });
 
     if (!userData) {
-      const errorMessage = { ...YamaokaConfig.embeds.Error };
+      const errorMessage = {
+        ...YamaokaConfig.embeds.Error,
+      };
+
+      const description =
+        "You/or user you mention need to be registered in system!";
+
       errorMessage.description = errorMessage.description.replace(
         "%errorMessage%",
-        "You/or user you mention need to be registered in system!"
+        description
       );
-      argument.reply({
-        embeds: [errorMessage],
-      });
-      return;
+
+      return argument.reply({ embeds: [errorMessage] });
     }
 
     argument.reply({
