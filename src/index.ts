@@ -1,3 +1,3 @@
 import "dotenv/config";
 import "reflect-metadata";
-import "./yamaoka";
+import "./app";
