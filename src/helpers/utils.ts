@@ -1,33 +1,15 @@
-import {
-  REST,
-  RESTPostAPIApplicationCommandsJSONBody,
-  Routes,
-} from "discord.js";
-import { YamaokaConfig } from "../configs";
 import { promisify } from "util";
 import { join } from "path";
 import glob from "glob";
+import { SearchedFiles } from "../typings/helpers";
 
 export const sleep = (time: number) =>
   new Promise((resolve) => setTimeout(resolve, time));
 
-export const loadSlashCommands = async (
-  body: RESTPostAPIApplicationCommandsJSONBody[]
-) => {
-  if (!process.env.TOKEN)
-    throw new Error("Cannot load ( / ) commands, no TOKEN in env");
-
-  const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
-
-  await rest.put(Routes.applicationCommands(YamaokaConfig.clientId), {
-    body,
-  });
-};
-
-export const importFiles = async <T>(
+export const searchCmdsOrEventsByPath = async <T>(
   path: string,
   totalLoaded = 0
-): Promise<ImportFilesReturn<T> | undefined> => {
+): Promise<SearchedFiles<T> | undefined> => {
   try {
     const loadedFiles = [];
     const globAsync = promisify(glob);
@@ -52,8 +34,3 @@ export const importFiles = async <T>(
     throw new Error("⚠️ ERROR WHEN IMPORTING FILES");
   }
 };
-
-interface ImportFilesReturn<T> {
-  totalLoaded: number;
-  files: T[];
-}

@@ -21,7 +21,7 @@
   },
   "scripts": {
     "build": "rd /s /q .\\build && tsc",
-    "check:env": "ts-node ./src/helpers/checkEnvs.ts",
+    "check:env": "ts-node ./src/scripts/envs.ts",
     "start:dev": "yarn check:env && cross-env NODE_ENV=dev nodemon ./src/index.ts",
     "start:prod": "yarn check:env && cross-env NODE_ENV=prod node ./build/index.js",
     "run:build:prod": "yarn build && yarn start:prod"
