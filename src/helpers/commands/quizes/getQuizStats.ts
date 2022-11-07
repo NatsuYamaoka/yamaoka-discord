@@ -1,4 +1,9 @@
-import { CompletedQuiz } from "../yamaoka/entities";
+import { CompletedQuiz } from "../../../entities";
+import {
+  GetQuizStatsOptions,
+  AttemptedUsers,
+  IMostAttempts,
+} from "../../../typings/helpers";
 
 export const getQuizStats = (option: GetQuizStatsOptions) => {
   const { completedQuizes } = option;
@@ -81,21 +86,3 @@ export const getTopUsers = (attemptedUsers: AttemptedUsers[]) => {
     userWithMostFailedAttempts,
   };
 };
-
-interface GetQuizStatsOptions {
-  completedQuizes: CompletedQuiz[];
-}
-
-interface IMostAttempts {
-  [key: string]: AttemptsCount;
-}
-
-interface AttemptedUsers extends AttemptsCount {
-  uid: string;
-}
-
-interface AttemptsCount {
-  totalAttempts: number;
-  successfulAttempts: number;
-  failedAttempts: number;
-}

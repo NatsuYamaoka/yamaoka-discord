@@ -1,17 +1,17 @@
 import { ButtonBuilder, ButtonStyle } from "discord.js";
-import { ScrollButtons } from "../yamaoka/typings/enums";
+import { NavigationButtons } from "../../typings/enums";
 
-export const getScrollSetup = () => {
+export const getNavigationSetup = () => {
   const toLeftButton = new ButtonBuilder()
-    .setCustomId(ScrollButtons.TO_LEFT)
+    .setCustomId(NavigationButtons.TO_LEFT)
     .setStyle(ButtonStyle.Primary)
     .setEmoji("⬅️");
   const toStopButton = new ButtonBuilder()
-    .setCustomId(ScrollButtons.TO_STOP)
+    .setCustomId(NavigationButtons.TO_STOP)
     .setStyle(ButtonStyle.Primary)
     .setEmoji("✖️");
   const toRightButton = new ButtonBuilder()
-    .setCustomId(ScrollButtons.TO_RIGHT)
+    .setCustomId(NavigationButtons.TO_RIGHT)
     .setStyle(ButtonStyle.Primary)
     .setEmoji("➡️");
 
