@@ -8,12 +8,15 @@ import {
   SlashCommandBuilder,
   userMention,
 } from "discord.js";
-import { BaseCommand } from "../../core";
+import { getQuizStats } from "../../common/helpers/get-quiz-stats.helper";
+import {
+  getNavigationSetup,
+  NavigationButtons,
+} from "../../common/helpers/navigation.helper";
+import PaginationHelper from "../../common/helpers/pagination.helper";
+import { BaseCommand } from "../../core/abstracts/command/command.abstract";
+import { CommandType } from "../../core/abstracts/command/types/command.types";
 import { Quiz } from "../../entities";
-import { getQuizStats } from "../../helpers/commands/quizes/getQuizStats";
-import { getNavigationSetup } from "../../helpers/embeds/getScrollSetup";
-import PaginationManager from "../../managers/pagination.manager";
-import { CommandType, NavigationButtons } from "../../typings/enums";
 
 export default class QuizList extends BaseCommand<CommandType.SLASH_COMMAND> {
   public options = {
@@ -67,7 +70,7 @@ export default class QuizList extends BaseCommand<CommandType.SLASH_COMMAND> {
 
     if (!quizes.length) {
       argument.reply({
-        content: "Sorry, I can find quizes!",
+        content: "Sorry, I can't find quizes!",
         ephemeral: true,
       });
 
@@ -82,7 +85,7 @@ export default class QuizList extends BaseCommand<CommandType.SLASH_COMMAND> {
       toRightButton,
     ]);
 
-    const paginationHelper = new PaginationManager(quizes, {
+    const paginationHelper = new PaginationHelper(quizes, {
       elementsOnPage: 9,
     });
 

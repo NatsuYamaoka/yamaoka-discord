@@ -1,13 +1,13 @@
 import { Interaction, CacheType } from "discord.js";
-import { BaseEvent } from "../../core";
-import { CommandType } from "../../typings/enums";
+import { CommandType } from "../../core/abstracts/command/types/command.types";
+import { BaseEvent } from "../../core/abstracts/event/event.abstract";
 
 export default class InteractionCreate extends BaseEvent<"interactionCreate"> {
-  public eventName: "interactionCreate" = "interactionCreate";
+  public eventName = "interactionCreate" as const;
 
   public async execute(interaction: Interaction<CacheType>) {
     if (interaction.isChatInputCommand()) {
-      this.yamaokaClient.commandManager.executeCommand(
+      this.customClient.commandManager.executeCommand(
         interaction.commandName,
         interaction,
         CommandType.SLASH_COMMAND

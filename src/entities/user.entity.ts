@@ -1,21 +1,11 @@
-import {
-  BaseEntity,
-  Column,
-  Entity,
-  JoinColumn,
-  OneToMany,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from "typeorm";
-import { CompletedQuiz } from "./completed-quiz.entity";
-import { Quiz } from "./quiz.entity";
+import { Column, Entity, OneToMany, OneToOne } from "typeorm";
+import { PredefinedBaseEntity } from "./base/base-entity";
+import { CompletedQuiz } from "./quiz/completed-quiz.entity";
+import { Quiz } from "./quiz/quiz.entity";
 import { Wallet } from "./wallet.entity";
 
 @Entity()
-export class User extends BaseEntity {
-  @PrimaryGeneratedColumn("uuid")
-  uuid: string;
-
+export class User extends PredefinedBaseEntity {
   @Column()
   uid: string;
 

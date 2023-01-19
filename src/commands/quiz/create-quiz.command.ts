@@ -4,11 +4,9 @@ import {
   EmbedBuilder,
   SlashCommandBuilder,
 } from "discord.js";
-import appConfig from "../../app.config";
-import { BaseCommand } from "../../core";
-import { Quiz, QuizQuestion, User } from "../../entities";
-import { sleep } from "../../helpers/utils";
-import { CommandType } from "../../typings/enums";
+import { BaseCommand } from "../../core/abstracts/command/command.abstract";
+import { CommandType } from "../../core/abstracts/command/types/command.types";
+import { Quiz, QuizQuestion, QuizQuestionAnswer, User } from "../../entities";
 
 export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
   public options = {
@@ -22,10 +20,12 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
           .setDescription("Specify quiz name")
           .setRequired(true)
       )
-      .addStringOption((option) =>
+      .addNumberOption((option) =>
         option
           .setName("quiz-reward")
-          .setDescription("Specify quiz reward (amount of money)")
+          .setDescription("Specify quiz reward")
+          .setMinValue(10)
+          .setMaxValue(100)
           .setRequired(true)
       )
       .addNumberOption((option) =>
@@ -43,7 +43,7 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
 
   public async execute(argument: ChatInputCommandInteraction<CacheType>) {
     const quizName = argument.options.getString("quiz-name", true);
-    const quizReward = argument.options.getString("quiz-reward", true);
+    const quizReward = argument.options.getNumber("quiz-reward", true);
     const quizPercentage = argument.options.getNumber(
       "complete-percentage",
       true
@@ -55,20 +55,10 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
       },
     });
 
-    const errorEmbed = {
-      ...appConfig.embeds.Error,
-    };
-
     if (!userData) {
-      errorEmbed.description = errorEmbed.description.replace(
-        "%errorMessage%",
-        "You need to be registered in our system!"
-      );
+      const errorMsg = `Hm.. Seems like I can't find any data for you..`;
 
-      return argument.reply({
-        embeds: [errorEmbed],
-        ephemeral: true,
-      });
+      return argument.reply({ content: errorMsg, ephemeral: true });
     }
 
     const messageCollector = argument.channel?.createMessageCollector({
@@ -80,41 +70,26 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
       const errorMsg =
         "Sorry! Cannot create message collector for this channel.";
 
-      errorEmbed.description = errorEmbed.description.replace(
-        "%errorMessage%",
-        errorMsg
-      );
-
-      return argument.reply({
-        embeds: [errorEmbed],
-        ephemeral: true,
-      });
+      return argument.reply({ content: errorMsg, ephemeral: true });
     }
 
-    const questions: IQuizQuestion[] = [];
+    const questions: { question: string; answers: string[] }[] = [];
 
     const infoEmbed = new EmbedBuilder()
       .setTitle("Overall info")
       .setDescription(
-        `⚠️ Right now you will be asked to provide questions for your quiz\n\n` +
-          `You must type one question per message\n` +
-          `To construct your question, follow example below:\n` +
-          `\`<How many many there?>;[5:10:15]\`\n\n` +
-          `Text in \`<>\` is your question. Answers placed in \`[]\`\n` +
-          `You can provide several answers. To do so you must split them using \`:\` symbol.\n\n` +
-          `*Do not include \`<>\` and \`[]\` when you create your questions it's just here for example!*`
-      );
+        "Yo! To create your quiz, follow instructions below:\n\n" +
+          "To add questions with answers to your quiz you need to follow simple construction rule\n" +
+          "`question;answer` or `question;answer:answer2:answer3`\n" +
+          "First example if you want to create a question with a single answer," +
+          "and second example is question with multiple answers\n\n" +
+          "⚠️ *you need to provide only one question per message*"
+      )
+      .setFooter({
+        text: 'To save quiz just type "save", to cancle quiz creation type "cancel"',
+      });
 
-    await argument.reply({
-      embeds: [infoEmbed],
-      ephemeral: true,
-    });
-
-    await sleep(2000);
-
-    const followUp = await argument.followUp({
-      content: "You can start sending your questions!",
-    });
+    await argument.reply({ embeds: [infoEmbed] });
 
     messageCollector
       .on("collect", (message) => {
@@ -128,13 +103,8 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
 
         // TODO: Create more complex regexp to check if question was builded correctly
         if (!message.content.match(";")?.length) {
-          errorEmbed.description = errorEmbed.description.replace(
-            "%errorMessage%",
-            "Please, provide correct quiz question."
-          );
-
           argument.followUp({
-            embeds: [errorEmbed],
+            content: "Please, provide correct quiz question.",
             ephemeral: true,
           });
 
@@ -145,66 +115,62 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
         const question = content[0];
         const answers = content[1].split(":").map((answer) => answer.trim());
 
-        questions.push({
-          answers,
-          question,
-        });
+        questions.push({ answers, question });
 
-        const quizQuestions = {
-          ...appConfig.embeds.QuizMakingQuestions,
-        };
+        const questionsAndAnswers =
+          "Questions:\n" +
+          questions
+            .map(
+              ({ question, answers }) => `${question}: ${answers.join(", ")}`
+            )
+            .join("\n\n");
 
-        const questionsAndAnswers = questions
-          .map((element, index) => {
-            const quizTitle =
-              `**Question no.${++index} ` + `${element.question}**\n`;
-
-            const quizAnswers = `**Answers**: ${element.answers.join(", ")}`;
-
-            return `${quizTitle}\n${quizAnswers}`;
-          })
-          .join("\n\n");
-
-        quizQuestions.description = quizQuestions.description.replace(
-          "%questions%",
-          questionsAndAnswers
-        );
-
-        followUp
-          .edit({ embeds: [quizQuestions] })
-          .catch((err) => console.log(err.message));
+        argument.editReply({ content: questionsAndAnswers }).catch((err) => {});
       })
 
       .on("end", async (collected, reason) => {
         switch (reason) {
           case "time":
-            argument.editReply({
-              content:
-                "Seems like we need to stop... Thanks for using create-quiz command!",
-              embeds: [],
-            });
+            argument
+              .editReply({
+                content:
+                  "Seems like we need to stop... Thanks for using create-quiz command!",
+                embeds: [],
+              })
+              .catch((err) => {});
 
             break;
           case "cancel":
-            argument.editReply({
-              content: "create-quiz command was canceled by you!",
-              embeds: [],
-            });
+            argument
+              .editReply({
+                content: "create-quiz command was canceled by you!",
+                embeds: [],
+              })
+              .catch((err) => {});
 
             break;
           case "save":
             if (!questions.length) {
-              argument.editReply({
-                content: "Not enough questions was provided to save this quiz",
-                embeds: [],
-              });
+              argument
+                .editReply({
+                  content:
+                    "Not enough questions was provided to save this quiz",
+                  embeds: [],
+                })
+                .catch((err) => {});
 
               return;
             }
 
-            const formatedQuestions = questions.map(({ question, answers }) =>
-              QuizQuestion.create({ answers, question })
-            );
+            const formatedQuestions = questions.map(({ question, answers }) => {
+              const mappedAnswers = answers.map((answer) =>
+                QuizQuestionAnswer.create({
+                  content: answer,
+                })
+              );
+
+              return QuizQuestion.create({ answers: mappedAnswers, question });
+            });
 
             const savedQuiz = await Quiz.create({
               author: userData,
@@ -214,32 +180,13 @@ export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
               completePercentage: quizPercentage,
             }).save();
 
-            const successEmbed = {
-              ...appConfig.embeds.Success,
-            };
-
             const description =
               `Quiz successfuly saved in database!\n` +
-              `Quiz id: ${savedQuiz.uuid}`;
+              `Quiz id: ${savedQuiz.id}`;
 
-            successEmbed.title = successEmbed.title.replace(
-              "%proccess%",
-              "Creating of quiz"
-            );
-
-            successEmbed.description = successEmbed.description.replace(
-              "%description%",
-              description
-            );
-
-            argument.followUp({ embeds: [successEmbed], ephemeral: true });
+            argument.followUp({ content: description });
             break;
         }
       });
   }
-}
-
-interface IQuizQuestion {
-  question: string;
-  answers: string[];
 }

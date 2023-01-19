@@ -1,7 +1,7 @@
 import { codeBlock, Message } from "discord.js";
 import { inspect } from "util";
-import { BaseCommand } from "../../core";
-import { CommandType } from "../../typings/enums";
+import { BaseCommand } from "../../core/abstracts/command/command.abstract";
+import { CommandType } from "../../core/abstracts/command/types/command.types";
 
 export default class EvalCommand extends BaseCommand<CommandType.MESSAGE_COMMAND> {
   public options = {
@@ -13,10 +13,10 @@ export default class EvalCommand extends BaseCommand<CommandType.MESSAGE_COMMAND
     const toEval = argument.content.slice(6);
     let executed = await eval(toEval);
 
-    if (typeof executed != "string") executed = inspect(executed);
+    if (typeof executed != "string") {
+      executed = inspect(executed);
+    }
 
-    argument.reply({
-      content: codeBlock("xl", `${executed}`),
-    });
+    argument.reply({ content: codeBlock("xl", `${executed}`) });
   }
 }

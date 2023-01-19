@@ -1,6 +1,7 @@
 import { Message } from "discord.js";
-import { BaseCommand } from "../../core";
-import { CommandType } from "../../typings/enums";
+import { BaseCommand } from "../../core/abstracts/command/command.abstract";
+import { CommandType } from "../../core/abstracts/command/types/command.types";
+import { Quiz } from "../../entities";
 
 export default class TestCommand extends BaseCommand<CommandType.MESSAGE_COMMAND> {
   public options = {
@@ -8,5 +9,5 @@ export default class TestCommand extends BaseCommand<CommandType.MESSAGE_COMMAND
     allowedUsersOrRoles: [process.env.OWNER],
   };
 
-  public async execute(argument: Message<boolean>): Promise<void> {}
+  public async execute(argument: Message<boolean>): Promise<any> {}
 }

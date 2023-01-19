@@ -1,5 +1,5 @@
 declare namespace NodeJS {
-  export interface ProcessEnv {
+  export type ProcessEnv = {
     TOKEN: string;
     DATABASE_PORT: number;
     DATABASE_USER: string;
@@ -9,5 +9,5 @@ declare namespace NodeJS {
     OWNER: string;
     CLIENTID: string;
     NODE_ENV: "dev" | "prod";
-  }
+  };
 }

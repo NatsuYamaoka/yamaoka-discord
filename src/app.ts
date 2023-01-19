@@ -1,9 +1,9 @@
 import { GatewayIntentBits } from "discord.js";
-import YamaokaClient from "./core/yamaoka.client";
+import { CustomClient } from "./core/client/custom-client";
 
 export default (async () => {
   try {
-    const Client = new YamaokaClient({
+    const Client = new CustomClient({
       core: {
         intents: [
           GatewayIntentBits.Guilds,
@@ -18,6 +18,6 @@ export default (async () => {
   } catch (err) {
     console.log(err);
 
-    throw new Error("⚠️ ERROR HAPPEN WHEN TRYING TO LAUNCH APP");
+    throw new Error("Can't launch bot");
   }
 })();

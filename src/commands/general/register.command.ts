@@ -3,10 +3,9 @@ import {
   CacheType,
   SlashCommandBuilder,
 } from "discord.js";
-import appConfig from "../../app.config";
-import { BaseCommand } from "../../core";
+import { BaseCommand } from "../../core/abstracts/command/command.abstract";
+import { CommandType } from "../../core/abstracts/command/types/command.types";
 import { User } from "../../entities";
-import { CommandType } from "../../typings/enums";
 
 export default class RegisterCommand extends BaseCommand<CommandType.SLASH_COMMAND> {
   public options = {
@@ -18,44 +17,26 @@ export default class RegisterCommand extends BaseCommand<CommandType.SLASH_COMMA
   };
 
   public async execute(argument: ChatInputCommandInteraction<CacheType>) {
-    const userData = await User.findOneBy({
-      uid: argument.user.id,
+    const userData = await User.findOne({
+      where: {
+        uid: argument.user.id,
+      },
     });
 
     if (userData) {
-      const errorEmbed = {
-        ...appConfig.embeds.Error,
-      };
+      const description = "Etto.. You're already registreted..";
 
-      errorEmbed.description = errorEmbed.description.replace(
-        "%errorMessage%",
-        "You are already registered in system!"
-      );
-
-      return argument.reply({ embeds: [errorEmbed] });
+      return argument.reply({ content: description });
     }
 
-    const registeredUser = await User.create({
+    const user = await User.create({
       uid: argument.user.id,
       wallet: {},
     }).save();
 
-    const profileEmbed = {
-      ...appConfig.embeds.Success,
-    };
-
     const description =
-      `Thanks for registering!\n` + `Your's uuid: \`${registeredUser.uuid}\``;
+      "Thanks for registering!\n" + `Your's uuid: \`${user.id}\``;
 
-    profileEmbed.title = profileEmbed.title.replace(
-      "%proccess%",
-      "Registration"
-    );
-    profileEmbed.description = profileEmbed.description.replace(
-      "%description%",
-      description
-    );
-
-    argument.reply({ embeds: [profileEmbed] });
+    argument.reply({ content: description });
   }
 }

@@ -1,6 +1,6 @@
 import { Message, REST, Routes } from "discord.js";
-import { BaseCommand } from "../../core";
-import { CommandType } from "../../typings/enums";
+import { BaseCommand } from "../../core/abstracts/command/command.abstract";
+import { CommandType } from "../../core/abstracts/command/types/command.types";
 
 export default class LoadedSlashesCommand extends BaseCommand<CommandType.MESSAGE_COMMAND> {
   public options = {
@@ -9,8 +9,10 @@ export default class LoadedSlashesCommand extends BaseCommand<CommandType.MESSAG
   };
 
   public async execute(argument: Message<boolean>) {
-    const slashCommands = this.yamaokaClient.commandManager.slashCommands;
-    const commandsData = slashCommands.map(({ options }) => options.data);
+    const slashCommands = this.customClient.commandManager.slashCommands;
+    const commandsData = Object.values(slashCommands).map(
+      ({ options }) => options.data
+    );
 
     if (!process.env.TOKEN)
       throw new Error("Cannot load ( / ) commands, no TOKEN in env");

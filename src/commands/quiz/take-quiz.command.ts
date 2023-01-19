@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   CacheType,
   ChatInputCommandInteraction,
@@ -6,11 +5,12 @@ import {
   SlashCommandBuilder,
   userMention,
 } from "discord.js";
-import { BaseCommand } from "../../core";
+import { ErrorMessages } from "../../common/enums/error-messages.enum";
+import { getQuizStats } from "../../common/helpers/get-quiz-stats.helper";
+import { sleep } from "../../common/utils/utils";
+import { BaseCommand } from "../../core/abstracts/command/command.abstract";
+import { CommandType } from "../../core/abstracts/command/types/command.types";
 import { CompletedQuiz, Quiz, QuizQuestion, User } from "../../entities";
-import { getQuizStats } from "../../helpers/commands/quizes/getQuizStats";
-import { sleep } from "../../helpers/utils";
-import { CommandType } from "../../typings/enums";
 
 export default class TakeQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
   public options = {
@@ -27,9 +27,7 @@ export default class TakeQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
       .toJSON(),
   };
 
-  public async execute(
-    argument: ChatInputCommandInteraction<CacheType>
-  ): Promise<void> {
+  public async execute(argument: ChatInputCommandInteraction<CacheType>) {
     const quizName = argument.options.getString("quiz-name", true);
 
     const quiz = await Quiz.findOne({
@@ -59,21 +57,16 @@ export default class TakeQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
     });
 
     if (!quiz) {
-      argument.reply({
-        content: `Seems like quiz **${quizName}** is not a thing there.`,
-        ephemeral: true,
-      });
+      const errorMsg = `Seems like quiz **${quizName}** is not a thing there`;
 
-      return;
+      return argument.reply({ content: errorMsg, ephemeral: true });
     }
 
     if (!userData) {
-      argument.reply({
-        content: `You must register first! Use ( / ) **register** command`,
+      return argument.reply({
+        content: ErrorMessages.USER_NOT_FOUND,
         ephemeral: true,
       });
-
-      return;
     }
 
     const {
@@ -85,15 +78,9 @@ export default class TakeQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
       userWithMostSuccessfulAttempts,
     } = getQuizStats(quiz);
 
-    const API_LINK = "https://discord.com/api";
-    const response = await axios.get<{ username: string }>(
-      `${API_LINK}/users/${quiz.author.uid}`,
-      {
-        headers: {
-          Authorization: `Bot ${process.env.TOKEN}`,
-        },
-      }
-    );
+    const response = await this.customClient.rawApiManager.getRawUser<{
+      username: string;
+    }>(quiz.author.uid);
 
     const userOne = userWithMostAttempts
       ? `User who take this quiz the most: ${userMention(
@@ -168,20 +155,10 @@ export default class TakeQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
 
       let isFailed = false;
 
-      if (!answers.includes(message.content.toLowerCase())) isFailed = true;
-
-      const findOpt = { uuid: questionInstance.uuid };
-
-      isFailed
-        ? await QuizQuestion.update(findOpt, {
-            failedAnswers: questionInstance.failedAnswers + 1,
-          })
-        : await QuizQuestion.update(findOpt, {
-            correctAnswers: questionInstance.correctAnswers + 1,
-          });
+      const findOpt = { id: questionInstance.id };
 
       completedQuestions.push({
-        uuid: questionInstance.uuid,
+        uuid: questionInstance.id,
         isFailed,
       });
 
@@ -197,13 +174,6 @@ export default class TakeQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
 
     const isUserFailed =
       completePercentage < quiz.completePercentage ? true : false;
-
-    await CompletedQuiz.create({
-      isFailed: isUserFailed,
-      quiz: quiz,
-      questions: completedQuestions,
-      user: userData,
-    }).save();
 
     argument.followUp({
       content: `${

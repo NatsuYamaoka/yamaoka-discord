@@ -1,4 +1,0 @@
-export enum CommandType {
-  SLASH_COMMAND = "SLASH_COMMAND",
-  MESSAGE_COMMAND = "MESSAGE_COMMAND",
-}

@@ -3,9 +3,8 @@ import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
 } from "discord.js";
-import config from "../../app.config";
-import { BaseCommand } from "../../core";
-import { CommandType } from "../../typings/enums";
+import { BaseCommand } from "../../core/abstracts/command/command.abstract";
+import { CommandType } from "../../core/abstracts/command/types/command.types";
 
 export default class ClearCommand extends BaseCommand<CommandType.SLASH_COMMAND> {
   public options = {
@@ -34,31 +33,16 @@ export default class ClearCommand extends BaseCommand<CommandType.SLASH_COMMAND>
     const channel = argument.options.getChannel("channel", true);
     const amount = argument.options.getNumber("amount", true);
 
-    if ("bulkDelete" in channel) {
-      const deletedMessages = await channel.bulkDelete(amount, true);
-      const deletedAmount = deletedMessages.size;
+    if (!("bulkDelete" in channel)) return;
 
-      const successEmbed = {
-        ...config.embeds.Success,
-      };
+    const deletedMessages = await channel.bulkDelete(amount, true);
+    const deletedAmount = deletedMessages.size;
 
-      const plurarizeWord = deletedAmount - 1 ? "messages" : "message";
-      const description = `${deletedAmount} ${plurarizeWord} was deleted in ${channelMention(
-        channel.id
-      )}!`;
+    const plurarizedWord = deletedAmount - 1 ? "messages" : "message";
+    const description = `${deletedAmount} ${plurarizedWord} was deleted in ${channelMention(
+      channel.id
+    )}!`;
 
-      successEmbed.title = successEmbed.title.replace("%proccess%", "Command");
-      successEmbed.description = successEmbed.description.replace(
-        "%description%",
-        description
-      );
-
-      argument.reply({
-        embeds: [successEmbed],
-        ephemeral: true,
-      });
-
-      return;
-    }
+    argument.reply({ content: description, ephemeral: true });
   }
 }
