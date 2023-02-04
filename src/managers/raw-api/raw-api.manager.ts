@@ -1,15 +1,16 @@
 import { Axios } from "axios";
+import { BaseApi } from "../../core/abstracts/api/base-api.abstract";
+import { RawApiUser } from "./types/raw-api.types";
 
-export class RawApiManager extends Axios {
+export class RawApiManager extends BaseApi {
   constructor() {
-    super({
+    super(new Axios(), {
       baseURL: "https://discord.com/api",
-      headers: { Authorization: `Bot ${process.env.TOKEN}` },
+      headers: { authorization: `Bot ${process.env.TOKEN}` },
     });
   }
 
-  //TODO: Add types for returned back user object
-  getRawUser<Q>(uid: string) {
-    return this.get<Q>(`/users/${uid}`);
+  getRawUser(uid: string) {
+    return this.get<RawApiUser>(`/users/${uid}`);
   }
 }

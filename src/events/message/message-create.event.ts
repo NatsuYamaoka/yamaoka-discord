@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import appConfig from "../../app.config.json";
-import { CommandType } from "../../core/abstracts/command/types/command.types";
+import { CommandType } from "../../core/abstracts/command/command.types";
 import { BaseEvent } from "../../core/abstracts/event/event.abstract";
 
 export default class MessageCreate extends BaseEvent<"messageCreate"> {

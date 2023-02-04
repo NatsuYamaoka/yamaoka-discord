@@ -1,7 +1,7 @@
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { getQuizStats } from "../../common/helpers/get-quiz-stats.helper";
 import { BaseCommand } from "../../core/abstracts/command/command.abstract";
-import { CommandType } from "../../core/abstracts/command/types/command.types";
+import { CommandType } from "../../core/abstracts/command/command.types";
 import { User } from "../../entities";
 
 export default class ProfileCommand extends BaseCommand<CommandType.SLASH_COMMAND> {
@@ -46,7 +46,7 @@ export default class ProfileCommand extends BaseCommand<CommandType.SLASH_COMMAN
     const createdQuizes = userData.quizes.length;
 
     argument.reply({
-      content: "Etto.. Embed for profile command is not done yet....",
+      content: `Created quizes: ${createdQuizes}, total failed attemps: ${totalFailedAttempts}, total successful attempts: ${totalSuccessfulAttempts}`,
     });
   }
 }

@@ -1,5 +1,5 @@
 import { Interaction, CacheType } from "discord.js";
-import { CommandType } from "../../core/abstracts/command/types/command.types";
+import { CommandType } from "../../core/abstracts/command/command.types";
 import { BaseEvent } from "../../core/abstracts/event/event.abstract";
 
 export default class InteractionCreate extends BaseEvent<"interactionCreate"> {

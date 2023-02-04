@@ -5,7 +5,7 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import { BaseCommand } from "../../core/abstracts/command/command.abstract";
-import { CommandType } from "../../core/abstracts/command/types/command.types";
+import { CommandType } from "../../core/abstracts/command/command.types";
 import { Quiz, QuizQuestion, QuizQuestionAnswer, User } from "../../entities";
 
 export default class CreateQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {

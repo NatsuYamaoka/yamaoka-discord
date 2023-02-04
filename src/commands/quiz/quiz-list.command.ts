@@ -15,7 +15,7 @@ import {
 } from "../../common/helpers/navigation.helper";
 import PaginationHelper from "../../common/helpers/pagination.helper";
 import { BaseCommand } from "../../core/abstracts/command/command.abstract";
-import { CommandType } from "../../core/abstracts/command/types/command.types";
+import { CommandType } from "../../core/abstracts/command/command.types";
 import { Quiz } from "../../entities";
 
 export default class QuizList extends BaseCommand<CommandType.SLASH_COMMAND> {

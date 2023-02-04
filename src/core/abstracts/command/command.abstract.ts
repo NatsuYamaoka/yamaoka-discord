@@ -1,9 +1,5 @@
 import { Base } from "../client/client.abstract";
-import {
-  CommandArguments,
-  CommandOptions,
-  CommandType,
-} from "./types/command.types";
+import { CommandArguments, CommandOptions, CommandType } from "./command.types";
 
 export class BaseCommand<K extends CommandType> extends Base {
   public options: CommandOptions<K>;

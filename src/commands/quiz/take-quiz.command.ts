@@ -9,7 +9,7 @@ import { ErrorMessages } from "../../common/enums/error-messages.enum";
 import { getQuizStats } from "../../common/helpers/get-quiz-stats.helper";
 import { sleep } from "../../common/utils/utils";
 import { BaseCommand } from "../../core/abstracts/command/command.abstract";
-import { CommandType } from "../../core/abstracts/command/types/command.types";
+import { CommandType } from "../../core/abstracts/command/command.types";
 import { CompletedQuiz, Quiz, QuizQuestion, User } from "../../entities";
 
 export default class TakeQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
@@ -78,9 +78,9 @@ export default class TakeQuiz extends BaseCommand<CommandType.SLASH_COMMAND> {
       userWithMostSuccessfulAttempts,
     } = getQuizStats(quiz);
 
-    const response = await this.customClient.rawApiManager.getRawUser<{
-      username: string;
-    }>(quiz.author.uid);
+    const response = await this.customClient.rawApiManager.getRawUser(
+      quiz.author.uid
+    );
 
     const userOne = userWithMostAttempts
       ? `User who take this quiz the most: ${userMention(

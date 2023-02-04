@@ -1,7 +1,7 @@
 import { codeBlock, Message } from "discord.js";
 import { inspect } from "util";
 import { BaseCommand } from "../../core/abstracts/command/command.abstract";
-import { CommandType } from "../../core/abstracts/command/types/command.types";
+import { CommandType } from "../../core/abstracts/command/command.types";
 
 export default class EvalCommand extends BaseCommand<CommandType.MESSAGE_COMMAND> {
   public options = {

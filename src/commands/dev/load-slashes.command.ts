@@ -1,6 +1,6 @@
 import { Message, REST, Routes } from "discord.js";
 import { BaseCommand } from "../../core/abstracts/command/command.abstract";
-import { CommandType } from "../../core/abstracts/command/types/command.types";
+import { CommandType } from "../../core/abstracts/command/command.types";
 
 export default class LoadedSlashesCommand extends BaseCommand<CommandType.MESSAGE_COMMAND> {
   public options = {

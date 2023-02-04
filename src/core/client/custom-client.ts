@@ -1,7 +1,7 @@
 import { Client } from "discord.js";
 import { CommandManager, EventManager, RawApiManager } from "../../managers";
 import { DatabaseClient } from "../database/database-client";
-import { CustomClientOptions } from "./types/client.types";
+import { CustomClientOptions } from "./custom-client.types";
 
 export class CustomClient extends Client {
   public databaseClient: DatabaseClient;

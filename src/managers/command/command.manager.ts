@@ -7,7 +7,7 @@ import {
   CommandArguments,
   CommandType,
   AllowedUsersOrRolesType,
-} from "../../core/abstracts/command/types/command.types";
+} from "../../core/abstracts/command/command.types";
 import {
   SlashCommandObject,
   MessageCommandsObject,
