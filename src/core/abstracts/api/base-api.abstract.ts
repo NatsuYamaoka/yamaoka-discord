@@ -1,5 +1,5 @@
+import { BaseApiOptions } from "@abstracts/api/base-api.types";
 import { Axios, AxiosRequestConfig } from "axios";
-import { BaseApiOptions } from "./base-api.types";
 
 export class BaseApi {
   constructor(private axios: Axios, private config: AxiosRequestConfig) {}

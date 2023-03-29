@@ -1,5 +1,6 @@
 import { DataSource } from "typeorm";
-import * as entities from "../../entities";
+import * as entities from "@entities/index";
+import { logger } from "@app/core/logger/logger-client";
 
 export class DatabaseClient extends DataSource {
   constructor() {
@@ -13,7 +14,15 @@ export class DatabaseClient extends DataSource {
       synchronize: true,
       ssl: false,
       entities,
-      logging: ["schema", "query", "info", "error"],
+      logging: ["error"],
     });
+
+    logger.log("Database inited");
+  }
+
+  public async _init() {
+    await this.initialize();
+
+    logger.log("Connected to db");
   }
 }

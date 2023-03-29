@@ -1,30 +1,31 @@
+import { CustomClientOptions } from "@client/custom-client.types";
+import { DatabaseClient } from "@database/database-client";
+import { CommandManager, EventManager, RawApiManager } from "@managers/index";
 import { Client } from "discord.js";
-import { CommandManager, EventManager, RawApiManager } from "../../managers";
-import { DatabaseClient } from "../database/database-client";
-import { CustomClientOptions } from "./custom-client.types";
 
 export class CustomClient extends Client {
   public databaseClient: DatabaseClient;
   public eventManager: EventManager;
   public commandManager: CommandManager;
   public rawApiManager: RawApiManager;
-  public rootDir = process.env.NODE_ENV === "dev" ? "src" : "build";
+  public rootDir =
+    { dev: "src", prod: "build" }[process.env.NODE_ENV!] || "src";
+  private _token: string;
 
-  constructor(options: CustomClientOptions) {
-    super(options.core);
+  constructor({ core, token }: CustomClientOptions) {
+    super(core);
+
+    this.eventManager = new EventManager(this);
+    this.commandManager = new CommandManager(this);
+    this.rawApiManager = new RawApiManager();
+    this.databaseClient = new DatabaseClient();
+
+    this._token = token;
   }
 
   public async initialize() {
-    this.eventManager = new EventManager(this);
-    this.commandManager = new CommandManager(this);
-    this.databaseClient = new DatabaseClient();
-    this.rawApiManager = new RawApiManager();
+    await this.databaseClient._init();
 
-    await this.databaseClient.initialize();
-
-    await this.eventManager.loadEvents();
-    await this.commandManager.loadCommands();
-
-    await this.login(process.env.TOKEN);
+    await this.login(this._token);
   }
 }

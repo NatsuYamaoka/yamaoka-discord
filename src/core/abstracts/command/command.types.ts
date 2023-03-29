@@ -1,31 +1,39 @@
+import { BaseCommand } from "@abstracts/command/command.abstract";
 import {
   ChatInputCommandInteraction,
   Message,
-  RESTPostAPIApplicationCommandsJSONBody,
+  SlashCommandBuilder,
 } from "discord.js";
 
-export enum CommandType {
+export enum CmdType {
   SLASH_COMMAND = "SLASH_COMMAND",
   MESSAGE_COMMAND = "MESSAGE_COMMAND",
 }
 
 export type AllowedUsersOrRolesType = string | undefined;
 
-export type CommandOptions<T extends CommandType> =
-  T extends CommandType.SLASH_COMMAND
-    ? SlashCommandOptions
-    : MessageCommandOptions;
+export type SlashCommandType = BaseCommand<CmdType.SLASH_COMMAND>;
+export type MessageCommandType = BaseCommand<CmdType.MESSAGE_COMMAND>;
 
-export type CommandArguments<T extends CommandType> =
-  T extends CommandType.SLASH_COMMAND ? ChatInputCommandInteraction : Message;
+export type CmdOpt<T extends CmdType> = T extends CmdType.SLASH_COMMAND
+  ? SlashCommandOptions
+  : MessageCommandOptions;
 
-type SharedCommandOptions = {
-  name: string;
-  requiredRegistration?: boolean;
-};
+export type CmdArg<T extends CmdType> = T extends CmdType.SLASH_COMMAND
+  ? ChatInputCommandInteraction
+  : Message;
+
+export type MixedCommandsArray = (
+  | typeof BaseCommand<CmdType.SLASH_COMMAND>
+  | typeof BaseCommand<CmdType.MESSAGE_COMMAND>
+)[];
+
+type SharedCommandOptions = { name: string };
 
 type SlashCommandOptions = SharedCommandOptions & {
-  data: RESTPostAPIApplicationCommandsJSONBody;
+  description: string;
+  deferReply?: boolean;
+  data?: SlashCommandBuilder;
 };
 
 type MessageCommandOptions = SharedCommandOptions & {

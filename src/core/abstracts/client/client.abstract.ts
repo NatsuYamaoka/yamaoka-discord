@@ -1,7 +1,7 @@
-import { CustomClient } from "../../client/custom-client";
+import { CustomClient } from "@client/custom-client";
 
 export class Base {
-  customClient: CustomClient;
+  public customClient: CustomClient;
 
   constructor(client: CustomClient) {
     this.customClient = client;

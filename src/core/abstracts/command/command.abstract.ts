@@ -1,10 +1,15 @@
-import { Base } from "../client/client.abstract";
-import { CommandArguments, CommandOptions, CommandType } from "./command.types";
+import { Base } from "@abstracts/client/client.abstract";
+import { CmdArg, CmdOpt, CmdType } from "@abstracts/command/command.types";
+import { CustomClient } from "@client/custom-client";
 
-export class BaseCommand<K extends CommandType> extends Base {
-  public options: CommandOptions<K>;
+export class BaseCommand<K extends CmdType> extends Base {
+  options?: CmdOpt<K>;
 
-  public async execute(argument: CommandArguments<K>): Promise<any> {
-    throw new Error("Not implemented");
+  constructor(client: CustomClient) {
+    super(client);
+  }
+
+  execute(arg: CmdArg<K>): Promise<unknown> | unknown {
+    throw new Error("Cannot be invoked in parent class");
   }
 }
