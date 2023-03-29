@@ -1,23 +1,30 @@
+import { AppFactory } from "@app/core/factory/app-factory";
+import { logger } from "@app/core/logger/logger-client";
+import { CustomClient } from "@client/custom-client";
+import { AppModule as module } from "@modules/app/app.module";
 import { GatewayIntentBits } from "discord.js";
-import { CustomClient } from "./core/client/custom-client";
 
 export default (async () => {
   try {
-    const Client = new CustomClient({
-      core: {
-        intents: [
-          GatewayIntentBits.Guilds,
-          GatewayIntentBits.MessageContent,
-          GatewayIntentBits.GuildMessages,
-          GatewayIntentBits.GuildMessageReactions,
-        ],
-      },
+    const intents = [
+      GatewayIntentBits.Guilds,
+      GatewayIntentBits.MessageContent,
+      GatewayIntentBits.GuildMessages,
+    ];
+
+    const client = new CustomClient({
+      core: { intents },
+      token: process.env.TOKEN!,
     });
 
-    await Client.initialize();
-  } catch (err) {
-    console.log(err);
+    const appFactory = new AppFactory({ module, client });
 
-    throw new Error("Can't launch bot");
+    await appFactory.createApp();
+
+    await client.initialize();
+  } catch (err) {
+    logger.log(`${err}`);
+
+    process.exit();
   }
 })();
