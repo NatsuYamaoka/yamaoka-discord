@@ -1,17 +1,33 @@
 {
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
+    "target": "ES6",
+    "module": "CommonJS",
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
     "outDir": "./build",
     "resolveJsonModule": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "removeComments": true,
+    "moduleResolution": "node",
     "strictPropertyInitialization": false,
-    "rootDir": "./src"
+    "baseUrl": "src",
+    "paths": {
+      "@entities/*": ["entities/*"],
+      "@managers/*": ["managers/*"],
+      "@helpers/*": ["common/helpers/*"],
+      "@constants/*": ["common/constants/*"],
+      "@utils/*": ["common/utils/*"],
+      "@abstracts/*": ["core/abstracts/*"],
+      "@client/*": ["core/client/*"],
+      "@database/*": ["core/database/*"],
+      "@scripts/*": ["scripts/*"],
+      "@decorators/*": ["core/decorators/*"],
+      "@handlers/*": ["handlers/*"],
+      "@modules/*": ["modules/*"],
+      "@app/*": ["*"]
+    }
   },
   "include": ["src"]
 }

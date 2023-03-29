@@ -1,6 +1,23 @@
 {
+  "name": "yamaoka",
+  "version": "1.0.0",
+  "description": "Bot for Discord",
+  "scripts": {
+    "build": "rd /s /q .\\build && tsc",
+    "env": "cross-env TS_NODE_BASEURL=./src ts-node -r tsconfig-paths/register src/scripts/auto-execute/check-project-envs.ts",
+    "dev": "yarn env && cross-env NODE_ENV=dev TS_NODE_BASEURL=./src nodemon -e ts,js --exec ts-node -r tsconfig-paths/register src/index.ts",
+    "prod": "yarn env && cross-env NODE_ENV=prod TS_NODE_BASEURL=./build node -r tsconfig-paths/register build/index.js",
+    "build:prod": "yarn build && yarn prod"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sekkure/Yamaoka.git"
+  },
+  "author": "secreori@gmail.com",
+  "license": "ISC",
   "dependencies": {
     "axios": "^0.27.2",
+    "chalk": "4.1.2",
     "cross-env": "^7.0.3",
     "discord.js": "^14.6.0",
     "dotenv": "^16.0.2",
@@ -10,32 +27,11 @@
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.3.10"
   },
-  "name": "yamaoka",
-  "version": "1.0.0",
-  "main": "index.js",
   "devDependencies": {
     "@types/glob": "^8.0.0",
     "@types/node": "^18.7.20",
     "nodemon": "^2.0.20",
+    "tsconfig-paths": "^4.1.2",
     "typescript": "^4.8.3"
-  },
-  "scripts": {
-    "build": "rd /s /q .\\build && tsc",
-    "check:env": "ts-node ./src/scripts/auto-execute/check-project-envs.ts",
-    "start:dev": "yarn check:env && cross-env NODE_ENV=dev nodemon ./src/index.ts",
-    "start:prod": "yarn check:env && cross-env NODE_ENV=prod node ./build/index.js",
-    "run:build:prod": "yarn build && yarn start:prod"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/sekkure/Yamaoka.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/sekkure/Yamaoka/issues"
-  },
-  "homepage": "https://github.com/sekkure/Yamaoka#readme",
-  "description": ""
+  }
 }
