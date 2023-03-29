@@ -9,6 +9,9 @@ export class User extends PredefinedBaseEntity {
   @Column()
   uid: string;
 
+  @Column()
+  gid: string;
+
   @OneToOne(() => Wallet, (wallet) => wallet.user, {
     cascade: ["insert"],
   })
