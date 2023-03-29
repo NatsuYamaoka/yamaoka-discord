@@ -1,6 +1,7 @@
+import { BaseApi } from "@abstracts/api/base-api.abstract";
+import { logger } from "@app/core/logger/logger-client";
+import { RawApiUser } from "@managers/raw-api/raw-api.types";
 import { Axios } from "axios";
-import { BaseApi } from "../../core/abstracts/api/base-api.abstract";
-import { RawApiUser } from "./types/raw-api.types";
 
 export class RawApiManager extends BaseApi {
   constructor() {
@@ -8,9 +9,11 @@ export class RawApiManager extends BaseApi {
       baseURL: "https://discord.com/api",
       headers: { authorization: `Bot ${process.env.TOKEN}` },
     });
+
+    logger.log("RawApi Manager inited");
   }
 
   getRawUser(uid: string) {
-    return this.get<RawApiUser>(`/users/${uid}`);
+    return this.get<RawApiUser>(`users/${uid}`);
   }
 }

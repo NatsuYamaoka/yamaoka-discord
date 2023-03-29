@@ -1,85 +1,78 @@
-import { Message } from "discord.js";
-import { join } from "path";
-import { searchCmdsOrEventsByPath } from "../../common/utils/utils";
-import { Base } from "../../core/abstracts/client/client.abstract";
-import { BaseCommand } from "../../core/abstracts/command/command.abstract";
+import { Base } from "@abstracts/client/client.abstract";
+import { BaseCommand } from "@abstracts/command/command.abstract";
 import {
-  CommandArguments,
-  CommandType,
   AllowedUsersOrRolesType,
-} from "../../core/abstracts/command/command.types";
+  CmdArg,
+  CmdType,
+  MessageCommandType,
+  SlashCommandType,
+} from "@abstracts/command/command.types";
+import { ModuleAbstract } from "@abstracts/module/module.abstract";
+import { logger } from "@app/core/logger/logger-client";
+import { CustomClient } from "@client/custom-client";
 import {
-  SlashCommandObject,
-  MessageCommandsObject,
-} from "./types/command-manager.types";
+  MessageCommandsMap,
+  SlashCommandMap,
+} from "@managers/command/command-manager.types";
 
 export class CommandManager extends Base {
-  public slashCommands: SlashCommandObject = {};
-  public messageCommands: MessageCommandsObject = {};
+  constructor(client: CustomClient) {
+    super(client);
 
-  public async loadCommands() {
-    const rootDir = this.customClient.rootDir;
-    const toJoinPaths = [process.cwd(), "/", rootDir, "commands", "**"];
-    const commandFilesPath = join(...toJoinPaths);
+    logger.log("Command Manager inited");
+  }
 
-    const foundCommandFiles = await searchCmdsOrEventsByPath<
-      typeof BaseCommand
-    >(commandFilesPath);
+  public slashCommands: SlashCommandMap = new Map();
+  public messageCommands: MessageCommandsMap = new Map();
 
-    if (!foundCommandFiles) return;
-
-    for (const Command of foundCommandFiles) {
+  public async loadCommands(module: ModuleAbstract) {
+    for (const Command of module.commands!) {
       const commandInstance = new Command(this.customClient);
-      const { options } = commandInstance;
 
-      if (!options["requiredRegistration"]) {
-        options.requiredRegistration = false;
+      if (!commandInstance.options) {
+        logger.log(`No options was found for ${Command.name}, skipping`);
+        continue;
       }
 
-      "data" in options
-        ? (this.slashCommands[options.name] = commandInstance)
-        : (this.messageCommands[options.name] = commandInstance);
+      const { name } = commandInstance.options;
+
+      if ("data" in commandInstance.options) {
+        this.slashCommands.set(name, commandInstance as SlashCommandType);
+      } else {
+        this.messageCommands.set(name, commandInstance as MessageCommandType);
+      }
     }
   }
 
-  public async executeCommand(
-    commandName: string,
-    commandArgument: CommandArguments<CommandType>,
-    isSlash: CommandType
+  public async executeCommand<T extends CmdType>(
+    cmdName: string,
+    cmdArg: CmdArg<T>,
+    isSlash: boolean
   ) {
     try {
-      const command =
-        isSlash === CommandType.SLASH_COMMAND
-          ? this.slashCommands[commandName]
-          : this.messageCommands[commandName];
+      const command = isSlash
+        ? this.slashCommands.get(cmdName)
+        : this.messageCommands.get(cmdName);
 
       if (!command) return;
 
-      if (
-        "allowedUsersOrRoles" in command.options &&
-        commandArgument instanceof Message
-      ) {
-        const result = await this.checkPermissions(
-          command.options.allowedUsersOrRoles,
-          commandArgument
-        );
-
-        if (!result)
-          return commandArgument.reply({
-            content: "👀 You are not whitelisted for this command!",
-          });
-      }
-
-      //@ts-ignore
-      await command.execute(commandArgument);
+      isSlash
+        ? this.executeSlashCommand(
+            cmdArg as CmdArg<CmdType.SLASH_COMMAND>,
+            command as SlashCommandType
+          )
+        : this.executeMessageCommand(
+            cmdArg as CmdArg<CmdType.MESSAGE_COMMAND>,
+            command as MessageCommandType
+          );
     } catch (err) {
-      console.log(err);
+      logger.error(`${err}`);
     }
   }
 
   public async checkPermissions(
     allowedUsersOrRoles: AllowedUsersOrRolesType[],
-    commandArgument: CommandArguments<CommandType.MESSAGE_COMMAND>
+    commandArgument: CmdArg<CmdType.MESSAGE_COMMAND>
   ) {
     if (allowedUsersOrRoles.includes(commandArgument.author.id)) return true;
 
@@ -92,5 +85,28 @@ export class CommandManager extends Base {
       )
     )
       return true;
+  }
+
+  private async executeSlashCommand(
+    arg: CmdArg<CmdType.SLASH_COMMAND>,
+    command: SlashCommandType
+  ) {
+    if (command.options?.deferReply) await arg.deferReply();
+
+    await command.execute(arg);
+  }
+
+  private async executeMessageCommand(
+    arg: CmdArg<CmdType.MESSAGE_COMMAND>,
+    command: MessageCommandType
+  ) {
+    const checkedPermissions = await this.checkPermissions(
+      command.options!.allowedUsersOrRoles,
+      arg
+    );
+
+    if (!checkedPermissions) return;
+
+    await command.execute(arg);
   }
 }

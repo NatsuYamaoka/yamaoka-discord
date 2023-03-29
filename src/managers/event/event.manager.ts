@@ -1,27 +1,22 @@
-import { join } from "path";
-import { searchCmdsOrEventsByPath } from "../../common/utils/utils";
-import { Base } from "../../core/abstracts/client/client.abstract";
-import { BaseEvent } from "../../core/abstracts/event/event.abstract";
+import { Base } from "@abstracts/client/client.abstract";
+import { ModuleAbstract } from "@abstracts/module/module.abstract";
+import { logger } from "@app/core/logger/logger-client";
+import { CustomClient } from "@client/custom-client";
 
 export class EventManager extends Base {
-  public async loadEvents() {
-    const rootDir = this.customClient.rootDir;
-    const eventFilesPath = join(process.cwd(), "/", rootDir, "events", "**");
+  constructor(client: CustomClient) {
+    super(client);
 
-    const foundEventsFiles = await searchCmdsOrEventsByPath<typeof BaseEvent>(
-      eventFilesPath
-    );
+    logger.log("Event Manager inited");
+  }
 
-    if (!foundEventsFiles) return;
-
-    const loadedEventFiles = foundEventsFiles;
-
-    for (const Event of loadedEventFiles) {
+  public loadEvents(module: ModuleAbstract) {
+    for (const Event of module.events!) {
       const eventInstance = new Event(this.customClient);
 
-      this.customClient.on(eventInstance.eventName, (...args) =>
-        eventInstance.execute(...args)
-      );
+      this.customClient.on(eventInstance.name!, (...arg) => {
+        eventInstance.execute(arg);
+      });
     }
   }
 }
