@@ -1,4 +1,4 @@
-import { CompletedQuiz } from "../../entities";
+import { CompletedQuiz } from "@entities/index";
 
 export const getQuizStats = (option: GetQuizStatsOptions) => {
   const { completedQuizes } = option;
