@@ -1,3 +1,4 @@
+import { logger } from "@app/core/logger/logger-client";
 import "dotenv/config";
 import Joi from "joi";
 
@@ -18,8 +19,10 @@ import Joi from "joi";
   try {
     await envSchema.validateAsync(process.env);
 
-    console.log("Env schema vaildation passed successfuly");
+    logger.log("Env schema vaildation passed successfuly");
   } catch (err: any) {
-    throw new Error(err.message);
+    logger.log(`${err}`);
+
+    process.exit();
   }
 })();
