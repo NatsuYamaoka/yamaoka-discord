@@ -1,3 +1,4 @@
+import { logger } from "@app/core/logger/logger-client";
 import { CustomClientOptions } from "@client/custom-client.types";
 import { DatabaseClient } from "@database/database-client";
 import { CommandManager, EventManager, RawApiManager } from "@managers/index";
@@ -27,5 +28,9 @@ export class CustomClient extends Client {
     await this.databaseClient._init();
 
     await this.login(this._token);
+
+    logger.info("Executing CommandManager#setRegisterCommandId");
+
+    await this.commandManager.setRegisterCommandId();
   }
 }

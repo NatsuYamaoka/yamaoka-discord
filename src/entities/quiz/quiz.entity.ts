@@ -1,11 +1,11 @@
 import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
-import { CompletedQuiz } from "./completed-quiz.entity";
-import { QuizQuestion } from "./quiz-question.entity";
-import { User } from "../user.entity";
+import { CompletedQuizEntity } from "./completed-quiz.entity";
+import { QuizQuestionEntity } from "./quiz-question.entity";
+import { UserEntity } from "../user.entity";
 import { PredefinedBaseEntity } from "../base/base-entity";
 
 @Entity()
-export class Quiz extends PredefinedBaseEntity {
+export class QuizEntity extends PredefinedBaseEntity {
   @Column()
   name: string;
 
@@ -13,19 +13,19 @@ export class Quiz extends PredefinedBaseEntity {
   reward: number;
 
   @Column()
-  completePercentage: number;
+  complete_percentage: number;
 
-  @ManyToOne(() => User, (user) => user.quizes, {
+  @ManyToOne(() => UserEntity, (user) => user.quizes, {
     onDelete: "CASCADE",
     orphanedRowAction: "delete",
   })
-  author: User;
+  author: UserEntity;
 
-  @OneToMany(() => QuizQuestion, (quizQuestion) => quizQuestion.quiz, {
+  @OneToMany(() => QuizQuestionEntity, (quizQuestion) => quizQuestion.quiz, {
     cascade: ["insert"],
   })
-  questions: QuizQuestion[];
+  questions: QuizQuestionEntity[];
 
-  @OneToMany(() => CompletedQuiz, (completedQuiz) => completedQuiz.quiz)
-  completedQuizes: CompletedQuiz[];
+  @OneToMany(() => CompletedQuizEntity, (completedQuiz) => completedQuiz.quiz)
+  completed_quizes: CompletedQuizEntity[];
 }

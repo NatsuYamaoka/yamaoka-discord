@@ -1,32 +1,32 @@
 import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 import { PredefinedBaseEntity } from "../base/base-entity";
-import { QuizQuestionAnswer } from "./quiz-question-answer.entity";
-import { QuizQuestionCompleted } from "./quiz-question-completed.entity";
-import { Quiz } from "./quiz.entity";
+import { QuizQuestionAnswerEntity } from "./quiz-question-answer.entity";
+import { QuizQuestionCompletedEntity } from "./quiz-question-completed.entity";
+import { QuizEntity } from "./quiz.entity";
 
 @Entity()
-export class QuizQuestion extends PredefinedBaseEntity {
+export class QuizQuestionEntity extends PredefinedBaseEntity {
   @Column()
   question: string;
 
   @OneToMany(
-    () => QuizQuestionAnswer,
+    () => QuizQuestionAnswerEntity,
     (quizQuestionAnswer) => quizQuestionAnswer.question,
     {
       cascade: ["insert"],
     }
   )
-  answers: QuizQuestionAnswer[];
+  answers: QuizQuestionAnswerEntity[];
 
-  @ManyToOne(() => Quiz, (quiz) => quiz.questions, {
+  @ManyToOne(() => QuizEntity, (quiz) => quiz.questions, {
     onDelete: "CASCADE",
     orphanedRowAction: "delete",
   })
-  quiz: Quiz;
+  quiz: QuizEntity;
 
   @OneToMany(
-    () => QuizQuestionCompleted,
+    () => QuizQuestionCompletedEntity,
     (quizQuestionCompleted) => quizQuestionCompleted.question
   )
-  completedQuestions: QuizQuestionCompleted[];
+  completed_questions: QuizQuestionCompletedEntity[];
 }

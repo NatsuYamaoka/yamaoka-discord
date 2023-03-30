@@ -1,5 +1,6 @@
 import { CmdArg, CmdType } from "@abstracts/command/command.types";
-import { User } from "@entities/user.entity";
+import { UserEntity } from "@entities/user.entity";
+import { ActionRowBuilder, ButtonBuilder } from "discord.js";
 
 export type ProfileMmActionMap = {
   [k: string]: (opt: ProfileMmActionOptions) => Promise<unknown> | unknown;
@@ -7,5 +8,6 @@ export type ProfileMmActionMap = {
 
 export interface ProfileMmActionOptions {
   arg: CmdArg<CmdType.SLASH_COMMAND>;
-  data: User;
+  data: UserEntity;
+  components: ActionRowBuilder<ButtonBuilder>[];
 }

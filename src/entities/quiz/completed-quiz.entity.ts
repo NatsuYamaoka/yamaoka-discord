@@ -1,27 +1,30 @@
 import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
-import { Quiz } from "./quiz.entity";
-import { User } from "../user.entity";
+import { QuizEntity } from "./quiz.entity";
+import { UserEntity } from "../user.entity";
 import { PredefinedBaseEntity } from "../base/base-entity";
-import { QuizQuestionCompleted } from "./quiz-question-completed.entity";
+import { QuizQuestionCompletedEntity } from "./quiz-question-completed.entity";
 
 @Entity()
-export class CompletedQuiz extends PredefinedBaseEntity {
+export class CompletedQuizEntity extends PredefinedBaseEntity {
   @Column()
-  isFailed: boolean;
+  is_failed: boolean;
 
   @Column({ default: () => "CURRENT_TIMESTAMP" })
   timestamp: Date;
 
-  @OneToMany(() => QuizQuestionCompleted, (quizQuestionCompleted) => quizQuestionCompleted.completedQuiz)
-  completedQuestions: QuizQuestionCompleted[];
+  @OneToMany(
+    () => QuizQuestionCompletedEntity,
+    (quizQuestionCompleted) => quizQuestionCompleted.completed_quiz
+  )
+  completed_questions: QuizQuestionCompletedEntity[];
 
-  @ManyToOne(() => Quiz, (quiz) => quiz.completedQuizes, {
+  @ManyToOne(() => QuizEntity, (quiz) => quiz.completed_quizes, {
     cascade: ["remove"],
     onDelete: "CASCADE",
     orphanedRowAction: "delete",
   })
-  quiz: Quiz;
+  quiz: QuizEntity;
 
-  @ManyToOne(() => User, (user) => user.completedQuizes)
-  user: User;
+  @ManyToOne(() => UserEntity, (user) => user.completed_quizes)
+  user: UserEntity;
 }

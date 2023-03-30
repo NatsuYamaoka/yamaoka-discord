@@ -1,25 +1,45 @@
-import { Column, Entity, OneToMany, OneToOne } from "typeorm";
+import { GuildEntity } from "@entities/guild.entity";
+import { Column, Entity, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import { PredefinedBaseEntity } from "./base/base-entity";
-import { CompletedQuiz } from "./quiz/completed-quiz.entity";
-import { Quiz } from "./quiz/quiz.entity";
-import { Wallet } from "./wallet.entity";
+import { CompletedQuizEntity } from "./quiz/completed-quiz.entity";
+import { QuizEntity } from "./quiz/quiz.entity";
+import { WalletEntity } from "./wallet.entity";
 
 @Entity()
-export class User extends PredefinedBaseEntity {
+export class UserEntity extends PredefinedBaseEntity {
   @Column()
   uid: string;
 
-  @Column()
-  gid: string;
+  @ManyToOne(() => GuildEntity, (guild) => guild.users, {
+    cascade: ["insert"],
+    onDelete: "CASCADE",
+    orphanedRowAction: "delete",
+  })
+  guild: GuildEntity;
 
-  @OneToOne(() => Wallet, (wallet) => wallet.user, {
+  @Column({ default: 0 })
+  level: number;
+
+  @Column({ default: 0 })
+  message_exp: number;
+
+  @Column({ default: 0 })
+  messages_sent: number;
+
+  @Column({ default: 0 })
+  voice_time: number;
+
+  @Column({ default: 0 })
+  voice_exp: number;
+
+  @OneToOne(() => WalletEntity, (wallet) => wallet.user, {
     cascade: ["insert"],
   })
-  wallet: Wallet;
+  wallet: WalletEntity;
 
-  @OneToMany(() => Quiz, (quiz) => quiz.author)
-  quizes: Quiz[];
+  @OneToMany(() => QuizEntity, (quiz) => quiz.author)
+  quizes: QuizEntity[];
 
-  @OneToMany(() => CompletedQuiz, (completedQuiz) => completedQuiz.user)
-  completedQuizes: CompletedQuiz[];
+  @OneToMany(() => CompletedQuizEntity, (completedQuiz) => completedQuiz.user)
+  completed_quizes: CompletedQuizEntity[];
 }

@@ -1,7 +1,7 @@
 import { Base } from "@abstracts/client/client.abstract";
 import { CmdArg, CmdType } from "@abstracts/command/command.types";
 import { SlashCommand } from "@decorators/commands.decorator";
-import { User } from "@entities/user.entity";
+import { UserEntity } from "@entities/user.entity";
 import { createEmbed } from "@utils/create-embed.util";
 import { Colors } from "discord.js";
 
@@ -18,9 +18,9 @@ export class RegisterCommand extends Base {
       });
     }
 
-    const foundUser = await User.findOne({
+    const foundUser = await UserEntity.findOne({
       where: {
-        gid: arg.guildId,
+        guild: { gid: arg.guildId },
         uid: arg.user.id,
       },
       select: { id: true },
@@ -28,15 +28,15 @@ export class RegisterCommand extends Base {
 
     if (foundUser) {
       return arg.reply({
-        content: "Sorry. You're already registered.",
+        content: "You are already registered",
         ephemeral: true,
       });
     }
 
-    const registeredUser = await User.create({
+    const registeredUser = await UserEntity.create({
       uid: arg.user.id,
-      gid: arg.guildId,
       wallet: {},
+      guild: { gid: arg.guildId },
     }).save();
 
     const registrationEmbed = createEmbed({

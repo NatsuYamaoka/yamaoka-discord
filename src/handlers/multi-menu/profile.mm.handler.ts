@@ -3,7 +3,7 @@ import {
   ProfileMmActionOptions,
 } from "@handlers/multi-menu/profile.mm.types";
 import { createEmbed } from "@utils/create-embed.util";
-import { Colors } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, Colors, flatten } from "discord.js";
 
 class ProfileMmHandler {
   private _methods: ProfileMmActionMap = {
@@ -18,20 +18,22 @@ class ProfileMmHandler {
       return arg.followUp({ content: "Not implemented yet!", ephemeral: true });
     }
 
-    selectedAction({ arg, ...opt });
+    selectedAction.bind(this)({ arg, ...opt });
   }
 
-  private renderProfile({ arg }: ProfileMmActionOptions) {
+  private renderProfile({ arg, components }: ProfileMmActionOptions) {
     const profileEmbed = createEmbed({
       title: `Profile ${arg.user.username}`,
       description: "It's your profile :)",
       color: Colors.DarkButNotBlack,
     });
 
-    arg.editReply({ embeds: [profileEmbed] });
+    this.disableClickedComponent("Profile", components);
+
+    arg.editReply({ embeds: [profileEmbed], components });
   }
 
-  private renderWallet({ arg, data }: ProfileMmActionOptions) {
+  private renderWallet({ arg, data, components }: ProfileMmActionOptions) {
     const walletEmbed = createEmbed({
       title: `Wallet ${arg.user.username}`,
       description: "It's your wallet",
@@ -44,7 +46,26 @@ class ProfileMmHandler {
       ],
     });
 
-    arg.editReply({ embeds: [walletEmbed] });
+    this.disableClickedComponent("Wallet", components);
+
+    arg.editReply({ embeds: [walletEmbed], components });
+  }
+
+  private disableClickedComponent(
+    toFilter: string,
+    components: ActionRowBuilder<ButtonBuilder>[]
+  ) {
+    for (let i = 0; i < components.length; i++) {
+      for (let b = 0; b < components[i].components.length; b++) {
+        const element = components[i].components[b];
+
+        if (element.data.label === toFilter) {
+          element.setDisabled(true);
+        } else {
+          element.setDisabled(false);
+        }
+      }
+    }
   }
 }
 

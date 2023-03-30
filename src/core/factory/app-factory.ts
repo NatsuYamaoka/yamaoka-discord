@@ -18,17 +18,17 @@ export class AppFactory extends Base {
     return this;
   }
 
-  private async initModule(Module: typeof ModuleAbstract) {
+  private initModule(Module: typeof ModuleAbstract) {
     logger.log(`Initing ${Module.name}`);
 
     const moduleInstance = new Module(this.customClient);
 
-    await this.initModuleCommands(moduleInstance, Module.name);
-    await this.initModuleEvents(moduleInstance, Module.name);
+    this.initModuleCommands(moduleInstance, Module.name);
+    this.initModuleEvents(moduleInstance, Module.name);
 
     if (!moduleInstance.imports?.length) return;
 
-    await Promise.all(moduleInstance.imports.map(this.initModule.bind(this)));
+    moduleInstance.imports.map(this.initModule.bind(this))
   }
 
   private initModuleCommands(module: ModuleAbstract, moduleName: string) {

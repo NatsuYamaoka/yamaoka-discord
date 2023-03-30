@@ -5,3 +5,4 @@ export * from "./quiz/quiz-question.entity";
 export * from "./quiz/completed-quiz.entity";
 export * from "./quiz/quiz-question-completed.entity";
 export * from "./quiz/quiz-question-answer.entity";
+export * from "./guild.entity";

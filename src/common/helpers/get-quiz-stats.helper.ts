@@ -1,11 +1,11 @@
-import { CompletedQuiz } from "@entities/index";
+import { CompletedQuizEntity } from "@entities/index";
 
 export const getQuizStats = (option: GetQuizStatsOptions) => {
   const { completedQuizes } = option;
 
   const totalAttempts = completedQuizes.length;
   const totalSuccessfulAttempts = completedQuizes.filter(
-    (cq) => !cq.isFailed
+    (cq) => !cq.is_failed
   ).length;
 
   const totalFailedAttempts = totalAttempts - totalSuccessfulAttempts;
@@ -29,7 +29,7 @@ export const getQuizStats = (option: GetQuizStatsOptions) => {
 };
 
 export const getAttemptedUsers = (
-  completedQuizes: CompletedQuiz[]
+  completedQuizes: CompletedQuizEntity[]
 ): GetQuizStatsAttemptedUsers[] => {
   const mostAttemptsCollected =
     completedQuizes.reduce<GetQuizStatsMostAttempts>((prev, curr) => {
@@ -38,15 +38,15 @@ export const getAttemptedUsers = (
       if (!amount) {
         prev[curr.user.uid] = {
           totalAttempts: 1,
-          successfulAttempts: !curr.isFailed ? 1 : 0,
-          failedAttempts: !curr.isFailed ? 0 : 1,
+          successfulAttempts: !curr.is_failed ? 1 : 0,
+          failedAttempts: !curr.is_failed ? 0 : 1,
         };
       } else {
         prev[curr.user.uid] = {
           totalAttempts: amount.totalAttempts + 1,
           successfulAttempts:
-            amount.successfulAttempts + (!curr.isFailed ? 1 : 0),
-          failedAttempts: amount.failedAttempts + (!curr.isFailed ? 0 : 1),
+            amount.successfulAttempts + (!curr.is_failed ? 1 : 0),
+          failedAttempts: amount.failedAttempts + (!curr.is_failed ? 0 : 1),
         };
       }
 
@@ -83,7 +83,7 @@ export const getTopUsers = (attemptedUsers: GetQuizStatsAttemptedUsers[]) => {
 };
 
 interface GetQuizStatsOptions {
-  completedQuizes: CompletedQuiz[];
+  completedQuizes: CompletedQuizEntity[];
 }
 
 interface GetQuizStatsMostAttempts {

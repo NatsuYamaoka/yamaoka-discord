@@ -16,6 +16,8 @@ import {
 } from "@managers/command/command-manager.types";
 
 export class CommandManager extends Base {
+  public registerCommandId: string | undefined;
+
   constructor(client: CustomClient) {
     super(client);
 
@@ -25,7 +27,7 @@ export class CommandManager extends Base {
   public slashCommands: SlashCommandMap = new Map();
   public messageCommands: MessageCommandsMap = new Map();
 
-  public async loadCommands(module: ModuleAbstract) {
+  public loadCommands(module: ModuleAbstract) {
     for (const Command of module.commands!) {
       const commandInstance = new Command(this.customClient);
 
@@ -42,6 +44,20 @@ export class CommandManager extends Base {
         this.messageCommands.set(name, commandInstance as MessageCommandType);
       }
     }
+  }
+
+  public async setRegisterCommandId() {
+    if (this.registerCommandId) return;
+
+    const commands = await this.customClient.application?.commands.fetch();
+
+    if (!commands || !commands.size) return;
+
+    const registerCommand = commands.find((c) => c.name === "register");
+
+    if (!registerCommand) return;
+
+    this.registerCommandId = registerCommand.id;
   }
 
   public async executeCommand<T extends CmdType>(
@@ -91,8 +107,6 @@ export class CommandManager extends Base {
     arg: CmdArg<CmdType.SLASH_COMMAND>,
     command: SlashCommandType
   ) {
-    if (command.options?.deferReply) await arg.deferReply();
-
     await command.execute(arg);
   }
 

@@ -5,18 +5,15 @@ export function SlashCommand({
   name,
   data,
   description,
-  deferReply,
 }: CmdOpt<CmdType.SLASH_COMMAND>) {
   return (target: Function) => {
     if (!data) data = new SlashCommandBuilder();
 
     name = name.toLowerCase();
-    deferReply = !!deferReply;
 
     target.prototype.options = {
       name,
       description,
-      deferReply,
       data: data.setName(name).setDescription(description).toJSON(),
     };
   };

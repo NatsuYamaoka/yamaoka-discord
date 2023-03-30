@@ -32,7 +32,6 @@ type SharedCommandOptions = { name: string };
 
 type SlashCommandOptions = SharedCommandOptions & {
   description: string;
-  deferReply?: boolean;
   data?: SlashCommandBuilder;
 };
 

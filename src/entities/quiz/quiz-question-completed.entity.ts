@@ -1,30 +1,30 @@
 import { Column, Entity, ManyToOne } from "typeorm";
 import { PredefinedBaseEntity } from "../base/base-entity";
-import { CompletedQuiz } from "./completed-quiz.entity";
-import { QuizQuestion } from "./quiz-question.entity";
+import { CompletedQuizEntity } from "./completed-quiz.entity";
+import { QuizQuestionEntity } from "./quiz-question.entity";
 
 @Entity()
-export class QuizQuestionCompleted extends PredefinedBaseEntity {
+export class QuizQuestionCompletedEntity extends PredefinedBaseEntity {
   @ManyToOne(
-    () => CompletedQuiz,
-    (completedQuiz) => completedQuiz.completedQuestions,
+    () => CompletedQuizEntity,
+    (completedQuiz) => completedQuiz.completed_questions,
     {
       onDelete: "CASCADE",
       orphanedRowAction: "delete",
     }
   )
-  completedQuiz: CompletedQuiz;
+  completed_quiz: CompletedQuizEntity;
 
   @ManyToOne(
-    () => QuizQuestion,
-    (quizQuestion) => quizQuestion.completedQuestions,
+    () => QuizQuestionEntity,
+    (quizQuestion) => quizQuestion.completed_questions,
     {
       onDelete: "CASCADE",
       orphanedRowAction: "delete",
     }
   )
-  question: QuizQuestion;
+  question: QuizQuestionEntity;
 
   @Column()
-  isFailed: boolean;
+  is_failed: boolean;
 }
