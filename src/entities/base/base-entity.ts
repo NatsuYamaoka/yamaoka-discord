@@ -1,7 +1,13 @@
-import { BaseEntity, CreateDateColumn, PrimaryGeneratedColumn } from "typeorm";
+import {
+  BaseEntity,
+  CreateDateColumn,
+  Index,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 
 export class PredefinedBaseEntity extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
+  @Index()
   id: string;
 
   @CreateDateColumn()

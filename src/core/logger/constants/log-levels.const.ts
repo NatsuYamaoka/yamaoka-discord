@@ -1,4 +1,4 @@
-import { LogLevels, _LogLevels } from "@app/core/logger/logger.types";
+import { LogLevels } from "@app/core/logger/logger.types";
 
 export const LogLevelsEnum = {
   error: "error",

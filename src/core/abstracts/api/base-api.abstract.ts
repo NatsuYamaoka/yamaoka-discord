@@ -4,7 +4,7 @@ import { Axios, AxiosRequestConfig } from "axios";
 export class BaseApi {
   constructor(private axios: Axios, private config: AxiosRequestConfig) {}
 
-  public get<Q, B extends {} = {}>(
+  public get<Q, B extends Record<string, never>>(
     endpoint: string,
     options?: BaseApiOptions<B>
   ) {
@@ -18,7 +18,7 @@ export class BaseApi {
     return this.axios.get<Q>(formedUrlWithAttachedParams, formedConfig);
   }
 
-  public post<Q, B extends {} = {}>(
+  public post<Q, B extends Record<string, never>>(
     endpoint: string,
     options?: BaseApiOptions<B>
   ) {
@@ -28,7 +28,7 @@ export class BaseApi {
     return this.axios.post<Q>(formedUrl, options?.body, formedConfig);
   }
 
-  public put<Q, B extends {} = {}>(
+  public put<Q, B extends Record<string, never>>(
     endpoint: string,
     options?: BaseApiOptions<B>
   ) {
@@ -38,7 +38,7 @@ export class BaseApi {
     return this.axios.put<Q>(formedUrl, options?.body, formedConfig);
   }
 
-  public patch<Q, B extends {} = {}>(
+  public patch<Q, B extends Record<string, never>>(
     endpoint: string,
     options?: BaseApiOptions<B>
   ) {
@@ -48,7 +48,7 @@ export class BaseApi {
     return this.axios.patch<Q>(formedUrl, options?.body, formedConfig);
   }
 
-  public delete<Q, B extends {} = {}>(
+  public delete<Q, B extends Record<string, never>>(
     endpoint: string,
     options?: BaseApiOptions<B>
   ) {

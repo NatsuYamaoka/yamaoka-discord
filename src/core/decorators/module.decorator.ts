@@ -4,10 +4,11 @@ import { BaseEvent } from "@abstracts/event/event.abstract";
 import { ModuleAbstract } from "@abstracts/module/module.abstract";
 
 export function Module({ imports, commands, events }: ModuleOptions) {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   return (target: Function) => {
     target.prototype.commands = commands;
     target.prototype.imports = imports;
-    target.prototype.events = events
+    target.prototype.events = events;
   };
 }
 

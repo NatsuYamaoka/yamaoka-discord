@@ -14,7 +14,7 @@ export class DatabaseClient extends DataSource {
       synchronize: true,
       ssl: false,
       entities,
-      logging: ["error"],
+      logging: ["error", "query"],
     });
 
     logger.log("Database inited");

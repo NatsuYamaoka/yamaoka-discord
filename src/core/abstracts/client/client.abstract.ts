@@ -1,9 +1,9 @@
 import { CustomClient } from "@client/custom-client";
 
 export class Base {
-  public customClient: CustomClient;
+  public client: CustomClient;
 
   constructor(client: CustomClient) {
-    this.customClient = client;
+    this.client = client;
   }
 }

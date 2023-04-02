@@ -12,16 +12,22 @@ export default (async () => {
       GatewayIntentBits.GuildMessages,
     ];
 
+    if (!process.env.TOKEN) {
+      logger.error("No bot token was found in env file");
+
+      process.exit();
+    }
+
     const client = new CustomClient({
       core: { intents },
-      token: process.env.TOKEN!,
+      token: process.env.TOKEN,
     });
 
     const appFactory = new AppFactory({ module, client });
 
-    await appFactory.createApp();
+    appFactory.createApp();
 
-    await client.initialize();
+    client.initialize();
   } catch (err) {
     logger.log(`${err}`);
 

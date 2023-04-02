@@ -1,5 +1,4 @@
 import { Base } from "@abstracts/client/client.abstract";
-import { BaseCommand } from "@abstracts/command/command.abstract";
 import {
   AllowedUsersOrRolesType,
   CmdArg,
@@ -28,8 +27,10 @@ export class CommandManager extends Base {
   public messageCommands: MessageCommandsMap = new Map();
 
   public loadCommands(module: ModuleAbstract) {
-    for (const Command of module.commands!) {
-      const commandInstance = new Command(this.customClient);
+    if (!module.commands) return;
+
+    for (const Command of module.commands) {
+      const commandInstance = new Command(this.client);
 
       if (!commandInstance.options) {
         logger.log(`No options was found for ${Command.name}, skipping`);
@@ -49,7 +50,7 @@ export class CommandManager extends Base {
   public async setRegisterCommandId() {
     if (this.registerCommandId) return;
 
-    const commands = await this.customClient.application?.commands.fetch();
+    const commands = await this.client.application?.commands.fetch();
 
     if (!commands || !commands.size) return;
 
@@ -114,8 +115,10 @@ export class CommandManager extends Base {
     arg: CmdArg<CmdType.MESSAGE_COMMAND>,
     command: MessageCommandType
   ) {
+    if (!command.options) return;
+
     const checkedPermissions = await this.checkPermissions(
-      command.options!.allowedUsersOrRoles,
+      command.options.allowedUsersOrRoles,
       arg
     );
 

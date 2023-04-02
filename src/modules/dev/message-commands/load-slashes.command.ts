@@ -10,13 +10,15 @@ import { REST, Routes } from "discord.js";
 })
 export default class LoadSlashesCommand extends BaseCommand<CmdType.MESSAGE_COMMAND> {
   public async execute(arg: CmdArg<CmdType.MESSAGE_COMMAND>) {
-    const slashCommands = this.customClient.commandManager.slashCommands;
+    const slashCommands = this.client.commandManager.slashCommands;
     const commandsData = [...slashCommands.values()].map(
       (cmd) => cmd.options?.data
     );
 
-    if (!process.env.TOKEN) {
-      logger.error("Cannot load ( / ) commands, no TOKEN in env");
+    if (!process.env.TOKEN || !process.env.CLIENTID) {
+      logger.error(
+        "Cannot load ( / ) commands, no TOKEN or CLIENTID was found in env"
+      );
 
       return process.exit();
     }
@@ -27,13 +29,13 @@ export default class LoadSlashesCommand extends BaseCommand<CmdType.MESSAGE_COMM
 
     logger.info("( / ) Clearing application commands");
 
-    await rest.put(Routes.applicationCommands(process.env.CLIENTID!), {
+    await rest.put(Routes.applicationCommands(process.env.CLIENTID), {
       body: [],
     });
 
     logger.info("( / ) Preparing for application commands update");
 
-    await rest.put(Routes.applicationCommands(process.env.CLIENTID!), {
+    await rest.put(Routes.applicationCommands(process.env.CLIENTID), {
       body: commandsData,
     });
 

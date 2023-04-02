@@ -28,11 +28,15 @@ export type MixedCommandsArray = (
   | typeof BaseCommand<CmdType.MESSAGE_COMMAND>
 )[];
 
-type SharedCommandOptions = { name: string };
+type SharedCommandOptions = {
+  name: string;
+};
 
 type SlashCommandOptions = SharedCommandOptions & {
   description: string;
-  data?: SlashCommandBuilder;
+  data?:
+    | SlashCommandBuilder
+    | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
 };
 
 type MessageCommandOptions = SharedCommandOptions & {

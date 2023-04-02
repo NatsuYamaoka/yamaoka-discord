@@ -1,4 +1,3 @@
-import { CmdType } from "@abstracts/command/command.types";
 import { BaseEvent } from "@abstracts/event/event.abstract";
 import { EventArg } from "@abstracts/event/event.types";
 import { ClientEvent } from "@decorators/events.decorator";
@@ -7,7 +6,7 @@ import { ClientEvent } from "@decorators/events.decorator";
 export class InteractionCreateEvent extends BaseEvent {
   public async execute([interaction]: EventArg<"interactionCreate">) {
     if (interaction.isChatInputCommand()) {
-      this.customClient.commandManager.executeCommand(
+      this.client.commandManager.executeCommand(
         interaction.commandName,
         interaction,
         true

@@ -20,7 +20,7 @@ import Joi from "joi";
     await envSchema.validateAsync(process.env);
 
     logger.log("Env schema vaildation passed successfuly");
-  } catch (err: any) {
+  } catch (err) {
     logger.log(`${err}`);
 
     process.exit();

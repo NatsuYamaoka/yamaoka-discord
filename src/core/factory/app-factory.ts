@@ -12,8 +12,8 @@ export class AppFactory extends Base {
     this.module = options.module;
   }
 
-  public async createApp() {
-    await this.initModule(this.module);
+  public createApp() {
+    this.initModule(this.module);
 
     return this;
   }
@@ -21,14 +21,14 @@ export class AppFactory extends Base {
   private initModule(Module: typeof ModuleAbstract) {
     logger.log(`Initing ${Module.name}`);
 
-    const moduleInstance = new Module(this.customClient);
+    const moduleInstance = new Module(this.client);
 
     this.initModuleCommands(moduleInstance, Module.name);
     this.initModuleEvents(moduleInstance, Module.name);
 
     if (!moduleInstance.imports?.length) return;
 
-    moduleInstance.imports.map(this.initModule.bind(this))
+    moduleInstance.imports.map(this.initModule.bind(this));
   }
 
   private initModuleCommands(module: ModuleAbstract, moduleName: string) {
@@ -38,7 +38,7 @@ export class AppFactory extends Base {
       `Trying to init ${moduleName} commands! To init: ${module.commands.length}`
     );
 
-    return this.customClient.commandManager.loadCommands(module);
+    return this.client.commandManager.loadCommands(module);
   }
 
   private initModuleEvents(module: ModuleAbstract, moduleName: string) {
@@ -48,6 +48,6 @@ export class AppFactory extends Base {
       `Trying to init ${moduleName} events! To init: ${module.events.length}`
     );
 
-    return this.customClient.eventManager.loadEvents(module);
+    return this.client.eventManager.loadEvents(module);
   }
 }

@@ -1,4 +1,3 @@
-import { CmdType } from "@abstracts/command/command.types";
 import { BaseEvent } from "@abstracts/event/event.abstract";
 import { EventArg } from "@abstracts/event/event.types";
 import { ClientEvent } from "@decorators/events.decorator";
@@ -10,7 +9,7 @@ export class MessageCreateEvent extends BaseEvent {
     const [cmdName] = message.content.trim().split(" ");
 
     if (cmdName.startsWith(appConfig.prefix)) {
-      this.customClient.commandManager.executeCommand(
+      this.client.commandManager.executeCommand(
         cmdName.slice(1),
         message,
         false

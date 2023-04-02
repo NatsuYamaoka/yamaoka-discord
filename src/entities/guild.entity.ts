@@ -1,10 +1,11 @@
 import { PredefinedBaseEntity } from "@entities/base/base-entity";
 import { UserEntity } from "@entities/user.entity";
-import { Entity, OneToMany, PrimaryColumn } from "typeorm";
+import { Column, Entity, Index, OneToMany } from "typeorm";
 
 @Entity()
 export class GuildEntity extends PredefinedBaseEntity {
-  @PrimaryColumn()
+  @Column()
+  @Index()
   gid: string;
 
   @OneToMany(() => UserEntity, (user) => user.guild)

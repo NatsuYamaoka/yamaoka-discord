@@ -6,6 +6,7 @@ export function SlashCommand({
   data,
   description,
 }: CmdOpt<CmdType.SLASH_COMMAND>) {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   return (target: Function) => {
     if (!data) data = new SlashCommandBuilder();
 
@@ -23,6 +24,7 @@ export function MessageCommand({
   name,
   allowedUsersOrRoles,
 }: CmdOpt<CmdType.MESSAGE_COMMAND>) {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   return (target: Function) => {
     name = name.toLowerCase();
 

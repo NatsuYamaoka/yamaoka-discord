@@ -5,7 +5,7 @@ export class BaseEvent extends Base {
   name?: keyof ClientEvents;
   once?: boolean;
 
-  execute(args: ClientEvents[keyof ClientEvents]): Awaitable<unknown> {
+  abstract execute(args: ClientEvents[keyof ClientEvents]): Awaitable<unknown> {
     throw new Error("Cannot be invoked in parent class");
   }
 }

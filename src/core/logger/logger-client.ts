@@ -4,7 +4,6 @@ import {
   CustomLogColor,
   LogLevel,
   LogOptions,
-  _LogLevels,
 } from "@app/core/logger/logger.types";
 import chalk from "chalk";
 

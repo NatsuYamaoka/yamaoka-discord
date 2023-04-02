@@ -1,7 +1,7 @@
 import { BaseCommand } from "@abstracts/command/command.abstract";
 import { CmdArg, CmdType } from "@abstracts/command/command.types";
 import { SlashCommand } from "@decorators/commands.decorator";
-import { ButtonBuilder } from "@discordjs/builders";
+import { ButtonBuilder, SlashCommandBuilder } from "@discordjs/builders";
 import { UserEntity } from "@entities/user.entity";
 import { profileMmHandler } from "@handlers/multi-menu/profile.mm.handler";
 import { ActionRowBuilder, ButtonStyle, ComponentType } from "discord.js";
@@ -9,10 +9,16 @@ import { ActionRowBuilder, ButtonStyle, ComponentType } from "discord.js";
 @SlashCommand({
   name: "profile",
   description: "Look up your profile",
+  data: new SlashCommandBuilder().addUserOption((option) =>
+    option.setName("user").setDescription("Select user")
+  ),
 })
 export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
+  private userRepository = this.client.db.getRepository(UserEntity);
+
   public async execute(arg: CmdArg<CmdType.SLASH_COMMAND>) {
     const interactionResponse = await arg.deferReply();
+    const userToFind = arg.options.getUser("user") || arg.user;
 
     if (!arg.guildId) {
       return arg.editReply({
@@ -20,9 +26,9 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       });
     }
 
-    const user = await UserEntity.findOne({
+    const user = await this.userRepository.findOne({
       where: {
-        uid: arg.user.id,
+        uid: userToFind.id,
         guild: {
           gid: arg.guildId,
         },
@@ -33,11 +39,11 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     });
 
     if (!user) {
-      const toUseId = this.customClient.commandManager.registerCommandId;
+      const toUseId = this.client.commandManager.registerCommandId;
       const toUse = toUseId ? `</register:${toUseId}>` : "/register";
 
       return arg.editReply({
-        content: `Can't find you in db.\nYou might try to use ${toUse} command.`,
+        content: `Can't find ${userToFind.username} in db.\nYou/they might try to use ${toUse} command.`,
       });
     }
 
@@ -47,6 +53,7 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       arg,
       components,
       data: user,
+      user: userToFind,
     });
 
     const componentCollector = arg.channel?.createMessageComponentCollector({
@@ -71,6 +78,7 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
         arg,
         components,
         data: user,
+        user: userToFind,
       });
     });
 

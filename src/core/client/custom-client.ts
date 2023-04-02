@@ -5,12 +5,12 @@ import { CommandManager, EventManager, RawApiManager } from "@managers/index";
 import { Client } from "discord.js";
 
 export class CustomClient extends Client {
-  public databaseClient: DatabaseClient;
+  public db: DatabaseClient;
   public eventManager: EventManager;
   public commandManager: CommandManager;
   public rawApiManager: RawApiManager;
   public rootDir =
-    { dev: "src", prod: "build" }[process.env.NODE_ENV!] || "src";
+    { dev: "src", prod: "build" }[process.env.NODE_ENV] || "src";
   private _token: string;
 
   constructor({ core, token }: CustomClientOptions) {
@@ -19,13 +19,13 @@ export class CustomClient extends Client {
     this.eventManager = new EventManager(this);
     this.commandManager = new CommandManager(this);
     this.rawApiManager = new RawApiManager();
-    this.databaseClient = new DatabaseClient();
+    this.db = new DatabaseClient();
 
     this._token = token;
   }
 
   public async initialize() {
-    await this.databaseClient._init();
+    await this.db._init();
 
     await this.login(this._token);
 

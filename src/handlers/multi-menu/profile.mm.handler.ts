@@ -3,7 +3,7 @@ import {
   ProfileMmActionOptions,
 } from "@handlers/multi-menu/profile.mm.types";
 import { createEmbed } from "@utils/create-embed.util";
-import { ActionRowBuilder, ButtonBuilder, Colors, flatten } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, Colors } from "discord.js";
 
 class ProfileMmHandler {
   private _methods: ProfileMmActionMap = {
@@ -21,10 +21,14 @@ class ProfileMmHandler {
     selectedAction.bind(this)({ arg, ...opt });
   }
 
-  private renderProfile({ arg, components }: ProfileMmActionOptions) {
+  private renderProfile({ arg, user, components }: ProfileMmActionOptions) {
     const profileEmbed = createEmbed({
-      title: `Profile ${arg.user.username}`,
-      description: "It's your profile :)",
+      author: {
+        name: user.username,
+        icon_url: user.displayAvatarURL(),
+      },
+      title: "Profile",
+      description: "n1g3",
       color: Colors.DarkButNotBlack,
     });
 
@@ -33,9 +37,14 @@ class ProfileMmHandler {
     arg.editReply({ embeds: [profileEmbed], components });
   }
 
-  private renderWallet({ arg, data, components }: ProfileMmActionOptions) {
+  private renderWallet({
+    arg,
+    user,
+    data,
+    components,
+  }: ProfileMmActionOptions) {
     const walletEmbed = createEmbed({
-      title: `Wallet ${arg.user.username}`,
+      title: `Wallet ${user.username}`,
       description: "It's your wallet",
       color: Colors.DarkButNotBlack,
       fields: [
