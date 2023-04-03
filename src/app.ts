@@ -2,6 +2,10 @@ import { AppFactory } from "@app/core/factory/app-factory";
 import { logger } from "@app/core/logger/logger-client";
 import { CustomClient } from "@client/custom-client";
 import { AppModule as module } from "@modules/app/app.module";
+import {
+  handleUncaughtException,
+  handleUnhandledRejection,
+} from "@utils/handle-exceptions.util";
 import { GatewayIntentBits } from "discord.js";
 
 export default (async () => {
@@ -28,6 +32,9 @@ export default (async () => {
     appFactory.createApp();
 
     client.initialize();
+
+    process.on("uncaughtException", handleUncaughtException);
+    process.on("unhandledRejection", handleUnhandledRejection);
   } catch (err) {
     logger.log(`${err}`);
 

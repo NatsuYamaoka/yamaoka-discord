@@ -33,9 +33,7 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
           gid: arg.guildId,
         },
       },
-      relations: {
-        wallet: true,
-      },
+      relations: {},
     });
 
     if (!user) {
@@ -90,9 +88,9 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   }
 
   private disableAllComponents(components: ActionRowBuilder<ButtonBuilder>[]) {
-    for (let i = 0; i < components.length; i++) {
-      for (let b = 0; b < components[i].components.length; b++) {
-        components[i].components[b].setDisabled(true);
+    for (const row of components) {
+      for (const component of row.components) {
+        component.setDisabled(true);
       }
     }
   }

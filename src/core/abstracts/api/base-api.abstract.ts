@@ -4,7 +4,7 @@ import { Axios, AxiosRequestConfig } from "axios";
 export class BaseApi {
   constructor(private axios: Axios, private config: AxiosRequestConfig) {}
 
-  public get<Q, B extends Record<string, never>>(
+  public get<Q, B extends Record<string, never> = Record<string, never>>(
     endpoint: string,
     options?: BaseApiOptions<B>
   ) {

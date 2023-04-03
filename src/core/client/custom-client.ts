@@ -10,7 +10,7 @@ export class CustomClient extends Client {
   public commandManager: CommandManager;
   public rawApiManager: RawApiManager;
   public rootDir =
-    { dev: "src", prod: "build" }[process.env.NODE_ENV] || "src";
+    { dev: "src", prod: "build" }[process.env.NODE_ENV || "src"] || "src";
   private _token: string;
 
   constructor({ core, token }: CustomClientOptions) {
