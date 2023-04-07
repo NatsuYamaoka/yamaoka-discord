@@ -9,6 +9,7 @@ module.exports = {
     "plugin:@typescript-eslint/recommended",
     "prettier",
   ],
+  ignorePatterns: ["*.entity.ts"],
   overrides: [],
   parser: "@typescript-eslint/parser",
   parserOptions: {
