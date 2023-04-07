@@ -1,7 +1,7 @@
 import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 import { QuizEntity } from "./quiz.entity";
 import { UserEntity } from "../user.entity";
-import { PredefinedBaseEntity } from "../base/base-entity";
+import { PredefinedBaseEntity } from "../base/base.entity";
 import { QuizQuestionCompletedEntity } from "./quiz-question-completed.entity";
 
 @Entity()
@@ -19,7 +19,7 @@ export class CompletedQuizEntity extends PredefinedBaseEntity {
   completed_questions: QuizQuestionCompletedEntity[];
 
   @ManyToOne(() => QuizEntity, (quiz) => quiz.completed_quizes, {
-    cascade: ["remove"],
+    cascade: true,
     onDelete: "CASCADE",
     orphanedRowAction: "delete",
   })

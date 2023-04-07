@@ -2,7 +2,7 @@ import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
 import { CompletedQuizEntity } from "./completed-quiz.entity";
 import { QuizQuestionEntity } from "./quiz-question.entity";
 import { UserEntity } from "../user.entity";
-import { PredefinedBaseEntity } from "../base/base-entity";
+import { PredefinedBaseEntity } from "../base/base.entity";
 
 @Entity()
 export class QuizEntity extends PredefinedBaseEntity {
@@ -22,7 +22,7 @@ export class QuizEntity extends PredefinedBaseEntity {
   author: UserEntity;
 
   @OneToMany(() => QuizQuestionEntity, (quizQuestion) => quizQuestion.quiz, {
-    cascade: ["insert"],
+    cascade: true,
   })
   questions: QuizQuestionEntity[];
 

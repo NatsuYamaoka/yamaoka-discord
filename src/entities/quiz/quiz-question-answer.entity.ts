@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne } from "typeorm";
-import { PredefinedBaseEntity } from "../base/base-entity";
+import { PredefinedBaseEntity } from "../base/base.entity";
 import { QuizQuestionEntity } from "./quiz-question.entity";
 
 @Entity()

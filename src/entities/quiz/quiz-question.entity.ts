@@ -1,5 +1,5 @@
 import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
-import { PredefinedBaseEntity } from "../base/base-entity";
+import { PredefinedBaseEntity } from "../base/base.entity";
 import { QuizQuestionAnswerEntity } from "./quiz-question-answer.entity";
 import { QuizQuestionCompletedEntity } from "./quiz-question-completed.entity";
 import { QuizEntity } from "./quiz.entity";
@@ -12,9 +12,7 @@ export class QuizQuestionEntity extends PredefinedBaseEntity {
   @OneToMany(
     () => QuizQuestionAnswerEntity,
     (quizQuestionAnswer) => quizQuestionAnswer.question,
-    {
-      cascade: ["insert"],
-    }
+    { cascade: true }
   )
   answers: QuizQuestionAnswerEntity[];
 

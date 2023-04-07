@@ -1,6 +1,6 @@
 import { GuildEntity } from "@entities/guild.entity";
 import { Column, Entity, Index, ManyToOne, OneToMany, OneToOne } from "typeorm";
-import { PredefinedBaseEntity } from "./base/base-entity";
+import { PredefinedBaseEntity } from "./base/base.entity";
 import { CompletedQuizEntity } from "./quiz/completed-quiz.entity";
 import { QuizEntity } from "./quiz/quiz.entity";
 import { WalletEntity } from "./wallet.entity";
@@ -12,11 +12,10 @@ export class UserEntity extends PredefinedBaseEntity {
   uid: string;
 
   @ManyToOne(() => GuildEntity, (guild) => guild.users, {
-    cascade: ["insert", "update"],
+    cascade: true,
     onUpdate: "CASCADE",
     onDelete: "CASCADE",
     orphanedRowAction: "delete",
-    createForeignKeyConstraints: false,
   })
   guild: GuildEntity;
 
@@ -36,7 +35,7 @@ export class UserEntity extends PredefinedBaseEntity {
   voice_exp: number;
 
   @OneToOne(() => WalletEntity, (wallet) => wallet.user, {
-    cascade: ["insert", "update"],
+    cascade: true,
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
   })
