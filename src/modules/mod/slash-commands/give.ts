@@ -24,11 +24,12 @@ export class GiveCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     const user = arg.options.getUser("user", true);
     const amount = arg.options.getNumber("amount", true);
 
-    if (!arg.guildId)
+    if (!arg.guildId) {
       return arg.reply({
         content: "Unexpected error occure!\nPlease try again later",
         ephemeral: true,
       });
+    }
 
     const userData = await this.userRepository.findOne({
       where: {
@@ -41,13 +42,22 @@ export class GiveCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
         guild: true,
         wallet: true,
       },
+      select: {
+        guild: {
+          id: true,
+        },
+        wallet: {
+          balance: true,
+        },
+      },
     });
 
-    if (!userData)
+    if (!userData) {
       return arg.reply({
         content: `I can't give **${amount}** to user ${user.toString()} because they not registered in system.`,
         ephemeral: true,
       });
+    }
 
     await this.walletRepository.update(
       {
