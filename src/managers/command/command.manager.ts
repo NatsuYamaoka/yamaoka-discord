@@ -15,8 +15,6 @@ import {
 } from "@managers/command/command-manager.types";
 
 export class CommandManager extends Base {
-  public registerCommandId: string | undefined;
-
   constructor(client: CustomClient) {
     super(client);
 
@@ -45,20 +43,6 @@ export class CommandManager extends Base {
         this.messageCommands.set(name, commandInstance as MessageCommandType);
       }
     }
-  }
-
-  public async setRegisterCommandId() {
-    if (this.registerCommandId) return;
-
-    const commands = await this.client.application?.commands.fetch();
-
-    if (!commands || !commands.size) return;
-
-    const registerCommand = commands.find((c) => c.name === "register");
-
-    if (!registerCommand) return;
-
-    this.registerCommandId = registerCommand.id;
   }
 
   public async executeCommand<T extends CmdType>(
@@ -108,22 +92,26 @@ export class CommandManager extends Base {
     arg: CmdArg<CmdType.SLASH_COMMAND>,
     command: SlashCommandType
   ) {
-    await command.execute(arg);
+    try {
+      await command.execute(arg);
+    } catch (err) {}
   }
 
   private async executeMessageCommand(
     arg: CmdArg<CmdType.MESSAGE_COMMAND>,
     command: MessageCommandType
   ) {
-    if (!command.options) return;
+    try {
+      if (!command.options) return;
 
-    const checkedPermissions = await this.checkPermissions(
-      command.options.allowedUsersOrRoles,
-      arg
-    );
+      const checkedPermissions = await this.checkPermissions(
+        command.options.allowedUsersOrRoles,
+        arg
+      );
 
-    if (!checkedPermissions) return;
+      if (!checkedPermissions) return;
 
-    await command.execute(arg);
+      await command.execute(arg);
+    } catch (err) {}
   }
 }

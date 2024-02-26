@@ -25,12 +25,15 @@ export class CustomClient extends Client {
   }
 
   public async initialize() {
-    await this.db._init();
+    try {
+      await this.db._init().catch((err) => {
+        logger.error("Can't establish successful connection with DB");
+        process.exit(1);
+      });
 
-    await this.login(this._token);
-
-    logger.info("Executing CommandManager#setRegisterCommandId");
-
-    await this.commandManager.setRegisterCommandId();
+      await this.login(this._token);
+    } catch (err) {
+      logger.error("Error happened during bot init");
+    }
   }
 }

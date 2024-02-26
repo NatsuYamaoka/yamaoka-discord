@@ -19,7 +19,7 @@ export default (async () => {
     if (!process.env.TOKEN) {
       logger.error("No bot token was found in env file");
 
-      process.exit();
+      return process.exit(0);
     }
 
     const client = new CustomClient({
@@ -36,8 +36,8 @@ export default (async () => {
     process.on("uncaughtException", handleUncaughtException);
     process.on("unhandledRejection", handleUnhandledRejection);
   } catch (err) {
-    logger.log(`${err}`);
+    logger.log(err);
 
-    process.exit();
+    process.exit(1);
   }
 })();

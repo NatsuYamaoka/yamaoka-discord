@@ -1,11 +1,14 @@
 import { Column, Entity, JoinColumn, OneToOne } from "typeorm";
-import { PredefinedBaseEntity } from "./base/base.entity";
-import { UserEntity } from "./user.entity";
+import { PredefinedBaseEntity } from "../base/base.entity";
+import { UserEntity } from "../user/user.entity";
 
 @Entity()
 export class WalletEntity extends PredefinedBaseEntity {
   @Column({ default: 0 })
   balance: number;
+
+  @Column({ default: 0 })
+  voice_balance: number;
 
   @OneToOne(() => UserEntity, (user) => user.wallet, {
     onDelete: "CASCADE",

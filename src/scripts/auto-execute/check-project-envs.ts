@@ -12,17 +12,28 @@ import Joi from "joi";
     DATABASE_PASSWORD: Joi.string().required(),
     DATABASE_HOST: Joi.string().required(),
     DATABASE_NAME: Joi.string().required(),
+    // DISCORD CONFIG
     CLIENTID: Joi.string().required(),
+    GUILDID: Joi.string().required(),
     OWNER: Joi.string().required(),
-  }).unknown();
+  });
 
-  try {
-    await envSchema.validateAsync(process.env);
+  const validationResult = envSchema.validate(process.env, {
+    abortEarly: false,
+    allowUnknown: true,
+  });
 
-    logger.log("Env schema vaildation passed successfuly");
-  } catch (err) {
-    logger.log(`${err}`);
+  if (validationResult.error) {
+    const errors = validationResult.error.details;
+    const mappedErrors = errors.map(({ message }) => message).join("\n");
 
-    process.exit();
+    logger.warn(`\n${mappedErrors}`, {
+      icon: "😊",
+      prefix: "Validation Error",
+    });
+
+    process.exit(1);
   }
+
+  logger.log("Env schema vaildation passed successfuly");
 })();

@@ -14,10 +14,10 @@ export class DatabaseClient extends DataSource {
       synchronize: true,
       ssl: false,
       entities,
-      logging: ["error", "query"],
+      logging: ["error"],
     });
 
-    logger.log("Database inited");
+    logger.log("Database Manager inited");
   }
 
   public async _init() {

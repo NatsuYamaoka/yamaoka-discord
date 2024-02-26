@@ -8,6 +8,7 @@ declare namespace NodeJS {
     DATABASE_NAME: string;
     OWNER: string;
     CLIENTID: string;
+    GUILDID: string;
     NODE_ENV: "dev" | "prod";
   };
 }

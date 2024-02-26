@@ -24,19 +24,19 @@ export class Logger {
     [LogLevelsEnum.error]: "!!!",
   };
 
-  public log(msg: string, options?: LogOptions) {
+  public log(msg: any, options?: LogOptions) {
     this._log(LogLevelsEnum.log, msg, options);
   }
 
-  public error(msg: string, options?: LogOptions) {
+  public error(msg: any, options?: LogOptions) {
     this._log(LogLevelsEnum.error, msg, options);
   }
 
-  public warn(msg: string, options?: LogOptions) {
+  public warn(msg: any, options?: LogOptions) {
     this._log(LogLevelsEnum.warn, msg, options);
   }
 
-  public info(msg: string, options?: LogOptions) {
+  public info(msg: any, options?: LogOptions) {
     this._log(LogLevelsEnum.info, msg, options);
   }
 

@@ -2,6 +2,7 @@ import {
   ProfileMmActionMap,
   ProfileMmActionOptions,
 } from "@handlers/multi-menu/profile.mm.types";
+import { disableClickedComponent } from "@helpers/disable-buttons.helper";
 import { createEmbed } from "@utils/create-embed.util";
 import { ActionRowBuilder, ButtonBuilder, Colors } from "discord.js";
 
@@ -32,7 +33,7 @@ class ProfileMmHandler {
       color: Colors.DarkButNotBlack,
     });
 
-    this.disableClickedComponent("Profile", components);
+    disableClickedComponent("Profile", components);
 
     arg.editReply({ embeds: [profileEmbed], components });
   }
@@ -55,26 +56,9 @@ class ProfileMmHandler {
       ],
     });
 
-    this.disableClickedComponent("Wallet", components);
+    disableClickedComponent("Wallet", components);
 
     arg.editReply({ embeds: [walletEmbed], components });
-  }
-
-  private disableClickedComponent(
-    toFilter: string,
-    components: ActionRowBuilder<ButtonBuilder>[]
-  ) {
-    for (let i = 0; i < components.length; i++) {
-      for (let b = 0; b < components[i].components.length; b++) {
-        const element = components[i].components[b];
-
-        if (element.data.label === toFilter) {
-          element.setDisabled(true);
-        } else {
-          element.setDisabled(false);
-        }
-      }
-    }
   }
 }
 

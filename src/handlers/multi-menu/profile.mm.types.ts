@@ -1,5 +1,5 @@
 import { CmdArg, CmdType } from "@abstracts/command/command.types";
-import { UserEntity } from "@entities/user.entity";
+import { UserEntity } from "@entities/user/user.entity";
 import { ActionRowBuilder, ButtonBuilder, User } from "discord.js";
 
 export type ProfileMmActionMap = {
