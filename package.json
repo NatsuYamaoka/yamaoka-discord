@@ -5,9 +5,9 @@
   "scripts": {
     "build": "rd /s /q .\\build && tsc",
     "env": "cross-env TS_NODE_BASEURL=./src ts-node -r tsconfig-paths/register src/scripts/auto-execute/check-project-envs.ts",
-    "dev": "yarn env && cross-env NODE_ENV=dev TS_NODE_BASEURL=./src nodemon -e ts,js --exec ts-node -r tsconfig-paths/register src/index.ts",
-    "prod": "yarn env && cross-env NODE_ENV=prod TS_NODE_BASEURL=./build node -r tsconfig-paths/register build/index.js",
-    "build:prod": "yarn build && yarn prod"
+    "dev": "npm run env && cross-env NODE_ENV=dev TS_NODE_BASEURL=./src ts-node -r tsconfig-paths/register src/index.ts",
+    "prod": "npm run env && cross-env NODE_ENV=prod TS_NODE_BASEURL=./build node -r tsconfig-paths/register build/index.js",
+    "build:prod": "npm run build && npm run prod"
   },
   "repository": {
     "type": "git",
@@ -19,24 +19,24 @@
     "axios": "^0.27.2",
     "chalk": "4.1.2",
     "cross-env": "^7.0.3",
-    "discord.js": "^14.6.0",
-    "dotenv": "^16.0.2",
-    "glob": "^8.0.3",
-    "joi": "^17.6.1",
-    "pg": "^8.8.0",
-    "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.3.10"
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.5",
+    "glob": "^8.1.0",
+    "joi": "^17.12.2",
+    "pg": "^8.11.3",
+    "reflect-metadata": "^0.1.14",
+    "typeorm": "^0.3.20"
   },
   "devDependencies": {
-    "@types/glob": "^8.0.0",
-    "@types/node": "^18.7.20",
-    "@typescript-eslint/eslint-plugin": "^5.57.0",
-    "@typescript-eslint/parser": "^5.57.0",
-    "eslint": "^8.37.0",
-    "eslint-config-prettier": "^8.8.0",
-    "nodemon": "^2.0.20",
-    "ts-node": "^10.9.1",
-    "tsconfig-paths": "^4.1.2",
-    "typescript": "^4.8.3"
+    "@types/glob": "^8.1.0",
+    "@types/node": "^18.19.18",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^8.10.0",
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.3.3"
   }
 }
