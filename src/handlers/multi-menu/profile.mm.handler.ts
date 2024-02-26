@@ -4,7 +4,7 @@ import {
 } from "@handlers/multi-menu/profile.mm.types";
 import { disableClickedComponent } from "@helpers/disable-buttons.helper";
 import { createEmbed } from "@utils/create-embed.util";
-import { Colors } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, Colors } from "discord.js";
 
 class ProfileMmHandler {
   private _methods: ProfileMmActionMap = {

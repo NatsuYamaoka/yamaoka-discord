@@ -1,10 +1,9 @@
-import { PredefinedBaseEntity } from "@entities/base/base.entity";
 import { ShopItemEntity } from "@entities/currency/shop-item.entity";
 import { UserEntity } from "@entities/user/user.entity";
 import { Entity, JoinColumn, ManyToMany, OneToOne } from "typeorm";
 
 @Entity()
-export class InventoryEntity extends PredefinedBaseEntity {
+export class InventoryEntity {
   @OneToOne(() => UserEntity, (user) => user.inventory, {
     onDelete: "CASCADE",
     orphanedRowAction: "delete",

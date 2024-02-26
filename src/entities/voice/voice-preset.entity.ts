@@ -1,9 +1,8 @@
-import { PredefinedBaseEntity } from "@entities/base/base.entity";
 import { UserEntity } from "@entities/user/user.entity";
 import { Column, Entity, JoinColumn, OneToOne } from "typeorm";
 
 @Entity()
-export class VoicePresetEntity extends PredefinedBaseEntity {
+export class VoicePresetEntity {
   @Column()
   name: string;
 
@@ -17,5 +16,3 @@ export class VoicePresetEntity extends PredefinedBaseEntity {
   @JoinColumn()
   user: UserEntity;
 }
-
-

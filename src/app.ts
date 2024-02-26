@@ -14,7 +14,6 @@ export default (async () => {
       GatewayIntentBits.Guilds,
       GatewayIntentBits.MessageContent,
       GatewayIntentBits.GuildMessages,
-      GatewayIntentBits.GuildVoiceStates,
     ];
 
     if (!process.env.TOKEN) {
