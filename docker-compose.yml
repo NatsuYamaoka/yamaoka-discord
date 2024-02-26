@@ -1,17 +1,14 @@
 version: "3.9"
+name: yamaoka
 services:
   postgres:
-    image: postgres
+    image: postgres:latest
+    container_name: db
     env_file:
       - .env
     environment:
-      - POSTGRES_DB="${DATABASE_NAME}"
-      - POSTGRES_USER="${DATABASE_USER}"
-      - POSTGRES_PASSWORD="${DATABASE_PASSWORD}"
-    volumes:
-      - data:/var/lib/postgresql/data
+      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
     ports:
       - "${DATABASE_PORT}:${DATABASE_PORT}"
-
-volumes:
-  data:
