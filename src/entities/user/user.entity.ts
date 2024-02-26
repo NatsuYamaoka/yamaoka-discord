@@ -1,12 +1,23 @@
-import { Column, Entity, Index, ManyToOne, OneToMany, OneToOne } from "typeorm";
+import {
+  Column,
+  Entity,
+  Index,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryColumn,
+} from "typeorm";
 import { PredefinedBaseEntity } from "../base/base.entity";
 import { WalletEntity } from "../currency/wallet.entity";
 import { VoicePresetEntity } from "@entities/voice/voice-preset.entity";
 import { InventoryEntity } from "@entities/user/inventory.entity";
+import { ProfilePresetEntity } from "@entities/user/profile-preset.entity";
 
 @Entity()
 export class UserEntity extends PredefinedBaseEntity {
-  @Column()
+  @Column({
+    unique: true,
+  })
   @Index()
   uid: string;
 
@@ -55,4 +66,9 @@ export class UserEntity extends PredefinedBaseEntity {
     onUpdate: "CASCADE",
   })
   inventory: InventoryEntity;
+
+  @OneToMany(() => ProfilePresetEntity, (profilePreset) => profilePreset.user, {
+    nullable: true,
+  })
+  profile_presets?: ProfilePresetEntity[];
 }

@@ -3,6 +3,8 @@ import {
   ChatInputCommandInteraction,
   Message,
   SlashCommandBuilder,
+  SlashCommandSubcommandBuilder,
+  SlashCommandSubcommandsOnlyBuilder,
 } from "discord.js";
 
 export enum CmdType {
@@ -36,6 +38,7 @@ type SlashCommandOptions = SharedCommandOptions & {
   description: string;
   data?:
     | SlashCommandBuilder
+    | SlashCommandSubcommandsOnlyBuilder
     | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
 };
 
