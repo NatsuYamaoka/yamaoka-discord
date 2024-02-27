@@ -6,7 +6,7 @@ import { UserEntity } from "@entities/index";
 import { ProfilePresetEntity } from "@entities/user/profile-preset.entity";
 import { SlashCommandBuilder } from "discord.js";
 
-// TODO: IMPLEMENT
+// TODO: IMPLEMENT THIS COMMAND
 
 @SlashCommand({
   name: "profile",
