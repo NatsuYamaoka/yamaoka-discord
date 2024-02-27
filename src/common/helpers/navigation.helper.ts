@@ -24,5 +24,6 @@ export const getNavigationSetup = () => {
     toLeftButton,
     toStopButton,
     toRightButton,
+    list: [toLeftButton, toStopButton, toRightButton],
   };
 };

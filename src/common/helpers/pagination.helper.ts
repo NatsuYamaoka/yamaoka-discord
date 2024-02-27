@@ -21,19 +21,20 @@ export default class PaginationHelper<T> {
   }
 
   public nextPage() {
-    this.page = ++this.page > this.totalPages ? this.totalPages : this.page;
+    this.page =
+      this.page + 1 > this.totalPages ? this.totalPages : this.page + 1;
 
     return this;
   }
 
   public prevPage() {
-    this.page = !--this.page ? 1 : this.page;
+    this.page = this.page - 1 <= 0 ? 1 : this.page - 1;
 
     return this;
   }
 
   public createPage() {
-    const start = --this.page * this.elementsOnPage;
+    const start = this.page - 1 * this.elementsOnPage;
     const end = this.page * this.elementsOnPage;
 
     return this.elements.slice(start, end);
