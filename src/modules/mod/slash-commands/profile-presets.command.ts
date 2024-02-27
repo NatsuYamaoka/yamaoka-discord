@@ -18,8 +18,8 @@ import {
 } from "discord.js";
 
 @SlashCommand({
-  name: "profile",
-  description: "Profile command",
+  name: "profile-preset",
+  description: "Command for creating/editing/deleting profile presets",
   data: new SlashCommandBuilder()
     .addSubcommand((sub) =>
       sub
@@ -28,7 +28,9 @@ import {
         .addStringOption((opt) =>
           opt
             .setName("json")
-            .setDescription("stringified JSON representation of the embed")
+            .setDescription(
+              "JSON representation of the embed. You can search for it on embed generators sites"
+            )
             .setRequired(true)
         )
     )
@@ -58,9 +60,12 @@ import {
       sub
         .setName(ProfileCommandSubCommandsTypes.LIST)
         .setDescription("list all presets")
+    )
+    .addSubcommand((sub) =>
+      sub.setName("info").setDescription("overoll info on JSON etc.")
     ),
 })
-export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
+export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   async execute(arg: CmdArg<CmdType.SLASH_COMMAND>) {
     try {
       const subCommand = arg.options.getSubcommand(true);
