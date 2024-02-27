@@ -1,23 +1,20 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   Index,
-  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryColumn,
 } from "typeorm";
-import { PredefinedBaseEntity } from "../base/base.entity";
 import { WalletEntity } from "../currency/wallet.entity";
 import { VoicePresetEntity } from "@entities/voice/voice-preset.entity";
 import { InventoryEntity } from "@entities/user/inventory.entity";
 import { ProfilePresetEntity } from "@entities/user/profile-preset.entity";
 
 @Entity()
-export class UserEntity extends PredefinedBaseEntity {
-  @Column({
-    unique: true,
-  })
+export class UserEntity {
+  @PrimaryColumn()
   @Index()
   uid: string;
 
@@ -71,4 +68,10 @@ export class UserEntity extends PredefinedBaseEntity {
     nullable: true,
   })
   profile_presets?: ProfilePresetEntity[];
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @CreateDateColumn()
+  updated_at: Date;
 }
