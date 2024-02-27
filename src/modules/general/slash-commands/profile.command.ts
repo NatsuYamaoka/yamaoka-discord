@@ -124,10 +124,54 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   public async updatePreset(arg: CmdArg<CmdType.SLASH_COMMAND>) {
     const id = arg.options.getString("id", true);
     const json = arg.options.getString("json", true);
+
+    const foundPreset = await ProfilePresetEntity.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!foundPreset) {
+      return arg.editReply({
+        content: "Can't find preset by ID you provide",
+      });
+    }
+
+    const isValidJson = this.isValidJson(json);
+
+    if (!isValidJson) {
+      return arg.editReply({
+        content: "JSON you provided is not valid",
+      });
+    }
+
+    const modifiedJson = JSON.stringify(JSON.parse(json));
+
+    foundPreset.json = modifiedJson;
+
+    await foundPreset.save();
+
+    arg.editReply({
+      content: "Preset updated!",
+    });
   }
 
   public async deletePreset(arg: CmdArg<CmdType.SLASH_COMMAND>) {
     const id = arg.options.getString("id", true);
+
+    const foundPreset = await ProfilePresetEntity.findOne({
+      where: {
+        id,
+      },
+    });
+
+    if (!foundPreset) {
+      return arg.editReply({ content: "Can't find preset by provided ID" });
+    }
+
+    await foundPreset.remove();
+
+    arg.editReply({ content: "Preset deleted!" });
   }
 
   public async listPresets(arg: CmdArg<CmdType.SLASH_COMMAND>) {
@@ -216,7 +260,8 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       `Страница: ${paginationHelper.page} | ${paginationHelper.totalPages}\n` +
       `Последний редактор: <@${preset.updated_by}>\n` +
       `Создан: ${preset.created_at.toLocaleString()}\n` +
-      `Обновлён: ${preset.updated_at.toLocaleString()}`
+      `Обновлён: ${preset.updated_at.toLocaleString()}\n` +
+      `ID в бд: ${preset.id}`
     );
   }
 }
