@@ -7,6 +7,7 @@ import {
   handleUnhandledRejection,
 } from "@utils/handle-exceptions.util";
 import { GatewayIntentBits } from "discord.js";
+import { UserEntity } from "./entities";
 
 export default (async () => {
   try {
@@ -34,6 +35,8 @@ export default (async () => {
 
     client.initialize();
 
+    process.on("SIGINT", handleExit.bind(null, client));
+    process.on("SIGTERM", handleExit.bind(null, client));
     process.on("uncaughtException", handleUncaughtException);
     process.on("unhandledRejection", handleUnhandledRejection);
   } catch (err) {
@@ -42,3 +45,25 @@ export default (async () => {
     process.exit(1);
   }
 })();
+
+async function handleExit(client: CustomClient) {
+  logger.log("Bot is shutting down");
+
+  const voiceCollection = client.voiceManager.usersInVoice;
+  for (const [userId, userData] of voiceCollection) {
+    const timeSpent = Math.floor(
+      new Date().getTime() - userData.joined_in.getTime()
+    );
+    const userEntity = await UserEntity.findOne({ where: { uid: userId } });
+
+    await UserEntity.save({
+      uid: userId,
+      voice_time: timeSpent + (userEntity?.voice_time || 0),
+      voice_exp: Math.floor(timeSpent * 0.1) + (userEntity?.voice_exp || 0), // Is this formula correct? @shysecre
+    });
+  }
+
+  logger.log("All users data saved. Goodbye! 💤");
+
+  process.exit(0);
+}

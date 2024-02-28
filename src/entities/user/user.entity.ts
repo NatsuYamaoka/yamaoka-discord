@@ -1,5 +1,7 @@
 import {
+  BaseEntity,
   Column,
+  CreateDateColumn,
   Entity,
   Index,
   ManyToOne,
@@ -14,10 +16,8 @@ import { InventoryEntity } from "@entities/user/inventory.entity";
 import { ProfilePresetEntity } from "@entities/user/profile-preset.entity";
 
 @Entity()
-export class UserEntity extends PredefinedBaseEntity {
-  @Column({
-    unique: true,
-  })
+export class UserEntity extends BaseEntity {
+  @PrimaryColumn()
   @Index()
   uid: string;
 
@@ -71,4 +71,10 @@ export class UserEntity extends PredefinedBaseEntity {
     nullable: true,
   })
   profile_presets?: ProfilePresetEntity[];
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @CreateDateColumn()
+  updated_at: Date;
 }

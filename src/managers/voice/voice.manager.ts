@@ -19,6 +19,10 @@ export class VoiceManager extends Base {
     });
   }
 
+  public getUserFromCollection(uid: string) {
+    return this.usersInVoice.get(uid);
+  }
+
   public removeUserFromCollection(uid: string) {
     this.usersInVoice.delete(uid);
   }
