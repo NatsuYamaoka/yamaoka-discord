@@ -3,4 +3,5 @@ export const ProfileCommandSubCommandsTypes = {
   UPDATE: "update",
   DELETE: "delete",
   LIST: "list",
+  INFO: "info",
 } as const;
