@@ -35,11 +35,14 @@ export default (async () => {
     await client.initialize();
 
     const guild = client.guilds.cache.get(process.env.GUILDID || "");
+
     if (guild) {
       const channels = await guild.channels.fetch();
+
       for (const channel of channels.values()) {
         if (channel && channel.type === ChannelType.GuildVoice) {
-          for (const [memberId, member] of channel.members) {
+          
+          for (const [memberId] of channel.members) {
             const isAFK = guild.afkChannelId === channel.id;
             client.voiceManager.addUserToCollection(memberId, isAFK);
           }
