@@ -72,22 +72,22 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   async execute(arg: CmdArg<CmdType.SLASH_COMMAND>) {
     try {
       const subCommandName = arg.options.getSubcommand(true);
+      await arg.deferReply({ ephemeral: true });
       const { CREATE, UPDATE, DELETE, LIST, INFO } =
         ProfileCommandSubCommandsTypes;
 
-      const commands: {
-        [key: string]: (arg: CmdArg<CmdType.SLASH_COMMAND>) => Promise<unknown>;
-      } = {
-        [CREATE]: this.createPreset.bind(this),
-        [UPDATE]: this.updatePreset.bind(this),
-        [DELETE]: this.deletePreset.bind(this),
-        [LIST]: this.listPresets.bind(this),
-        [INFO]: this.infoPreset.bind(this),
-      };
-
-      await arg.deferReply({ ephemeral: true });
-
-      if (commands[subCommandName]) return commands[subCommandName](arg);
+      switch (subCommandName) {
+        case CREATE:
+          return this.createPreset(arg);
+        case UPDATE:
+          return this.updatePreset(arg);
+        case DELETE:
+          return this.deletePreset(arg);
+        case LIST:
+          return this.listPresets(arg);
+        case INFO:
+          return this.infoPreset(arg);
+      }
     } catch (err) {
       logger.error(err);
     }
@@ -106,15 +106,11 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
     // TODO: Add more checks for other fields (should create a helper for that)
     // src: https://discordjs.guide/popular-topics/embeds.html#embed-limits
-    if (!parsedJson.description) {
+    if (!parsedJson.title || !parsedJson.description || !parsedJson.fields) {
       return this.sendError(
-        "JSON you provided doesn't have description field",
+        "JSON you provided is not valid. It should contain title or description or fields",
         arg
       );
-    } else if (parsedJson.description.length > 4096) {
-      return this.sendError("Description is too long. Max length is 4096", arg);
-    } else if (parsedJson.description.length < 1) {
-      return this.sendError("Description is too short", arg);
     }
 
     // Normalize JSON for storing in db (remove spaces etc.)
@@ -174,6 +170,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
     if (!foundPreset)
       return this.sendError("Can't find preset by ID you provide", arg);
+
     await foundPreset.remove();
 
     return this.sendSuccess("Preset deleted!", arg);

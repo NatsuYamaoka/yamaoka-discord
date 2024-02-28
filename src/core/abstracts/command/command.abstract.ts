@@ -1,7 +1,7 @@
 import { Base } from "@abstracts/client/client.abstract";
 import { CmdArg, CmdOpt, CmdType } from "@abstracts/command/command.types";
 import { CustomClient } from "@client/custom-client";
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, InteractionType } from "discord.js";
 
 export class BaseCommand<K extends CmdType> extends Base {
   options?: CmdOpt<K>;
@@ -14,12 +14,11 @@ export class BaseCommand<K extends CmdType> extends Base {
     throw new Error("Cannot be invoked in parent class");
   }
 
-  sendError(
-    error: string,
-    arg: CmdArg<CmdType.SLASH_COMMAND>,
-    isExpected = true
-  ) {
+  sendError(error: string, arg: CmdArg<K>, isExpected = true) {
     try {
+      const isSlash = arg.type === InteractionType.ApplicationCommand;
+      const commandName = isSlash ? arg.commandName : arg.content;
+
       const embed = new EmbedBuilder()
         .setTitle("Возникла ошибка ❗")
         .setColor("Red")
@@ -31,8 +30,8 @@ export class BaseCommand<K extends CmdType> extends Base {
           },
           {
             name: "Команда 📜",
-            value: `> ${arg.commandName} ${
-              arg.options.getSubcommand(false) || ""
+            value: `> ${commandName} ${
+              (isSlash && arg.options.getSubcommand(false)) || ""
             }`,
           },
         ]);
@@ -41,6 +40,8 @@ export class BaseCommand<K extends CmdType> extends Base {
         embed.setFooter({
           text: "Это неожиданная ошибка! 😱\nПожалуйста, сообщите об этом разработчикам",
         });
+
+      if (!isSlash) return arg.reply({ embeds: [embed] });
 
       if (arg.deferred) {
         return arg.editReply({ embeds: [embed] });
@@ -54,15 +55,14 @@ export class BaseCommand<K extends CmdType> extends Base {
     }
   }
 
-  sendSuccess(
-    message: string,
-    arg: CmdArg<CmdType.SLASH_COMMAND>,
-    isEphemeral = true
-  ) {
+  sendSuccess(message: string, arg: CmdArg<K>, isEphemeral = true) {
+    const isSlash = arg.type === InteractionType.ApplicationCommand;
     const embed = new EmbedBuilder()
       .setTitle("Успешно! ✅")
       .setColor("Green")
       .setDescription(message.slice(0, 1023));
+
+    if (!isSlash) return arg.reply({ embeds: [embed] });
 
     if (arg.deferred) {
       return arg.editReply({ embeds: [embed] });
