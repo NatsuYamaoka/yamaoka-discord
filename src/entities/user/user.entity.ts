@@ -1,4 +1,5 @@
 import {
+  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -13,7 +14,7 @@ import { InventoryEntity } from "@entities/user/inventory.entity";
 import { ProfilePresetEntity } from "@entities/user/profile-preset.entity";
 
 @Entity()
-export class UserEntity {
+export class UserEntity extends BaseEntity {
   @PrimaryColumn()
   @Index()
   uid: string;
