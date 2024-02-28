@@ -6,7 +6,7 @@ import {
   handleUncaughtException,
   handleUnhandledRejection,
 } from "@utils/handle-exceptions.util";
-import { GatewayIntentBits } from "discord.js";
+import { ChannelType, GatewayIntentBits } from "discord.js";
 import { UserEntity } from "./entities";
 
 export default (async () => {
@@ -32,8 +32,20 @@ export default (async () => {
     const appFactory = new AppFactory({ module, client });
 
     appFactory.createApp();
+    await client.initialize();
 
-    client.initialize();
+    const guild = client.guilds.cache.get(process.env.GUILDID || "");
+    if (guild) {
+      const channels = await guild.channels.fetch();
+      for (const channel of channels.values()) {
+        if (channel && channel.type === ChannelType.GuildVoice) {
+          for (const [memberId, member] of channel.members) {
+            const isAFK = guild.afkChannelId === channel.id;
+            client.voiceManager.addUserToCollection(memberId, isAFK);
+          }
+        }
+      }
+    }
 
     process.on("SIGINT", handleExit.bind(null, client));
     process.on("SIGTERM", handleExit.bind(null, client));
