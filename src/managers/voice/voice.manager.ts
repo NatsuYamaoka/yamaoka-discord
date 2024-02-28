@@ -13,9 +13,10 @@ export class VoiceManager extends Base {
     logger.log("Voice Mananger inited");
   }
 
-  public addUserToCollection(uid: string) {
+  public addUserToCollection(uid: string, isAFK: boolean, ) {
     this.usersInVoice.set(uid, {
       joined_in: new Date(),
+      isAFK,
     });
   }
 

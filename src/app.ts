@@ -51,10 +51,11 @@ async function handleExit(client: CustomClient) {
 
   const voiceCollection = client.voiceManager.usersInVoice;
   for (const [userId, userData] of voiceCollection) {
-    const timeSpent = Math.floor(
-      new Date().getTime() - userData.joined_in.getTime()
-    );
     const userEntity = await UserEntity.findOne({ where: { uid: userId } });
+    const timeDifference = new Date().getTime() - userData.joined_in.getTime();
+    const timeSpent = Math.floor(
+      (userData.isAFK ? timeDifference : timeDifference) / 2
+    );
 
     await UserEntity.save({
       uid: userId,

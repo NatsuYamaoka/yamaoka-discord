@@ -15,7 +15,7 @@ export class VoiceJoinEvent extends BaseEvent {
 
     logger.log(`User ${member.displayName} joined "${voice}" voice channel`);
 
-    // ! note: is we should check if user joins idle channel?
-    this.client.voiceManager.addUserToCollection(member.id);
+    const isAFK = newState.guild.afkChannelId === newState.channelId;
+    this.client.voiceManager.addUserToCollection(member.id, isAFK);
   }
 }

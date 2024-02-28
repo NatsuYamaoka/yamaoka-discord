@@ -20,15 +20,16 @@ export class VoiceLeaveEvent extends BaseEvent {
     if (!userData) return;
 
     const userEntity = await UserEntity.findOne({ where: { uid: member.id } });
+    const timeDifference = new Date().getTime() - userData.joined_in.getTime();
     const timeSpent = Math.floor(
-      new Date().getTime() - userData.joined_in.getTime()
+      (userData.isAFK ? timeDifference : timeDifference) / 2
     );
 
     // todo: work on levelup system
     await UserEntity.save({
       uid: member.id,
       voice_time: timeSpent + (userEntity?.voice_time || 0),
-      voice_exp: Math.floor(timeSpent * 0.1) + (userEntity?.voice_exp || 0), // Is this formula correct? @shysecre
+      voice_exp: Math.floor(timeSpent * 0.1) + (userEntity?.voice_exp || 0),
     });
 
     this.client.voiceManager.removeUserFromCollection(member.id);
