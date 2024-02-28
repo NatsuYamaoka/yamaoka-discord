@@ -18,9 +18,13 @@ module.exports = {
   },
   plugins: ["@typescript-eslint"],
   rules: {
-    indent: ["error", 2],
-    "linebreak-style": ["ignore"],
-    quotes: ["error", "double"],
+    indent: ["error", 2, { SwitchCase: 1 }],
+    quotes: [
+      "error",
+      "double",
+      { allowTemplateLiterals: true, avoidEscape: true },
+    ],
     semi: ["error", "always"],
+    curly: ["error", "all"],
   },
 };

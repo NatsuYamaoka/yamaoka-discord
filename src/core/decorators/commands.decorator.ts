@@ -8,7 +8,9 @@ export function SlashCommand({
 }: CmdOpt<CmdType.SLASH_COMMAND>) {
   // eslint-disable-next-line @typescript-eslint/ban-types
   return (target: Function) => {
-    if (!data) data = new SlashCommandBuilder();
+    if (!data) {
+      data = new SlashCommandBuilder();
+    }
 
     name = name.toLowerCase();
 

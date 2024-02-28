@@ -41,9 +41,9 @@ export default (async () => {
 
       for (const channel of channels.values()) {
         if (channel && channel.type === ChannelType.GuildVoice) {
-          
           for (const [memberId] of channel.members) {
             const isAFK = guild.afkChannelId === channel.id;
+
             client.voiceManager.addUserToCollection(memberId, isAFK);
           }
         }
@@ -65,8 +65,10 @@ async function handleExit(client: CustomClient) {
   logger.log("Bot is shutting down");
 
   const voiceCollection = client.voiceManager.usersInVoice;
+
   for (const [userId, userData] of voiceCollection) {
     const userEntity = await UserEntity.findOne({ where: { uid: userId } });
+
     const timeDifference = new Date().getTime() - userData.joined_in.getTime();
     const timeSpent = Math.floor(
       (userData.isAFK ? timeDifference : timeDifference) / 2

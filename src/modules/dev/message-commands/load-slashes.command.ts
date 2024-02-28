@@ -40,7 +40,7 @@ export default class LoadSlashesCommand extends BaseCommand<CmdType.MESSAGE_COMM
 
       logger.info("( / ) Guild commands update finished");
 
-      message.react("👌").catch((err) => {});
+      message.react("👌").catch();
     } catch (err) {
       logger.error(err);
     }

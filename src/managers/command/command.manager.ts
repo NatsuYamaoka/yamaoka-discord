@@ -7,6 +7,7 @@ import {
   SlashCommandType,
 } from "@abstracts/command/command.types";
 import { ModuleAbstract } from "@abstracts/module/module.abstract";
+import { isSlashCommand } from "@app/common/types/guards.types";
 import { logger } from "@app/core/logger/logger-client";
 import { CustomClient } from "@client/custom-client";
 import {
@@ -25,7 +26,9 @@ export class CommandManager extends Base {
   public messageCommands: MessageCommandsMap = new Map();
 
   public loadCommands(module: ModuleAbstract) {
-    if (!module.commands) return;
+    if (!module.commands) {
+      return;
+    }
 
     for (const Command of module.commands) {
       const commandInstance = new Command(this.client);
@@ -47,25 +50,22 @@ export class CommandManager extends Base {
 
   public async executeCommand<T extends CmdType>(
     cmdName: string,
-    cmdArg: CmdArg<T>,
-    isSlash: boolean
+    cmdArg: CmdArg<T>
   ) {
     try {
-      const command = isSlash
+      const command = isSlashCommand(cmdArg)
         ? this.slashCommands.get(cmdName)
         : this.messageCommands.get(cmdName);
 
-      if (!command) return;
+      if (!command) {
+        return;
+      }
 
-      isSlash
-        ? this.executeSlashCommand(
-            cmdArg as CmdArg<CmdType.SLASH_COMMAND>,
-            command as SlashCommandType
-          )
-        : this.executeMessageCommand(
-            cmdArg as CmdArg<CmdType.MESSAGE_COMMAND>,
-            command as MessageCommandType
-          );
+      if (isSlashCommand(cmdArg)) {
+        this.executeSlashCommand(cmdArg, command as SlashCommandType);
+      } else {
+        this.executeMessageCommand(cmdArg, command as MessageCommandType);
+      }
     } catch (err) {
       logger.error(`${err}`);
     }
@@ -75,17 +75,23 @@ export class CommandManager extends Base {
     allowedUsersOrRoles: AllowedUsersOrRolesType[],
     commandArgument: CmdArg<CmdType.MESSAGE_COMMAND>
   ) {
-    if (allowedUsersOrRoles.includes(commandArgument.author.id)) return true;
+    if (allowedUsersOrRoles.includes(commandArgument.author.id)) {
+      return true;
+    }
 
     const fetchedMember = await commandArgument.member?.fetch();
 
-    if (!fetchedMember) return false;
+    if (!fetchedMember) {
+      return false;
+    }
+
     if (
       allowedUsersOrRoles.some((val) =>
         val !== undefined ? fetchedMember.roles.cache.has(val) : null
       )
-    )
+    ) {
       return true;
+    }
   }
 
   private async executeSlashCommand(
@@ -94,7 +100,9 @@ export class CommandManager extends Base {
   ) {
     try {
       await command.execute(arg);
-    } catch (err) {}
+    } catch (err) {
+      logger.error(err);
+    }
   }
 
   private async executeMessageCommand(
@@ -102,16 +110,24 @@ export class CommandManager extends Base {
     command: MessageCommandType
   ) {
     try {
-      if (!command.options) return;
+      if (!command.options) {
+        return;
+      }
 
       const checkedPermissions = await this.checkPermissions(
         command.options.allowedUsersOrRoles,
         arg
       );
 
-      if (!checkedPermissions) return;
+      if (!checkedPermissions) {
+        return arg.reply(
+          "You don't have enough permissions to use this command"
+        );
+      }
 
       await command.execute(arg);
-    } catch (err) {}
+    } catch (err) {
+      logger.error(err);
+    }
   }
 }

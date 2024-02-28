@@ -9,11 +9,7 @@ export class MessageCreateEvent extends BaseEvent {
     const [cmdName] = message.content.trim().split(" ");
 
     if (cmdName.startsWith(appConfig.prefix)) {
-      this.client.commandManager.executeCommand(
-        cmdName.slice(1),
-        message,
-        false
-      );
+      this.client.commandManager.executeCommand(cmdName.slice(1), message);
     }
   }
 }
