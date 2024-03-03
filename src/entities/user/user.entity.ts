@@ -4,6 +4,7 @@ import {
   CreateDateColumn,
   Entity,
   Index,
+  ManyToMany,
   OneToMany,
   OneToOne,
   PrimaryColumn,
@@ -18,11 +19,6 @@ export class UserEntity extends BaseEntity {
   @PrimaryColumn()
   @Index()
   uid: string;
-
-  @Column({
-    default: 0,
-  })
-  level: number;
 
   @Column({
     default: 0,
@@ -69,6 +65,13 @@ export class UserEntity extends BaseEntity {
     nullable: true,
   })
   profile_presets?: ProfilePresetEntity[];
+
+  @ManyToMany(
+    () => ProfilePresetEntity,
+    (profilePreset) => profilePreset.selected_by,
+    { cascade: true }
+  )
+  selected_preset?: ProfilePresetEntity[];
 
   @CreateDateColumn()
   created_at: Date;
