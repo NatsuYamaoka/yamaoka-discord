@@ -1,6 +1,7 @@
 import { UserEntity } from "@entities/index";
 import { GuildMember, User } from "discord.js";
-import { convertMilisToString } from "./converter.util";
+import { getDuration } from "./get-duration.util";
+import { CustomClient } from "@client/custom-client";
 
 interface TokensProps {
   availableTokens: string[];
@@ -8,10 +9,19 @@ interface TokensProps {
 }
 
 export function gatherProfileTokens(
+  client: CustomClient,
   userDB: UserEntity,
   user: User,
   member?: GuildMember
 ): TokensProps {
+  const voiceCollection = client.voiceManager.usersInVoice;
+  const userVoice = voiceCollection.get(user.id);
+  let userVoiceTime = 0;
+
+  if (userVoice) {
+    userVoiceTime = new Date().getTime() - userVoice.joined_in.getTime();
+  }
+
   // ? Add tokens if needed
   const tokens = {
     "user.avatar": user.displayAvatarURL(),
@@ -26,7 +36,7 @@ export function gatherProfileTokens(
         .filter((role) => role !== "@everyone")
         .join(", ") || "",
     "user.messages": userDB.messages_sent,
-    "user.voice_time": convertMilisToString(userDB.voice_time),
+    "user.voice_time": getDuration((userDB.voice_time + userVoiceTime) / 1000),
     "user.voice_balance": userDB.wallet.voice_balance,
     "user.balance": userDB.wallet.balance,
     "user.inventory_items": userDB.inventory.shop_items?.length || 0,

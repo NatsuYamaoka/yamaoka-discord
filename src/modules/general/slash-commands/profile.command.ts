@@ -44,6 +44,7 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
     const member = interaction.guild?.members.cache.get(userOption.id);
     const { tokens } = gatherProfileTokens(
+      this.client,
       userData,
       userOption,
       (member as GuildMember) || undefined
@@ -52,10 +53,8 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     const embed =
       userData.selected_preset?.[0]?.json || JSON.stringify(defaultTemplate);
 
-    const editedEmbed = embed.replace(/{{.*?}}/g, (mtch) => {
-      return `${tokens[mtch.replace(/\{\{|\}\}/g, "")]
-        .toString()
-        .replace(/"/g, '\\"')}`;
+    const editedEmbed = embed.replace(/{{(.*?)}}/g, (_, mtch) => {
+      return `${tokens[mtch].toString().replace(/"/g, '\\"')}`;
     });
 
     const buildedEmbed = new EmbedBuilder(JSON.parse(editedEmbed));
