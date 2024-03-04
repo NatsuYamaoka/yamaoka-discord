@@ -3,7 +3,7 @@ import { CmdArg, CmdType } from "@abstracts/command/command.types";
 import { SlashCommand } from "@decorators/commands.decorator";
 import { UserEntity } from "@entities/index";
 import { gatherProfileTokens } from "@utils/gather-tokens.util";
-import { EmbedBuilder, GuildMember, SlashCommandBuilder } from "discord.js";
+import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 
 @SlashCommand({
   name: "profile",
@@ -43,11 +43,15 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     });
 
     const member = interaction.guild?.members.cache.get(userOption.id);
+    if (!member) {
+      // Since out command is guild only, we can assume that user is a member of the server
+      return this.sendError("User is not a member of the server", interaction);
+    }
+
     const { tokens } = gatherProfileTokens(
-      this.client,
       userData,
-      userOption,
-      (member as GuildMember) || undefined
+      member,
+      this.client.voiceManager
     );
 
     const embed =

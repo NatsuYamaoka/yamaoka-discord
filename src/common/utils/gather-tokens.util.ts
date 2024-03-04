@@ -1,7 +1,7 @@
 import { UserEntity } from "@entities/index";
-import { GuildMember, User } from "discord.js";
+import { GuildMember } from "discord.js";
 import { getDuration } from "./get-duration.util";
-import { CustomClient } from "@client/custom-client";
+import { VoiceManager } from "@managers/index";
 
 interface TokensProps {
   availableTokens: string[];
@@ -9,13 +9,14 @@ interface TokensProps {
 }
 
 export function gatherProfileTokens(
-  client: CustomClient,
   userDB: UserEntity,
-  user: User,
-  member?: GuildMember
+  member: GuildMember,
+  voiceManager: VoiceManager
 ): TokensProps {
-  const voiceCollection = client.voiceManager.usersInVoice;
-  const userVoice = voiceCollection.get(user.id);
+  const { user } = member;
+
+  const voiceCollection = voiceManager;
+  const userVoice = voiceCollection.getUserFromCollection(user.id);
   let userVoiceTime = 0;
 
   if (userVoice) {
