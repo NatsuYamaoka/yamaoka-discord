@@ -24,7 +24,7 @@ const pluralizations = {
   },
 };
 
-export function getDuration(seconds: number) {
+export function getDuration(seconds: number, precise = false) {
   const d = Math.floor(seconds / (3600 * 24));
   const h = Math.floor((seconds % (3600 * 24)) / 3600);
   const m = Math.floor((seconds % 3600) / 60);
@@ -39,6 +39,9 @@ export function getDuration(seconds: number) {
     if (value > 0 || (seconds == 0 && i == 3)) {
       const word = pluralize(value, "", pluralizations[values[i]]);
       return_value += `${value} ${word} `;
+      if (!precise && i > 0 && eval(values[i - 1]) > 0) {
+        break;
+      }
     }
   }
   return return_value.trim();

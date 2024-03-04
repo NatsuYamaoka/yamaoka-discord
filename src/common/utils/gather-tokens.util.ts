@@ -15,8 +15,7 @@ export function gatherProfileTokens(
 ): TokensProps {
   const { user } = member;
 
-  const voiceCollection = voiceManager;
-  const userVoice = voiceCollection.getUserFromCollection(user.id);
+  const userVoice = voiceManager.getUserFromCollection(user.id);
   let userVoiceTime = 0;
 
   if (userVoice) {
