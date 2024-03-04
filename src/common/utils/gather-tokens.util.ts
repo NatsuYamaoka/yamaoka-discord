@@ -18,10 +18,13 @@ export function gatherProfileTokens(
     "user.name": user.globalName || user.username,
     "user.display_name": member?.displayName || user.username,
     "user.id": user.id,
-    "user.joined_discord": user.createdTimestamp,
-    "user.joined_server": member?.joinedTimestamp || 0,
+    "user.joined_discord": Math.floor(user.createdTimestamp / 1000),
+    "user.joined_server": Math.floor((member?.joinedTimestamp || 0) / 1000),
     "user.roles":
-      member?.roles?.cache?.map((role) => role.name).join(",") || "",
+      member?.roles?.cache
+        ?.map((role) => role.name)
+        .filter((role) => role !== "@everyone")
+        .join(", ") || "",
     "user.messages": userDB.messages_sent,
     "user.voice_time": convertMilisToString(userDB.voice_time),
     "user.voice_balance": userDB.wallet.voice_balance,
