@@ -45,7 +45,7 @@ export class VoiceLeaveEvent extends BaseEvent {
     await UserEntity.save({
       uid: member.id,
       voice_time: timeDifference + (userEntity?.voice_time || 0),
-      voice_exp: Math.floor(timeSpent * 0.1) + (userEntity?.voice_exp || 0),
+      voice_exp: Math.floor(timeSpent * 0.01) + (userEntity?.voice_exp || 0),
     });
 
     this.client.voiceManager.removeUserFromCollection(member.id);
