@@ -298,11 +298,6 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
   public createEmbedFromJson(preset: ProfilePresetEntity) {
     const embedBuilder = new EmbedBuilder(JSON.parse(preset.json));
-    // ! Deprecated: Remove this code after all embeds with old color format will be updated
-    //Use .setColor function to convert color to number if it's a string
-    if (embedBuilder.data.color) {
-      embedBuilder.setColor(embedBuilder.data.color);
-    }
 
     return embedBuilder;
   }
