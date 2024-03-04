@@ -15,6 +15,7 @@ import {
   ComponentType,
   EmbedBuilder,
   SlashCommandBuilder,
+  resolveColor,
 } from "discord.js";
 import { isValidJson } from "@utils/json-validator.util";
 
@@ -117,12 +118,18 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       );
     }
 
-    // Normalize JSON for storing in db (remove spaces etc.)
-    const modifiedJson = JSON.stringify(JSON.parse(json));
+    // If color is a string, try to resolve it to number
+    if (parsedJson.color && typeof parsedJson.color !== "number") {
+      try {
+        parsedJson.color = resolveColor(parsedJson.color);
+      } catch (err) {
+        parsedJson.color = 0x2f3136; // Default color
+      }
+    }
 
     const data = {
       updated_by: arg.user.id,
-      json: modifiedJson,
+      json: JSON.stringify(parsedJson),
     };
 
     if (isCustom) {
@@ -291,10 +298,6 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
   public createEmbedFromJson(preset: ProfilePresetEntity) {
     const embedBuilder = new EmbedBuilder(JSON.parse(preset.json));
-    // Use .setColor function to convert color to number if it's a string
-    if (embedBuilder.data.color) {
-      embedBuilder.setColor(embedBuilder.data.color);
-    }
 
     return embedBuilder;
   }

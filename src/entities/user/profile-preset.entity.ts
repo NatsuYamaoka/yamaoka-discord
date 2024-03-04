@@ -1,6 +1,13 @@
 import { PredefinedBaseEntity } from "@entities/base/base.entity";
 import { UserEntity } from "@entities/user/user.entity";
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+} from "typeorm";
 
 @Entity()
 export class ProfilePresetEntity extends PredefinedBaseEntity {
@@ -19,4 +26,8 @@ export class ProfilePresetEntity extends PredefinedBaseEntity {
   })
   @JoinColumn()
   user?: UserEntity;
+
+  @ManyToMany(() => UserEntity, (user) => user.selected_preset)
+  @JoinTable()
+  selected_by: UserEntity;
 }
