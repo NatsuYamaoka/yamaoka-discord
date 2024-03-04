@@ -38,13 +38,13 @@ export class VoiceLeaveEvent extends BaseEvent {
 
     const timeDifference = new Date().getTime() - userData.joined_in.getTime();
     const timeSpent = Math.floor(
-      (userData.isAFK ? timeDifference : timeDifference) / 2
+      userData.isAFK ? timeDifference / 2 : timeDifference
     );
 
     // todo: work on levelup system
     await UserEntity.save({
       uid: member.id,
-      voice_time: timeSpent + (userEntity?.voice_time || 0),
+      voice_time: timeDifference + (userEntity?.voice_time || 0),
       voice_exp: Math.floor(timeSpent * 0.1) + (userEntity?.voice_exp || 0),
     });
 

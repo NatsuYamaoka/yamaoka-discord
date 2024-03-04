@@ -71,13 +71,13 @@ async function handleExit(client: CustomClient) {
 
     const timeDifference = new Date().getTime() - userData.joined_in.getTime();
     const timeSpent = Math.floor(
-      (userData.isAFK ? timeDifference : timeDifference) / 2
+      userData.isAFK ? timeDifference / 2 : timeDifference
     );
 
     await UserEntity.save({
       uid: userId,
-      voice_time: timeSpent + (userEntity?.voice_time || 0),
-      voice_exp: Math.floor(timeSpent * 0.1) + (userEntity?.voice_exp || 0), // Is this formula correct? @shysecre
+      voice_time: timeDifference + (userEntity?.voice_time || 0),
+      voice_exp: Math.floor(timeSpent * 0.01) + (userEntity?.voice_exp || 0),
     });
   }
 
