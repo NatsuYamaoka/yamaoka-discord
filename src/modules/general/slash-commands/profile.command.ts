@@ -69,7 +69,7 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   }
 }
 
-const defaultTemplate = {
+export const defaultTemplate = {
   color: 9266629,
   author: {
     name: "Профиль пользователя",

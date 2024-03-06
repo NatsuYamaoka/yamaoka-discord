@@ -10,6 +10,7 @@ export class BaseCommand<K extends CmdType> extends Base {
     super(client);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   execute(arg: CmdArg<K>): Promise<unknown> | unknown {
     throw new Error("Cannot be invoked in parent class");
   }
@@ -36,19 +37,28 @@ export class BaseCommand<K extends CmdType> extends Base {
           },
         ]);
 
-      if (!isExpected)
+      if (!isExpected) {
         embed.setFooter({
           text: "Это неожиданная ошибка! 😱\nПожалуйста, сообщите об этом разработчикам",
         });
+      }
 
-      if (!isSlash) return arg.reply({ embeds: [embed] });
+      const reply = {
+        content: "",
+        embeds: [embed],
+        components: [],
+      };
+
+      if (!isSlash) {
+        return arg.reply(reply);
+      }
 
       if (arg.deferred) {
-        return arg.editReply({ embeds: [embed] });
+        return arg.editReply(reply);
       } else if (arg.replied) {
-        return arg.followUp({ embeds: [embed], ephemeral: true });
+        return arg.followUp({ ...reply, ephemeral: true });
       } else {
-        return arg.reply({ embeds: [embed], ephemeral: true });
+        return arg.reply({ ...reply, ephemeral: true });
       }
     } catch (err) {
       console.log(err);
@@ -62,14 +72,22 @@ export class BaseCommand<K extends CmdType> extends Base {
       .setColor("Green")
       .setDescription(message.slice(0, 1023));
 
-    if (!isSlash) return arg.reply({ embeds: [embed] });
+    const reply = {
+      content: "",
+      embeds: [embed],
+      components: [],
+    };
+
+    if (!isSlash) {
+      return arg.reply(reply);
+    }
 
     if (arg.deferred) {
-      return arg.editReply({ embeds: [embed] });
+      return arg.editReply(reply);
     } else if (arg.replied) {
-      return arg.followUp({ embeds: [embed], ephemeral: isEphemeral });
+      return arg.followUp({ ...reply, ephemeral: isEphemeral });
     } else {
-      return arg.reply({ embeds: [embed], ephemeral: isEphemeral });
+      return arg.reply({ ...reply, ephemeral: isEphemeral });
     }
   }
 }

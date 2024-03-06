@@ -20,6 +20,10 @@ export default class PaginationHelper<T> {
     this.totalPages = Math.ceil(this.elements.length / this.elementsOnPage);
   }
 
+  public get currentPage() {
+    return this.createPage()[0];
+  }
+
   public nextPage() {
     this.page =
       this.page + 1 > this.totalPages ? this.totalPages : this.page + 1;
