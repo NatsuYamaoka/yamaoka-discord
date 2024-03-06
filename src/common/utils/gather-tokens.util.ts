@@ -24,7 +24,7 @@ export function gatherProfileTokens(
 
   // ? Add tokens if needed
   const tokens = {
-    "user.avatar": user.displayAvatarURL(),
+    "user.avatar": user.displayAvatarURL({ size: 4096 }),
     "user.name": user.globalName || user.username,
     "user.display_name": member?.displayName || user.username,
     "user.id": user.id,
