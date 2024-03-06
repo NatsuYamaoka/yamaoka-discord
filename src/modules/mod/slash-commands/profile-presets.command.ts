@@ -14,10 +14,14 @@ import {
   ButtonBuilder,
   ComponentType,
   EmbedBuilder,
+  GuildMember,
   SlashCommandBuilder,
   resolveColor,
 } from "discord.js";
 import { isValidJson } from "@utils/json-validator.util";
+import { parsePresetTokens } from "@utils/embed-parser.util";
+import { gatherProfileTokens } from "@utils/gather-tokens.util";
+import { UserEntity } from "@entities/index";
 
 @SlashCommand({
   name: "profile-preset",
@@ -215,9 +219,37 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       return this.sendError("Can't create component collector :(", arg);
     }
 
+    const userData = await UserEntity.findOne({
+      where: {
+        uid: arg.user.id,
+      },
+      relations: {
+        inventory: true,
+        wallet: true,
+        profile_presets: true,
+        selected_preset: true,
+      },
+    }).then((user) => {
+      if (!user) {
+        return UserEntity.save({
+          uid: arg.user.id,
+          inventory: {},
+          wallet: {},
+        });
+      } else {
+        return user;
+      }
+    });
+
+    const { tokens } = gatherProfileTokens(
+      userData,
+      arg.member as GuildMember,
+      this.client.voiceManager
+    );
+
     await arg.editReply({
       content: this.createContent(firstPreset, paginationHelper),
-      embeds: [this.createEmbedFromJson(firstPreset)],
+      embeds: [parsePresetTokens(tokens, firstPreset)],
       components: [actionRow],
     });
 
@@ -243,7 +275,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
       int.update({
         content: this.createContent(preset, paginationHelper),
-        embeds: [this.createEmbedFromJson(preset)],
+        embeds: [parsePresetTokens(tokens, preset)],
       });
     });
   }
@@ -261,7 +293,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       )
       .addFields([
         {
-          name: "Что такое пресеты?",
+          name: ``,
           value:
             "Пресеты - это предустановленные шаблоны для профиля, которые можно использовать для быстрого изменения внешнего вида профиля.",
         },
@@ -294,12 +326,6 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       .setImage("https://i.imgur.com/Ut7zM46.png");
 
     return arg.editReply({ embeds: [embed] });
-  }
-
-  public createEmbedFromJson(preset: ProfilePresetEntity) {
-    const embedBuilder = new EmbedBuilder(JSON.parse(preset.json));
-
-    return embedBuilder;
   }
 
   public createContent(

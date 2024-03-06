@@ -12,12 +12,12 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
-  EmbedBuilder,
   GuildMember,
 } from "discord.js";
 
 import { defaultTemplate } from "./profile.command";
 import { gatherProfileTokens } from "@utils/gather-tokens.util";
+import { parsePresetTokens } from "@utils/embed-parser.util";
 
 const TO_PROCEED = "to-proceed-button";
 
@@ -58,13 +58,17 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       );
     }
 
+    // Note: This is a temporary solution, until the shop system is released
+    const profile_presets = await ProfilePresetEntity.find();
+
     // Creating pseudo preset list, to not mess with the original data
     const presets = [
       {
         id: "default",
         json: JSON.stringify(defaultTemplate),
       } as ProfilePresetEntity,
-      ...userData.profile_presets,
+      //...userData.profile_presets, // Note: Uncomment this on release of shop system
+      ...profile_presets,
     ];
 
     const { list } = getNavigationSetup();
@@ -106,7 +110,7 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
     await interaction.editReply({
       content: this.createContent(paginationHelper),
-      embeds: [this.createEmbedFromJson(tokens, firstPreset)],
+      embeds: [parsePresetTokens(tokens, firstPreset)],
       components: [actionRow, actionRowProceed],
     });
 
@@ -125,7 +129,7 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
           interaction.deleteReply();
           return;
         case TO_PROCEED:
-          preset = paginationHelper.currentPage;
+          preset = paginationHelper.createPage()[0];
           userData.selected_preset = preset.id !== "default" ? [preset] : []; // If default preset, then remove it
 
           await UserEntity.save(userData);
@@ -139,21 +143,9 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
       int.update({
         content: this.createContent(paginationHelper),
-        embeds: [this.createEmbedFromJson(tokens, preset)],
+        embeds: [parsePresetTokens(tokens, preset)],
       });
     });
-  }
-
-  public createEmbedFromJson(
-    tokens: { [k: string]: string | number },
-    preset: ProfilePresetEntity
-  ) {
-    const embed = preset.json || JSON.stringify(defaultTemplate);
-    const embedBuilder = embed.replace(/{{(.*?)}}/g, (_, mtch) => {
-      return `${tokens[mtch].toString().replace(/"/g, '\\"')}`;
-    });
-
-    return new EmbedBuilder(JSON.parse(embedBuilder));
   }
 
   public createContent(

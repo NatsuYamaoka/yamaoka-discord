@@ -1,9 +1,10 @@
 import { BaseCommand } from "@abstracts/command/command.abstract";
 import { CmdArg, CmdType } from "@abstracts/command/command.types";
 import { SlashCommand } from "@decorators/commands.decorator";
-import { UserEntity } from "@entities/index";
+import { ProfilePresetEntity, UserEntity } from "@entities/index";
+import { parsePresetTokens } from "@utils/embed-parser.util";
 import { gatherProfileTokens } from "@utils/gather-tokens.util";
-import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
 
 @SlashCommand({
   name: "profile",
@@ -54,18 +55,14 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       this.client.voiceManager
     );
 
-    const embed =
-      userData.selected_preset?.[0]?.json || JSON.stringify(defaultTemplate);
+    const embed = userData.selected_preset?.[0] as ProfilePresetEntity;
 
-    const editedEmbed = embed.replace(/{{(.*?)}}/g, (_, mtch) => {
-      return `${tokens[mtch].toString().replace(/"/g, '\\"')}`;
-    });
-
-    const buildedEmbed = new EmbedBuilder(JSON.parse(editedEmbed));
-    interaction.editReply({ embeds: [buildedEmbed] }).catch((err) => {
-      // I will be not surprised if users will find a way to make this error, so it's better to handle it
-      this.sendError(err.message, interaction, false);
-    });
+    interaction
+      .editReply({ embeds: [parsePresetTokens(tokens, embed)] })
+      .catch((err) => {
+        // I will be not surprised if users will find a way to make this error, so it's better to handle it
+        this.sendError(err.message, interaction, false);
+      });
   }
 }
 
@@ -78,12 +75,13 @@ export const defaultTemplate = {
   thumbnail: {
     url: "{{user.avatar}}",
   },
+
   fields: [
     {
       name: "🗂️ Общая информация:",
       value:
         "С нами на сервере с: <t:{{user.joined_server}}:D>\n" +
-        "В дискорде с:  <t:{{user.joined_discord}}:D>",
+        "В дискорде с: <t:{{user.joined_discord}}:D>",
       inline: false,
     },
     {
