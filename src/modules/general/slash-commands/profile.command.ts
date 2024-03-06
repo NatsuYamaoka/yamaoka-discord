@@ -55,7 +55,7 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       this.client.voiceManager
     );
 
-    const embed = userData.selected_preset?.[0] as ProfilePresetEntity;
+    const embed = userData.selected_preset?.[0];
 
     interaction
       .editReply({ embeds: [parsePresetTokens(tokens, embed)] })
