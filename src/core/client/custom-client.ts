@@ -41,7 +41,8 @@ export class CustomClient extends Client {
 
       await this.login(this._token);
     } catch (err) {
-      logger.error("Error happened during bot init");
+      logger.error("Error happened during bot init:");
+      logger.error(err);
     }
   }
 }
