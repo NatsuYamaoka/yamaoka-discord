@@ -27,7 +27,7 @@ const TO_PROCEED = "to-proceed-button";
 })
 export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   async execute(interaction: CmdArg<CmdType.SLASH_COMMAND>) {
-    await interaction.deferReply();
+    await interaction.deferReply({ ephemeral: true });
 
     const userData = await UserEntity.findOne({
       where: {
