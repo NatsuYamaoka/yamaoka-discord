@@ -18,6 +18,7 @@ import {
 import { defaultTemplate } from "./profile.command";
 import { gatherProfileTokens } from "@utils/gather-tokens.util";
 import { parsePresetTokens } from "@utils/embed-parser.util";
+import { userService } from "@app/services/user.service";
 
 const TO_PROCEED = "to-proceed-button";
 
@@ -29,27 +30,15 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   async execute(interaction: CmdArg<CmdType.SLASH_COMMAND>) {
     await interaction.deferReply({ ephemeral: true });
 
-    const userData = await UserEntity.findOne({
-      where: {
-        uid: interaction.user.id,
-      },
-      relations: {
+    const userData = await userService.findOneByIdOrCreate(
+      interaction.user.id,
+      {
         inventory: true,
         wallet: true,
         profile_presets: true,
         selected_preset: true,
-      },
-    }).then((user) => {
-      if (!user) {
-        return UserEntity.save({
-          uid: interaction.user.id,
-          inventory: {},
-          wallet: {},
-        });
-      } else {
-        return user;
       }
-    });
+    );
 
     if (!userData.profile_presets || userData.profile_presets?.length == 0) {
       return this.sendError(

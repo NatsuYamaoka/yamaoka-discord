@@ -21,7 +21,7 @@ import {
 import { isValidJson } from "@utils/json-validator.util";
 import { parsePresetTokens } from "@utils/embed-parser.util";
 import { gatherProfileTokens } from "@utils/gather-tokens.util";
-import { UserEntity } from "@entities/index";
+import { userService } from "@app/services/user.service";
 
 @SlashCommand({
   name: "profile-preset",
@@ -189,7 +189,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     return this.sendSuccess("Preset deleted!", arg);
   }
 
-  public async listPresets(arg: CmdArg<CmdType.SLASH_COMMAND>) {
+  public async listPresets(interaction: CmdArg<CmdType.SLASH_COMMAND>) {
     const presets = await ProfilePresetEntity.find();
 
     const { list } = getNavigationSetup();
@@ -198,7 +198,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     if (!presets.length) {
       return this.sendError(
         "Unfortunatelly, we doesn't have any presets in the database",
-        arg
+        interaction
       );
     }
 
@@ -208,46 +208,36 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
     const [firstPreset] = paginationHelper.createPage();
 
-    const componentCollector = arg.channel?.createMessageComponentCollector({
-      componentType: ComponentType.Button,
-      filter: (int) =>
-        int.user.id === arg.user.id && int.message.interaction?.id === arg.id,
-      time: 5 * 1000 * 60000, // 5 minutes
-    });
+    const componentCollector =
+      interaction.channel?.createMessageComponentCollector({
+        componentType: ComponentType.Button,
+        filter: (int) =>
+          int.user.id === interaction.user.id &&
+          int.message.interaction?.id === interaction.id,
+        time: 5 * 1000 * 60000, // 5 minutes
+      });
 
     if (!componentCollector) {
-      return this.sendError("Can't create component collector :(", arg);
+      return this.sendError("Can't create component collector :(", interaction);
     }
 
-    const userData = await UserEntity.findOne({
-      where: {
-        uid: arg.user.id,
-      },
-      relations: {
+    const userData = await userService.findOneByIdOrCreate(
+      interaction.user.id,
+      {
         inventory: true,
         wallet: true,
         profile_presets: true,
         selected_preset: true,
-      },
-    }).then((user) => {
-      if (!user) {
-        return UserEntity.save({
-          uid: arg.user.id,
-          inventory: {},
-          wallet: {},
-        });
-      } else {
-        return user;
       }
-    });
+    );
 
     const { tokens } = gatherProfileTokens(
       userData,
-      arg.member as GuildMember,
+      interaction.member as GuildMember,
       this.client.voiceManager
     );
 
-    await arg.editReply({
+    await interaction.editReply({
       content: this.createContent(firstPreset, paginationHelper),
       embeds: [parsePresetTokens(tokens, firstPreset)],
       components: [actionRow],
@@ -265,7 +255,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
           break;
         case NavigationButtons.TO_STOP:
           componentCollector.stop();
-          arg.deleteReply();
+          interaction.deleteReply();
           return;
       }
 
@@ -281,11 +271,6 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   }
 
   public async infoPreset(arg: CmdArg<CmdType.SLASH_COMMAND>) {
-    const emptyField = {
-      name: " ",
-      value: " ",
-    };
-
     const embed = new EmbedBuilder()
       .setTitle("📂 Информация о пресетах")
       .setDescription(
@@ -293,30 +278,26 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       )
       .addFields([
         {
-          name: ``,
+          name: `‎`, // Don't forget to add those symbols because field name is required and simple space doesn't work here.
           value:
             "Пресеты - это предустановленные шаблоны для профиля, которые можно использовать для быстрого изменения внешнего вида профиля.",
         },
-        emptyField,
         {
           name: "Как создать пресет?",
           value:
             "Используйте сайт для геренации embed-объекта, например [Discord Embed Creator](https://embed.dan.onl/), и эскортируйте JSON-объект в команду.\n " +
             '```/profile-preset create json: {"title":"My Profile","description":"Hello, world!"}```',
         },
-        emptyField,
         {
           name: "Как получить список пресетов?",
           value:
             "С помощью команды `/profile-preset list` вы можете получить список всех пресетов в базе данных и их ID.",
         },
-        emptyField,
         {
           name: "Как обновить пресет?",
           value:
             "Команда `/profile-preset update id:uuid json:object` поможет вам обновить пресет по его ID.",
         },
-        emptyField,
         {
           name: "Как удалить пресет?",
           value:

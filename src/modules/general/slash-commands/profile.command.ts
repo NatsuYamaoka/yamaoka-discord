@@ -1,7 +1,7 @@
 import { BaseCommand } from "@abstracts/command/command.abstract";
 import { CmdArg, CmdType } from "@abstracts/command/command.types";
+import { userService } from "@app/services/user.service";
 import { SlashCommand } from "@decorators/commands.decorator";
-import { ProfilePresetEntity, UserEntity } from "@entities/index";
 import { parsePresetTokens } from "@utils/embed-parser.util";
 import { gatherProfileTokens } from "@utils/gather-tokens.util";
 import { SlashCommandBuilder } from "discord.js";
@@ -21,26 +21,12 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     await interaction.deferReply();
 
     const userOption = interaction.options.getUser("user") || interaction.user;
-    const userData = await UserEntity.findOne({
-      where: {
-        uid: userOption.id,
-      },
-      relations: {
-        inventory: true,
-        wallet: true,
-        profile_presets: true,
-        selected_preset: true,
-      },
-    }).then((user) => {
-      if (!user) {
-        return UserEntity.save({
-          uid: userOption.id,
-          inventory: {},
-          wallet: {},
-        });
-      } else {
-        return user;
-      }
+
+    const userData = await userService.findOneByIdOrCreate(userOption.id, {
+      inventory: true,
+      wallet: true,
+      profile_presets: true,
+      selected_preset: true,
     });
 
     const member = interaction.guild?.members.cache.get(userOption.id);
