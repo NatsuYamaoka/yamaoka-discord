@@ -148,17 +148,17 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     const json = arg.options.getString("json", true);
 
     if (!id.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/)) {
-      return this.sendError("Invalid ID", arg);
+      return this.sendError("Невалидный ID", arg);
     }
 
     const foundPreset = await ProfilePresetEntity.findOne({ where: { id } });
 
     if (!foundPreset) {
-      return this.sendError("Can't find preset by ID you provide", arg);
+      return this.sendError("Не могу найти пресет по предоставленному ID", arg);
     }
 
     if (!isValidJson(json)) {
-      return this.sendError("JSON you provided is not valid", arg);
+      return this.sendError("JSON который вы предоставили невалиден", arg);
     }
 
     await ProfilePresetEntity.save({
@@ -173,18 +173,18 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     const id = arg.options.getString("id", true);
 
     if (!id.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/)) {
-      return this.sendError("Invalid ID", arg);
+      return this.sendError("Невалидный ID", arg);
     }
 
     const foundPreset = await ProfilePresetEntity.findOne({ where: { id } });
 
     if (!foundPreset) {
-      return this.sendError("Can't find preset by ID you provide", arg);
+      return this.sendError("Не могу найти пресет по предоставленному ID", arg);
     }
 
     await ProfilePresetEntity.remove(foundPreset);
 
-    return this.sendSuccess("Preset deleted!", arg);
+    return this.sendSuccess("Пресет удалён!", arg);
   }
 
   public async listPresets(interaction: CmdArg<CmdType.SLASH_COMMAND>) {
@@ -195,7 +195,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
     if (!presets.length) {
       return this.sendError(
-        "Unfortunatelly, we doesn't have any presets in the database",
+        "В базе данных нет пресетов для профиля",
         interaction
       );
     }
@@ -214,10 +214,6 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
           int.message.interaction?.id === interaction.id,
         time: 5 * 1000 * 60000, // 5 minutes
       });
-
-    if (!componentCollector) {
-      return this.sendError("Can't create component collector :(", interaction);
-    }
 
     const userData = await userService.findOneByIdOrCreate(
       interaction.user.id,
@@ -241,7 +237,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       components: [actionRow],
     });
 
-    return componentCollector.on("collect", (int) => {
+    return componentCollector?.on("collect", (int) => {
       let preset: ProfilePresetEntity | undefined;
 
       switch (int.customId) {

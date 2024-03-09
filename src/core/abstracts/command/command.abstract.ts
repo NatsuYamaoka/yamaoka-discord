@@ -21,6 +21,7 @@ export class BaseCommand<K extends CmdType> extends Base {
       const isSlash = arg.type === InteractionType.ApplicationCommand;
       const commandName = isSlash ? arg.commandName : arg.content;
 
+      // TODO: Redesing perchaps?
       const embed = new EmbedBuilder()
         .setTitle("Возникла ошибка ❗")
         .setColor("Red")

@@ -52,12 +52,15 @@ export class CommandManager extends Base {
     cmdName: string,
     cmdArg: CmdArg<T>
   ) {
-    try {
-      const command = isSlashCommand(cmdArg)
-        ? this.slashCommands.get(cmdName)
-        : this.messageCommands.get(cmdName);
+    const command = isSlashCommand(cmdArg)
+      ? this.slashCommands.get(cmdName)
+      : this.messageCommands.get(cmdName);
 
+    try {
       if (!command) {
+        if (!isSlashCommand(cmdArg)) {
+          cmdArg.react("❓").catch();
+        }
         return;
       }
 
@@ -67,7 +70,12 @@ export class CommandManager extends Base {
         this.executeMessageCommand(cmdArg, command as MessageCommandType);
       }
     } catch (err) {
-      logger.error(`${err}`);
+      logger.error(err);
+      command?.sendError(
+        `Что-то пошло не так...\nНо не волнуйтесь, я уже сообщил об этом разработчику`,
+        cmdArg as CmdArg<CmdType.MESSAGE_COMMAND> &
+          CmdArg<CmdType.SLASH_COMMAND>
+      );
     }
   }
 
