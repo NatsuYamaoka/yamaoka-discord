@@ -24,7 +24,6 @@
       "@database/*": ["core/database/*"],
       "@scripts/*": ["scripts/*"],
       "@decorators/*": ["core/decorators/*"],
-      "@handlers/*": ["handlers/*"],
       "@modules/*": ["modules/*"],
       "@app/*": ["*"]
     }
