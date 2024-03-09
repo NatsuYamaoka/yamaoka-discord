@@ -1,4 +1,3 @@
-import { logger } from "@app/core/logger/logger-client";
 import { CustomClientOptions } from "@client/custom-client.types";
 import { DatabaseClient } from "@database/database-client";
 import {
@@ -32,17 +31,7 @@ export class CustomClient extends Client {
   }
 
   public async initialize() {
-    try {
-      await this.db._init().catch((err) => {
-        logger.error("Can't establish successful connection with DB");
-        logger.error(err);
-        process.exit(1);
-      });
-
-      await this.login(this._token);
-    } catch (err) {
-      logger.error("Error happened during bot init:");
-      logger.error(err);
-    }
+    await this.db._init();
+    await this.login(this._token);
   }
 }
