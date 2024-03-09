@@ -58,16 +58,13 @@ export class CommandManager extends Base {
 
     try {
       if (!command) {
-        if (!isSlashCommand(cmdArg)) {
-          cmdArg.react("❓").catch();
-        }
         return;
       }
 
       if (isSlashCommand(cmdArg)) {
-        this.executeSlashCommand(cmdArg, command as SlashCommandType);
+        await this.executeSlashCommand(cmdArg, command as SlashCommandType);
       } else {
-        this.executeMessageCommand(cmdArg, command as MessageCommandType);
+        await this.executeMessageCommand(cmdArg, command as MessageCommandType);
       }
     } catch (err) {
       logger.error(err);

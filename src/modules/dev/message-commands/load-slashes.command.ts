@@ -42,7 +42,6 @@ export default class LoadSlashesCommand extends BaseCommand<CmdType.MESSAGE_COMM
 
       message.react("👌").catch();
     } catch (err) {
-      message.react("❌").catch();
       logger.error(err);
     }
   }
