@@ -1,7 +1,6 @@
 import { BaseCommand } from "@abstracts/command/command.abstract";
 import { CmdArg, CmdType } from "@abstracts/command/command.types";
 import { ProfileCommandSubCommandsTypes } from "@app/common/types/commands.types";
-import { logger } from "@app/core/logger/logger-client";
 import { SlashCommand } from "@decorators/commands.decorator";
 import { ProfilePresetEntity } from "@entities/user/profile-preset.entity";
 import {
@@ -75,28 +74,24 @@ import { userService } from "@app/services/user.service";
 })
 export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   async execute(arg: CmdArg<CmdType.SLASH_COMMAND>) {
-    try {
-      const subCommandName = arg.options.getSubcommand(true);
+    const subCommandName = arg.options.getSubcommand(true);
 
-      await arg.deferReply({ ephemeral: true });
+    await arg.deferReply({ ephemeral: true });
 
-      const { CREATE, UPDATE, DELETE, LIST, INFO } =
-        ProfileCommandSubCommandsTypes;
+    const { CREATE, UPDATE, DELETE, LIST, INFO } =
+      ProfileCommandSubCommandsTypes;
 
-      switch (subCommandName) {
-        case CREATE:
-          return this.createPreset(arg);
-        case UPDATE:
-          return this.updatePreset(arg);
-        case DELETE:
-          return this.deletePreset(arg);
-        case LIST:
-          return this.listPresets(arg);
-        case INFO:
-          return this.infoPreset(arg);
-      }
-    } catch (err) {
-      logger.error(err);
+    switch (subCommandName) {
+      case CREATE:
+        return this.createPreset(arg);
+      case UPDATE:
+        return this.updatePreset(arg);
+      case DELETE:
+        return this.deletePreset(arg);
+      case LIST:
+        return this.listPresets(arg);
+      case INFO:
+        return this.infoPreset(arg);
     }
   }
 
@@ -108,7 +103,10 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     const json = arg.options.getString("json", true);
 
     if (!isValidJson(json)) {
-      return await this.sendError("JSON you provided is not valid", arg);
+      return await this.sendError(
+        "JSON который вы предоставили невалиден",
+        arg
+      );
     }
 
     const parsedJson = JSON.parse(json);
@@ -117,7 +115,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     // src: https://discordjs.guide/popular-topics/embeds.html#embed-limits
     if (!parsedJson.title || !parsedJson.description || !parsedJson.fields) {
       return this.sendError(
-        "JSON you provided is not valid. It should contain title or description or fields",
+        "JSON должен содержать title, description или fields",
         arg
       );
     }
@@ -142,7 +140,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       await ProfilePresetEntity.save({ ...data });
     }
 
-    return this.sendSuccess("New profile preset created!", arg);
+    return this.sendSuccess("Пресет создан!", arg);
   }
 
   public async updatePreset(arg: CmdArg<CmdType.SLASH_COMMAND>) {
@@ -278,7 +276,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       )
       .addFields([
         {
-          name: `‎`, // Don't forget to add those symbols because field name is required and simple space doesn't work here.
+          name: " ",
           value:
             "Пресеты - это предустановленные шаблоны для профиля, которые можно использовать для быстрого изменения внешнего вида профиля.",
         },

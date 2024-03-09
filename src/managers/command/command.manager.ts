@@ -98,36 +98,26 @@ export class CommandManager extends Base {
     arg: CmdArg<CmdType.SLASH_COMMAND>,
     command: SlashCommandType
   ) {
-    try {
-      await command.execute(arg);
-    } catch (err) {
-      logger.error(err);
-    }
+    await command.execute(arg);
   }
 
   private async executeMessageCommand(
     arg: CmdArg<CmdType.MESSAGE_COMMAND>,
     command: MessageCommandType
   ) {
-    try {
-      if (!command.options) {
-        return;
-      }
-
-      const checkedPermissions = await this.checkPermissions(
-        command.options.allowedUsersOrRoles,
-        arg
-      );
-
-      if (!checkedPermissions) {
-        return arg.reply(
-          "You don't have enough permissions to use this command"
-        );
-      }
-
-      await command.execute(arg);
-    } catch (err) {
-      logger.error(err);
+    if (!command.options) {
+      return;
     }
+
+    const checkedPermissions = await this.checkPermissions(
+      command.options.allowedUsersOrRoles,
+      arg
+    );
+
+    if (!checkedPermissions) {
+      return arg.reply("You don't have enough permissions to use this command");
+    }
+
+    await command.execute(arg);
   }
 }
