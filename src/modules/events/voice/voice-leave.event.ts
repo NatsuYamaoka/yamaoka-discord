@@ -1,6 +1,7 @@
 import { BaseEvent } from "@abstracts/event/event.abstract";
 import { EventArg } from "@abstracts/event/event.types";
 import { logger } from "@app/core/logger/logger-client";
+import { userService } from "@app/services/user.service";
 import { ClientEvent } from "@decorators/events.decorator";
 import { UserEntity } from "@entities/index";
 
@@ -30,11 +31,7 @@ export class VoiceLeaveEvent extends BaseEvent {
       return;
     }
 
-    const userEntity = await UserEntity.findOne({
-      where: {
-        uid: member.id,
-      },
-    });
+    const userEntity = await userService.findOneByIdOrCreate(member.id);
 
     const timeDifference = new Date().getTime() - userData.joined_in.getTime();
     const timeSpent = Math.floor(

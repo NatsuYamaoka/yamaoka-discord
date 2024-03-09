@@ -8,6 +8,7 @@ import {
 } from "@utils/handle-exceptions.util";
 import { ChannelType, GatewayIntentBits } from "discord.js";
 import { UserEntity } from "./entities";
+import { userService } from "./services/user.service";
 
 export default (async () => {
   try {
@@ -67,7 +68,7 @@ async function handleExit(client: CustomClient) {
   const voiceCollection = client.voiceManager.usersInVoice;
 
   for (const [userId, userData] of voiceCollection) {
-    const userEntity = await UserEntity.findOne({ where: { uid: userId } });
+    const userEntity = await userService.findOneByIdOrCreate(userId);
 
     const timeDifference = new Date().getTime() - userData.joined_in.getTime();
     const timeSpent = Math.floor(
