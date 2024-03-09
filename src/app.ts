@@ -6,11 +6,6 @@ import { ChannelType, GatewayIntentBits } from "discord.js";
 import { UserEntity } from "./entities";
 
 export default (async () => {
-  if (!process.env.TOKEN) {
-    logger.warn("No bot token was found in env file");
-    return process.exit(0);
-  }
-
   try {
     const intents = [
       GatewayIntentBits.Guilds,
@@ -21,7 +16,7 @@ export default (async () => {
 
     const client = new CustomClient({
       core: { intents },
-      token: process.env.TOKEN,
+      token: process.env.TOKEN || "",
     });
 
     const appFactory = new AppFactory({ module, client });
