@@ -1,5 +1,6 @@
 import { BaseCommand } from "@abstracts/command/command.abstract";
 import { CmdArg, CmdType } from "@abstracts/command/command.types";
+import { logger } from "@app/core/logger/logger-client";
 import { userService } from "@app/services/user.service";
 import { SlashCommand } from "@decorators/commands.decorator";
 import { parsePresetTokens } from "@utils/embed-parser.util";
@@ -32,7 +33,7 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     const member = interaction.guild?.members.cache.get(userOption.id);
     if (!member) {
       // Since out command is guild only, we can assume that user is a member of the server
-      return this.sendError("User is not a member of the server", interaction);
+      return this.sendError("Пользователь не участник сервера", interaction);
     }
 
     const { tokens } = gatherProfileTokens(
@@ -48,6 +49,7 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       .catch((err) => {
         // I will be not surprised if users will find a way to make this error, so it's better to handle it
         this.sendError(err.message, interaction, false);
+        logger.error(err); // For future investigation
       });
   }
 }

@@ -1,7 +1,6 @@
 import { BaseCommand } from "@abstracts/command/command.abstract";
 import { CmdArg, CmdType } from "@abstracts/command/command.types";
 import { ProfileCommandSubCommandsTypes } from "@app/common/types/commands.types";
-import { logger } from "@app/core/logger/logger-client";
 import { SlashCommand } from "@decorators/commands.decorator";
 import { ProfilePresetEntity } from "@entities/user/profile-preset.entity";
 import {
@@ -75,28 +74,24 @@ import { userService } from "@app/services/user.service";
 })
 export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   async execute(arg: CmdArg<CmdType.SLASH_COMMAND>) {
-    try {
-      const subCommandName = arg.options.getSubcommand(true);
+    const subCommandName = arg.options.getSubcommand(true);
 
-      await arg.deferReply({ ephemeral: true });
+    await arg.deferReply({ ephemeral: true });
 
-      const { CREATE, UPDATE, DELETE, LIST, INFO } =
-        ProfileCommandSubCommandsTypes;
+    const { CREATE, UPDATE, DELETE, LIST, INFO } =
+      ProfileCommandSubCommandsTypes;
 
-      switch (subCommandName) {
-        case CREATE:
-          return this.createPreset(arg);
-        case UPDATE:
-          return this.updatePreset(arg);
-        case DELETE:
-          return this.deletePreset(arg);
-        case LIST:
-          return this.listPresets(arg);
-        case INFO:
-          return this.infoPreset(arg);
-      }
-    } catch (err) {
-      logger.error(err);
+    switch (subCommandName) {
+      case CREATE:
+        return this.createPreset(arg);
+      case UPDATE:
+        return this.updatePreset(arg);
+      case DELETE:
+        return this.deletePreset(arg);
+      case LIST:
+        return this.listPresets(arg);
+      case INFO:
+        return this.infoPreset(arg);
     }
   }
 
@@ -108,7 +103,10 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     const json = arg.options.getString("json", true);
 
     if (!isValidJson(json)) {
-      return await this.sendError("JSON you provided is not valid", arg);
+      return await this.sendError(
+        "JSON который вы предоставили невалиден",
+        arg
+      );
     }
 
     const parsedJson = JSON.parse(json);
@@ -117,7 +115,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     // src: https://discordjs.guide/popular-topics/embeds.html#embed-limits
     if (!parsedJson.title || !parsedJson.description || !parsedJson.fields) {
       return this.sendError(
-        "JSON you provided is not valid. It should contain title or description or fields",
+        "JSON должен содержать title, description или fields",
         arg
       );
     }
@@ -142,7 +140,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       await ProfilePresetEntity.save({ ...data });
     }
 
-    return this.sendSuccess("New profile preset created!", arg);
+    return this.sendSuccess("Пресет создан!", arg);
   }
 
   public async updatePreset(arg: CmdArg<CmdType.SLASH_COMMAND>) {
@@ -150,17 +148,17 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     const json = arg.options.getString("json", true);
 
     if (!id.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/)) {
-      return this.sendError("Invalid ID", arg);
+      return this.sendError("Невалидный ID", arg);
     }
 
     const foundPreset = await ProfilePresetEntity.findOne({ where: { id } });
 
     if (!foundPreset) {
-      return this.sendError("Can't find preset by ID you provide", arg);
+      return this.sendError("Не могу найти пресет по предоставленному ID", arg);
     }
 
     if (!isValidJson(json)) {
-      return this.sendError("JSON you provided is not valid", arg);
+      return this.sendError("JSON который вы предоставили невалиден", arg);
     }
 
     await ProfilePresetEntity.save({
@@ -175,18 +173,18 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     const id = arg.options.getString("id", true);
 
     if (!id.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/)) {
-      return this.sendError("Invalid ID", arg);
+      return this.sendError("Невалидный ID", arg);
     }
 
     const foundPreset = await ProfilePresetEntity.findOne({ where: { id } });
 
     if (!foundPreset) {
-      return this.sendError("Can't find preset by ID you provide", arg);
+      return this.sendError("Не могу найти пресет по предоставленному ID", arg);
     }
 
     await ProfilePresetEntity.remove(foundPreset);
 
-    return this.sendSuccess("Preset deleted!", arg);
+    return this.sendSuccess("Пресет удалён!", arg);
   }
 
   public async listPresets(interaction: CmdArg<CmdType.SLASH_COMMAND>) {
@@ -197,7 +195,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
     if (!presets.length) {
       return this.sendError(
-        "Unfortunatelly, we doesn't have any presets in the database",
+        "В базе данных нет пресетов для профиля",
         interaction
       );
     }
@@ -216,10 +214,6 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
           int.message.interaction?.id === interaction.id,
         time: 5 * 1000 * 60000, // 5 minutes
       });
-
-    if (!componentCollector) {
-      return this.sendError("Can't create component collector :(", interaction);
-    }
 
     const userData = await userService.findOneByIdOrCreate(
       interaction.user.id,
@@ -243,7 +237,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       components: [actionRow],
     });
 
-    return componentCollector.on("collect", (int) => {
+    return componentCollector?.on("collect", (int) => {
       let preset: ProfilePresetEntity | undefined;
 
       switch (int.customId) {
@@ -278,7 +272,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       )
       .addFields([
         {
-          name: `‎`, // Don't forget to add those symbols because field name is required and simple space doesn't work here.
+          name: " ",
           value:
             "Пресеты - это предустановленные шаблоны для профиля, которые можно использовать для быстрого изменения внешнего вида профиля.",
         },

@@ -1,5 +1,3 @@
-import { logger } from "@app/core/logger/logger-client";
-
 export function isValidJson(str: string) {
   try {
     const parsedJson = JSON.parse(str);
@@ -8,7 +6,7 @@ export function isValidJson(str: string) {
       return true;
     }
   } catch (err) {
-    logger.error(err);
+    return false; // Expected if JSON.parse fails
   }
   return false;
 }

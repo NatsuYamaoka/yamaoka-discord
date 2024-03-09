@@ -42,7 +42,7 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
     if (!userData.profile_presets || userData.profile_presets?.length == 0) {
       return this.sendError(
-        "You don't have any profile presets, please create one",
+        "У вас нет пресетов для профиля, обратитесь к администратору сервера", // Note: This is a temporary solution, until the shop system is released
         interaction
       );
     }
@@ -87,10 +87,6 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
         time: 5 * 1000 * 60000, // 5 minutes
       });
 
-    if (!componentCollector) {
-      return this.sendError("Can't create component collector :(", interaction);
-    }
-
     const { tokens } = gatherProfileTokens(
       userData,
       interaction.member as GuildMember,
@@ -103,7 +99,7 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       components: [actionRow, actionRowProceed],
     });
 
-    return componentCollector.on("collect", async (int) => {
+    return componentCollector?.on("collect", async (int) => {
       let preset: ProfilePresetEntity | undefined;
 
       switch (int.customId) {

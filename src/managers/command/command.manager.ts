@@ -52,22 +52,27 @@ export class CommandManager extends Base {
     cmdName: string,
     cmdArg: CmdArg<T>
   ) {
-    try {
-      const command = isSlashCommand(cmdArg)
-        ? this.slashCommands.get(cmdName)
-        : this.messageCommands.get(cmdName);
+    const command = isSlashCommand(cmdArg)
+      ? this.slashCommands.get(cmdName)
+      : this.messageCommands.get(cmdName);
 
+    try {
       if (!command) {
         return;
       }
 
       if (isSlashCommand(cmdArg)) {
-        this.executeSlashCommand(cmdArg, command as SlashCommandType);
+        await this.executeSlashCommand(cmdArg, command as SlashCommandType);
       } else {
-        this.executeMessageCommand(cmdArg, command as MessageCommandType);
+        await this.executeMessageCommand(cmdArg, command as MessageCommandType);
       }
     } catch (err) {
-      logger.error(`${err}`);
+      logger.error(err);
+      command?.sendError(
+        `Что-то пошло не так...\nНо не волнуйтесь, я уже сообщил об этом разработчику`,
+        cmdArg as CmdArg<CmdType.MESSAGE_COMMAND> &
+          CmdArg<CmdType.SLASH_COMMAND>
+      );
     }
   }
 
@@ -98,36 +103,26 @@ export class CommandManager extends Base {
     arg: CmdArg<CmdType.SLASH_COMMAND>,
     command: SlashCommandType
   ) {
-    try {
-      await command.execute(arg);
-    } catch (err) {
-      logger.error(err);
-    }
+    await command.execute(arg);
   }
 
   private async executeMessageCommand(
     arg: CmdArg<CmdType.MESSAGE_COMMAND>,
     command: MessageCommandType
   ) {
-    try {
-      if (!command.options) {
-        return;
-      }
-
-      const checkedPermissions = await this.checkPermissions(
-        command.options.allowedUsersOrRoles,
-        arg
-      );
-
-      if (!checkedPermissions) {
-        return arg.reply(
-          "You don't have enough permissions to use this command"
-        );
-      }
-
-      await command.execute(arg);
-    } catch (err) {
-      logger.error(err);
+    if (!command.options) {
+      return;
     }
+
+    const checkedPermissions = await this.checkPermissions(
+      command.options.allowedUsersOrRoles,
+      arg
+    );
+
+    if (!checkedPermissions) {
+      return arg.reply("You don't have enough permissions to use this command");
+    }
+
+    await command.execute(arg);
   }
 }

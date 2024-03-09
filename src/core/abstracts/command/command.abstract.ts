@@ -1,5 +1,6 @@
 import { Base } from "@abstracts/client/client.abstract";
 import { CmdArg, CmdOpt, CmdType } from "@abstracts/command/command.types";
+import { logger } from "@app/core/logger/logger-client";
 import { CustomClient } from "@client/custom-client";
 import { EmbedBuilder, InteractionType } from "discord.js";
 
@@ -20,6 +21,7 @@ export class BaseCommand<K extends CmdType> extends Base {
       const isSlash = arg.type === InteractionType.ApplicationCommand;
       const commandName = isSlash ? arg.commandName : arg.content;
 
+      // TODO: Redesing perchaps?
       const embed = new EmbedBuilder()
         .setTitle("Возникла ошибка ❗")
         .setColor("Red")
@@ -61,7 +63,7 @@ export class BaseCommand<K extends CmdType> extends Base {
         return arg.reply({ ...reply, ephemeral: true });
       }
     } catch (err) {
-      console.log(err);
+      logger.error(`Error while sending error: ${err}`);
     }
   }
 
