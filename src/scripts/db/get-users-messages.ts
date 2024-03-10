@@ -14,6 +14,8 @@ export default async function GetUsersMessages(client: CustomClient) {
     );
   }
 
+  const startTime = Date.now();
+  logger.info("Fetching users messages...");
   const channels = guild.channels.cache;
   const usersMessages = new Map<string, number>();
 
@@ -51,5 +53,6 @@ export default async function GetUsersMessages(client: CustomClient) {
     await user.save();
   }
 
-  logger.info("Users messages count updated");
+  logger.info("Users messages count updated! 🎉");
+  logger.info(`Time spent: ${Date.now() - startTime}ms`);
 }
