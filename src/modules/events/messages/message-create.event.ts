@@ -4,6 +4,7 @@ import { ClientEvent } from "@decorators/events.decorator";
 import appConfig from "@app/app.config";
 import { ChannelType } from "discord.js";
 import { userService } from "@app/services/user.service";
+import { logger } from "@app/core/logger/logger-client";
 
 @ClientEvent({ name: "messageCreate" })
 export class MessageCreateEvent extends BaseEvent {
@@ -17,11 +18,22 @@ export class MessageCreateEvent extends BaseEvent {
       return;
     }
 
-    const userDb = await userService.findOneByIdOrCreate(message.author.id);
+    const userDb = await userService.findOneByIdOrCreate(message.author.id, {
+      wallet: true,
+    });
+
+    // Filter out URLs and emojis
+    const contentLength = message.content
+      .replace(/(https?|ftp):\/\/[^\s/$.?#].[^\s]*/gi, "")
+      .replace(/<a?:\w+:\d+>/gi, "");
+
     userDb.messages_sent += 1;
-    userDb.message_exp += message.content.length * 0.1; // ! THIS IS SUBJECT TO CHANGE
-    userDb.wallet.balance += message.content.length * 0.01; // ! THIS IS SUBJECT TO CHANGE
-    await userDb.save();
+    userDb.message_exp += contentLength.length * 10;
+    userDb.wallet.balance += contentLength.length * 1;
+
+    await userDb.save().catch((err) => {
+      logger.error(err);
+    });
 
     if (cmdName.startsWith(appConfig.prefix)) {
       this.client.commandManager.executeCommand(cmdName.slice(1), message);
