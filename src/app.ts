@@ -5,7 +5,6 @@ import { AppModule as module } from "@modules/app/app.module";
 import { ChannelType, GatewayIntentBits } from "discord.js";
 import { UserEntity } from "./entities";
 import { userService } from "./services/user.service";
-import GetUsersMessages from "@scripts/db/get-users-messages";
 import appConfig from "@app/app.config";
 
 export default (async () => {
@@ -28,7 +27,7 @@ export default (async () => {
     await client.initialize();
 
     if (appConfig.getUsersMessages) {
-      await GetUsersMessages(client);
+      client.messageScrapper.getUsersMessages();
     }
 
     updateVoiceCollection(client);
