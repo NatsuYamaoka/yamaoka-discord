@@ -24,17 +24,17 @@ import { userService } from "@app/services/user.service";
 
 @SlashCommand({
   name: "profile-preset",
-  description: "Command for creating/editing/deleting profile presets",
+  description: "Манипуляция с пресетами профилей для модераторов",
   data: new SlashCommandBuilder()
     .addSubcommand((sub) =>
       sub
         .setName(ProfileCommandSubCommandsTypes.CREATE)
-        .setDescription("create preset")
+        .setDescription("Создать пресет")
         .addStringOption((opt) =>
           opt
             .setName("json")
             .setDescription(
-              "JSON representation of the embed. You can search for it on embed generators sites"
+              "Валидный JSON-объект, который будет использоваться для создания пресета"
             )
             .setRequired(true)
         )
@@ -42,34 +42,36 @@ import { userService } from "@app/services/user.service";
     .addSubcommand((sub) =>
       sub
         .setName(ProfileCommandSubCommandsTypes.UPDATE)
-        .setDescription("update preset")
+        .setDescription("Обновить пресет")
         .addStringOption((opt) =>
-          opt.setName("id").setDescription("id of the preset").setRequired(true)
+          opt.setName("id").setDescription("Айди пресета").setRequired(true)
         )
         .addStringOption((opt) =>
           opt
             .setName("json")
-            .setDescription("stringified JSON representation of the embed")
+            .setDescription(
+              "Валидный JSON-объект, который будет использоваться для создания пресета"
+            )
             .setRequired(true)
         )
     )
     .addSubcommand((sub) =>
       sub
         .setName(ProfileCommandSubCommandsTypes.DELETE)
-        .setDescription("delete preset")
+        .setDescription("Удалить пресет")
         .addStringOption((opt) =>
-          opt.setName("id").setDescription("id of the preset").setRequired(true)
+          opt.setName("id").setDescription("Айди пресета").setRequired(true)
         )
     )
     .addSubcommand((sub) =>
       sub
         .setName(ProfileCommandSubCommandsTypes.LIST)
-        .setDescription("list all presets")
+        .setDescription("Получить список всех пресетов")
     )
     .addSubcommand((sub) =>
       sub
         .setName(ProfileCommandSubCommandsTypes.INFO)
-        .setDescription("Overall info on JSON etc.")
+        .setDescription("Информация о использовании команд для пресетов")
     ),
 })
 export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {

@@ -24,7 +24,7 @@ const TO_PROCEED = "to-proceed-button";
 
 @SlashCommand({
   name: "set-profile",
-  description: "sets your profile",
+  description: "Установить пресет профиля",
 })
 export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   async execute(interaction: CmdArg<CmdType.SLASH_COMMAND>) {

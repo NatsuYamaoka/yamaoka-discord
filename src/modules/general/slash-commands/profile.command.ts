@@ -9,11 +9,11 @@ import { SlashCommandBuilder } from "discord.js";
 
 @SlashCommand({
   name: "profile",
-  description: "shows your profile",
+  description: "Показать профиль пользователя",
   data: new SlashCommandBuilder().addUserOption((opt) =>
     opt
       .setName("user")
-      .setDescription("select user to check his profile")
+      .setDescription("Выберите пользователя для просмотра профиля")
       .setRequired(false)
   ),
 })
