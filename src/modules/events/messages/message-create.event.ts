@@ -19,7 +19,8 @@ export class MessageCreateEvent extends BaseEvent {
 
     const userDb = await userService.findOneByIdOrCreate(message.author.id);
     userDb.messages_sent += 1;
-    // TODO: Add experience points to user
+    userDb.message_exp += message.content.length * 0.1; // ! THIS IS SUBJECT TO CHANGE
+    userDb.wallet.balance += message.content.length * 0.01; // ! THIS IS SUBJECT TO CHANGE
     await userDb.save();
 
     if (cmdName.startsWith(appConfig.prefix)) {
