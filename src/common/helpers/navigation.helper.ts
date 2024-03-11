@@ -6,7 +6,7 @@ export enum NavigationButtons {
   TO_RIGHT = "to-right-button",
 }
 
-export const getNavigationSetup = () => {
+export const GetNavigationSetup = () => {
   const toLeftButton = new ButtonBuilder()
     .setCustomId(NavigationButtons.TO_LEFT)
     .setStyle(ButtonStyle.Primary)

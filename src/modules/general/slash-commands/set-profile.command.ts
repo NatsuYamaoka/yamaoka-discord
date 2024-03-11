@@ -4,7 +4,7 @@ import { SlashCommand } from "@decorators/commands.decorator";
 import { ProfilePresetEntity, UserEntity } from "@entities/index";
 import {
   NavigationButtons,
-  getNavigationSetup,
+  GetNavigationSetup,
 } from "@helpers/navigation.helper";
 import PaginationHelper from "@helpers/pagination.helper";
 import {
@@ -16,8 +16,8 @@ import {
 } from "discord.js";
 
 import { defaultTemplate } from "./profile.command";
-import { gatherProfileTokens } from "@utils/gather-tokens.util";
-import { parsePresetTokens } from "@utils/embed-parser.util";
+import { GatherProfileTokens } from "@utils/gather-tokens.util";
+import { ParsePresetTokens } from "@utils/embed-parser.util";
 import { userService } from "@app/services/user.service";
 
 const TO_PROCEED = "to-proceed-button";
@@ -60,7 +60,7 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       ...profile_presets,
     ];
 
-    const { list } = getNavigationSetup();
+    const { list } = GetNavigationSetup();
 
     const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(list);
     const actionRowProceed =
@@ -87,7 +87,7 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
         time: 5 * 1000 * 60000, // 5 minutes
       });
 
-    const { tokens } = gatherProfileTokens(
+    const { tokens } = GatherProfileTokens(
       userData,
       interaction.member as GuildMember,
       this.client.voiceManager
@@ -95,7 +95,7 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
     await interaction.editReply({
       content: this.createContent(paginationHelper),
-      embeds: [parsePresetTokens(tokens, firstPreset)],
+      embeds: [ParsePresetTokens(tokens, firstPreset)],
       components: [actionRow, actionRowProceed],
     });
 
@@ -128,7 +128,7 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
       int.update({
         content: this.createContent(paginationHelper),
-        embeds: [parsePresetTokens(tokens, preset)],
+        embeds: [ParsePresetTokens(tokens, preset)],
       });
     });
   }

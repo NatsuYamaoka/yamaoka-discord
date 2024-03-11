@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder } from "discord.js";
 
-export function disableClickedComponent(
+export function DisableClickedComponent(
   toFilter: string,
   components: ActionRowBuilder<ButtonBuilder>[]
 ) {

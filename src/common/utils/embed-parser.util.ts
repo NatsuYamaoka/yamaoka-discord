@@ -2,7 +2,7 @@ import { ProfilePresetEntity } from "@entities/index";
 import { defaultTemplate } from "@modules/general/slash-commands/profile.command";
 import { EmbedBuilder } from "discord.js";
 
-export function parsePresetTokens(
+export function ParsePresetTokens(
   tokens: { [k: string]: string | number },
   preset: ProfilePresetEntity | undefined
 ) {

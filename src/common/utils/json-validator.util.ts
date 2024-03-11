@@ -1,4 +1,4 @@
-export function isValidJson(str: string) {
+export function IsValidJson(str: string) {
   try {
     const parsedJson = JSON.parse(str);
 

@@ -5,7 +5,7 @@ import { SlashCommand } from "@decorators/commands.decorator";
 import { ProfilePresetEntity } from "@entities/user/profile-preset.entity";
 import {
   NavigationButtons,
-  getNavigationSetup,
+  GetNavigationSetup,
 } from "@helpers/navigation.helper";
 import PaginationHelper from "@helpers/pagination.helper";
 import {
@@ -17,9 +17,9 @@ import {
   SlashCommandBuilder,
   resolveColor,
 } from "discord.js";
-import { isValidJson } from "@utils/json-validator.util";
-import { parsePresetTokens } from "@utils/embed-parser.util";
-import { gatherProfileTokens } from "@utils/gather-tokens.util";
+import { IsValidJson } from "@utils/json-validator.util";
+import { ParsePresetTokens } from "@utils/embed-parser.util";
+import { GatherProfileTokens } from "@utils/gather-tokens.util";
 import { userService } from "@app/services/user.service";
 
 @SlashCommand({
@@ -104,7 +104,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   ) {
     const json = arg.options.getString("json", true);
 
-    if (!isValidJson(json)) {
+    if (!IsValidJson(json)) {
       return await this.sendError(
         "JSON который вы предоставили невалиден",
         arg
@@ -159,7 +159,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       return this.sendError("Не могу найти пресет по предоставленному ID", arg);
     }
 
-    if (!isValidJson(json)) {
+    if (!IsValidJson(json)) {
       return this.sendError("JSON который вы предоставили невалиден", arg);
     }
 
@@ -192,7 +192,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   public async listPresets(interaction: CmdArg<CmdType.SLASH_COMMAND>) {
     const presets = await ProfilePresetEntity.find();
 
-    const { list } = getNavigationSetup();
+    const { list } = GetNavigationSetup();
     const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(list);
 
     if (!presets.length) {
@@ -227,7 +227,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       }
     );
 
-    const { tokens } = gatherProfileTokens(
+    const { tokens } = GatherProfileTokens(
       userData,
       interaction.member as GuildMember,
       this.client.voiceManager
@@ -235,7 +235,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
     await interaction.editReply({
       content: this.createContent(firstPreset, paginationHelper),
-      embeds: [parsePresetTokens(tokens, firstPreset)],
+      embeds: [ParsePresetTokens(tokens, firstPreset)],
       components: [actionRow],
     });
 
@@ -261,7 +261,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
       int.update({
         content: this.createContent(preset, paginationHelper),
-        embeds: [parsePresetTokens(tokens, preset)],
+        embeds: [ParsePresetTokens(tokens, preset)],
       });
     });
   }

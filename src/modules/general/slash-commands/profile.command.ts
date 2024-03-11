@@ -3,8 +3,8 @@ import { CmdArg, CmdType } from "@abstracts/command/command.types";
 import { logger } from "@app/core/logger/logger-client";
 import { userService } from "@app/services/user.service";
 import { SlashCommand } from "@decorators/commands.decorator";
-import { parsePresetTokens } from "@utils/embed-parser.util";
-import { gatherProfileTokens } from "@utils/gather-tokens.util";
+import { ParsePresetTokens } from "@utils/embed-parser.util";
+import { GatherProfileTokens } from "@utils/gather-tokens.util";
 import { SlashCommandBuilder } from "discord.js";
 
 @SlashCommand({
@@ -36,7 +36,7 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       return this.sendError("Пользователь не участник сервера", interaction);
     }
 
-    const { tokens } = gatherProfileTokens(
+    const { tokens } = GatherProfileTokens(
       userData,
       member,
       this.client.voiceManager
@@ -45,7 +45,7 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     const embed = userData.selected_preset?.[0];
 
     interaction
-      .editReply({ embeds: [parsePresetTokens(tokens, embed)] })
+      .editReply({ embeds: [ParsePresetTokens(tokens, embed)] })
       .catch((err) => {
         // I will be not surprised if users will find a way to make this error, so it's better to handle it
         this.sendError(err.message, interaction, false);

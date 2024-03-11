@@ -1,9 +1,17 @@
+import { Base } from "@abstracts/client/client.abstract";
 import { logger } from "@app/core/logger/logger-client";
+import { CustomClient } from "@client/custom-client";
 import { UserEntity } from "@entities/index";
-import { Base, ChannelType, Collection, TextChannel } from "discord.js";
+import { ChannelType, Collection, TextChannel } from "discord.js";
 import "dotenv/config";
 
 export class MessagesScrapper extends Base {
+  constructor(client: CustomClient) {
+    super(client);
+
+    logger.log("Messages Scrapper inited");
+  }
+
   private isRunning = false;
   private channels: {
     total: number;

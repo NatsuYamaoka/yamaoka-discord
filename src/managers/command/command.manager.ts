@@ -7,7 +7,7 @@ import {
   SlashCommandType,
 } from "@abstracts/command/command.types";
 import { ModuleAbstract } from "@abstracts/module/module.abstract";
-import { isSlashCommand } from "@app/common/types/guards.types";
+import { IsSlashCommand } from "@app/common/types/guards.types";
 import { logger } from "@app/core/logger/logger-client";
 import { CustomClient } from "@client/custom-client";
 import {
@@ -52,7 +52,7 @@ export class CommandManager extends Base {
     cmdName: string,
     cmdArg: CmdArg<T>
   ) {
-    const command = isSlashCommand(cmdArg)
+    const command = IsSlashCommand(cmdArg)
       ? this.slashCommands.get(cmdName)
       : this.messageCommands.get(cmdName);
 
@@ -61,7 +61,7 @@ export class CommandManager extends Base {
         return;
       }
 
-      if (isSlashCommand(cmdArg)) {
+      if (IsSlashCommand(cmdArg)) {
         await this.executeSlashCommand(cmdArg, command as SlashCommandType);
       } else {
         await this.executeMessageCommand(cmdArg, command as MessageCommandType);

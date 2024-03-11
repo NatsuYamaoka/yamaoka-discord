@@ -1,6 +1,6 @@
 import { UserEntity } from "@entities/index";
 import { GuildMember } from "discord.js";
-import { getDuration } from "./get-duration.util";
+import { GetDuration } from "./get-duration.util";
 import { VoiceManager } from "@managers/index";
 
 interface TokensProps {
@@ -8,7 +8,7 @@ interface TokensProps {
   tokens: { [k: string]: string | number };
 }
 
-export function gatherProfileTokens(
+export function GatherProfileTokens(
   userDB: UserEntity,
   member: GuildMember,
   voiceManager: VoiceManager
@@ -40,7 +40,7 @@ export function gatherProfileTokens(
         .filter((role) => role !== "@everyone")
         .join(", ") || "",
     "user.messages": userDB.messages_sent,
-    "user.voice_time": getDuration((userDB.voice_time + userVoiceTime) / 1000),
+    "user.voice_time": GetDuration((userDB.voice_time + userVoiceTime) / 1000),
     "user.voice_balance": userDB.wallet.voice_balance + userVoiceBalance,
     "user.balance": userDB.wallet.balance,
     "user.inventory_items": userDB.inventory.shop_items?.length || 0,

@@ -4,7 +4,7 @@ interface Suffixes {
   manyObjects: string;
 }
 
-export function pluralize(number: number, word: string, suffixes: Suffixes) {
+export function Pluralize(number: number, word: string, suffixes: Suffixes) {
   if (number <= 0) {
     return word + suffixes.manyObjects;
   } else if (number % 10 === 1 && number % 100 !== 11) {

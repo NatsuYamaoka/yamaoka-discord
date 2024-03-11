@@ -1,3 +1,3 @@
 import { APIEmbed, EmbedBuilder } from "discord.js";
 
-export const createEmbed = (opt: APIEmbed) => new EmbedBuilder(opt);
+export const CreateEmbed = (opt: APIEmbed) => new EmbedBuilder(opt);
