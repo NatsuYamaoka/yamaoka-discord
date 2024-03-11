@@ -17,9 +17,13 @@ export function gatherProfileTokens(
 
   const userVoice = voiceManager.getUserFromCollection(user.id);
   let userVoiceTime = 0;
+  let userVoiceXp = 0;
+  let userVoiceBalance = 0;
 
   if (userVoice) {
     userVoiceTime = new Date().getTime() - userVoice.joined_in.getTime();
+    userVoiceXp = Math.floor(userVoiceTime * 0.01);
+    userVoiceBalance = Math.floor(userVoiceTime / (50 * 1000));
   }
 
   // ? Add tokens if needed
@@ -37,11 +41,11 @@ export function gatherProfileTokens(
         .join(", ") || "",
     "user.messages": userDB.messages_sent,
     "user.voice_time": getDuration((userDB.voice_time + userVoiceTime) / 1000),
-    "user.voice_balance": userDB.wallet.voice_balance,
+    "user.voice_balance": userDB.wallet.voice_balance + userVoiceBalance,
     "user.balance": userDB.wallet.balance,
     "user.inventory_items": userDB.inventory.shop_items?.length || 0,
     "user.profile_presets": userDB.profile_presets?.length || 0,
-    "user.voice_exp": userDB.voice_exp,
+    "user.voice_exp": userDB.voice_exp + userVoiceXp,
     "user.message_exp": userDB.message_exp,
   };
 

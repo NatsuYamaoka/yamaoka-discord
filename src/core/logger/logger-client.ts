@@ -61,7 +61,7 @@ export class Logger {
 
     this.__log(color(formdLog));
     if (opt?.trace) {
-      console.trace();
+      console.trace(msg);
     }
   }
 }
