@@ -37,6 +37,7 @@ export class MessagesScrapper extends Base {
     const startTime = Date.now();
     logger.info("Fetching users messages...");
 
+    await guild.channels.fetch();
     const channels = guild.channels.cache.filter(
       (channel) => channel.type === ChannelType.GuildText
     ) as Collection<string, TextChannel>;
