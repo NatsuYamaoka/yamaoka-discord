@@ -1,21 +1,15 @@
 import { logger } from "@app/core/logger/logger-client";
-import { CustomClient } from "@client/custom-client";
 import { UserEntity } from "@entities/index";
-import { ChannelType, Collection, TextChannel } from "discord.js";
+import { Base, ChannelType, Collection, TextChannel } from "discord.js";
 import "dotenv/config";
 
-export class MessagesScrapper {
-  private client: CustomClient;
+export class MessagesScrapper extends Base {
   private isRunning = false;
   private channels: {
     total: number;
     updated: number;
     currentBatch: number;
   };
-
-  constructor(client: CustomClient) {
-    this.client = client;
-  }
 
   public getCurrentStatus() {
     return {
