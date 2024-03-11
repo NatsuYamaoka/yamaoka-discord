@@ -7,14 +7,11 @@ import "dotenv/config";
 export class MessagesScrapper {
   private client: CustomClient;
   private isRunning = false;
-  private users: {
-    updated: number;
-    total: number;
-  } = { updated: 0, total: 0 };
   private channels: {
-    updated: number;
     total: number;
-  } = { updated: 0, total: 0 };
+    updated: number;
+    currentBatch: number;
+  };
 
   constructor(client: CustomClient) {
     this.client = client;
@@ -23,7 +20,6 @@ export class MessagesScrapper {
   public getCurrentStatus() {
     return {
       isRunning: this.isRunning,
-      users: this.users,
       channels: this.channels,
     };
   }
@@ -40,11 +36,9 @@ export class MessagesScrapper {
     }
 
     this.isRunning = true;
-    this.users = { updated: 0, total: 0 };
-    this.channels = { updated: 0, total: 0 };
+    this.channels = { updated: 0, total: 0, currentBatch: 0 };
 
     const users = await UserEntity.find();
-    this.users.total = users.length;
 
     const startTime = Date.now();
     logger.info("Fetching users messages...");
@@ -57,10 +51,11 @@ export class MessagesScrapper {
     const usersMessages = new Map<string, number>();
 
     for (const channel of channels.values()) {
-      this.users.updated = 0;
       let lastMessage = undefined as string | undefined;
       let isEndOfMessages = false;
       while (!isEndOfMessages) {
+        this.channels.currentBatch += 1;
+
         const messages = await channel.messages.fetch({
           limit: 100,
           before: lastMessage,
@@ -75,13 +70,13 @@ export class MessagesScrapper {
             user.uid,
             (usersMessages.get(user.uid) || 0) + userMessages.size
           );
-          this.users.updated += 1;
         }
 
         lastMessage = messages.last()?.id;
         isEndOfMessages = messages.size < 100;
       }
 
+      this.channels.currentBatch = 0;
       this.channels.updated += 1;
     }
 

@@ -17,7 +17,9 @@ export default class ScraperStatusCommand extends BaseCommand<CmdType.MESSAGE_CO
     message.reply(
       `Scrapper is running. ⚙️\n\n` +
         `Current channel: [${scrapperStats.channels.updated}/${scrapperStats.channels.total}]\n` +
-        `Users to process: ${scrapperStats.users.total}\nUsers processed: ${scrapperStats.users.updated}`
+        `We scraped ${
+          scrapperStats.channels.currentBatch * 100
+        } messages from current channel right now and still working... 🕒`
     );
   }
 }
