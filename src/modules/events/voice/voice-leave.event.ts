@@ -1,6 +1,7 @@
 import { BaseEvent } from "@abstracts/event/event.abstract";
 import { EventArg } from "@abstracts/event/event.types";
 import { logger } from "@app/core/logger/logger-client";
+import { userService } from "@app/services/user.service";
 import { ClientEvent } from "@decorators/events.decorator";
 
 @ClientEvent({ name: "voiceStateUpdate" })
