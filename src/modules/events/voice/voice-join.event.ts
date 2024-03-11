@@ -6,7 +6,7 @@ import { ClientEvent } from "@decorators/events.decorator";
 @ClientEvent({ name: "voiceStateUpdate" })
 export class VoiceJoinEvent extends BaseEvent {
   async execute([oldState, newState]: EventArg<"voiceStateUpdate">) {
-    if (oldState.channel && !newState.channel) {
+    if (!newState.channel) {
       return;
     }
 
@@ -19,10 +19,10 @@ export class VoiceJoinEvent extends BaseEvent {
     }
 
     const member = newState.member;
-    const voice = newState.channel?.name || "can't get name";
+    const voice = newState.channel?.name;
     const isAFK = newState.guild.afkChannelId === newState.channelId;
 
-    logger.log(`User ${member.displayName} joined "${voice}" voice channel`);
+    logger.log(`🛬 User ${member.displayName} joined "${voice}" voice channel`);
 
     this.client.voiceManager.addUserToCollection(member.id, isAFK);
   }
