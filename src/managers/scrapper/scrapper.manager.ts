@@ -59,6 +59,7 @@ export class MessagesScrapper {
         const messages = await channel.messages.fetch({
           limit: 100,
           before: lastMessage,
+          cache: false,
         });
 
         for (const user of users) {
