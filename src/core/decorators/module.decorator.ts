@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { BaseCommand } from "@abstracts/command/command.abstract";
 import { CmdType } from "@abstracts/command/command.types";
 import { BaseEvent } from "@abstracts/event/event.abstract";
 import { ModuleAbstract } from "@abstracts/module/module.abstract";
 
 export function Module({ imports, commands, events }: ModuleOptions) {
-  // eslint-disable-next-line @typescript-eslint/ban-types
   return (target: Function) => {
     target.prototype.commands = commands;
     target.prototype.imports = imports;
@@ -13,10 +13,10 @@ export function Module({ imports, commands, events }: ModuleOptions) {
 }
 
 export interface ModuleOptions {
-  imports?: typeof ModuleAbstract[];
+  imports?: (typeof ModuleAbstract)[];
   commands?: (
     | typeof BaseCommand<CmdType.SLASH_COMMAND>
     | typeof BaseCommand<CmdType.MESSAGE_COMMAND>
   )[];
-  events?: typeof BaseEvent[];
+  events?: (typeof BaseEvent)[];
 }

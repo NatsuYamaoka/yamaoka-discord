@@ -8,8 +8,7 @@ export class InteractionCreateEvent extends BaseEvent {
     if (interaction.isChatInputCommand()) {
       this.client.commandManager.executeCommand(
         interaction.commandName,
-        interaction,
-        true
+        interaction
       );
     }
   }

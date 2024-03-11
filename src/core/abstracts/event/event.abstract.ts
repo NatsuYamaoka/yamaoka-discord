@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Base } from "@abstracts/client/client.abstract";
 import { Awaitable, ClientEvents } from "discord.js";
 

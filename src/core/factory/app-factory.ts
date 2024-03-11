@@ -26,13 +26,17 @@ export class AppFactory extends Base {
     this.initModuleCommands(moduleInstance, Module.name);
     this.initModuleEvents(moduleInstance, Module.name);
 
-    if (!moduleInstance.imports?.length) return;
+    if (!moduleInstance.imports?.length) {
+      return;
+    }
 
     moduleInstance.imports.map(this.initModule.bind(this));
   }
 
   private initModuleCommands(module: ModuleAbstract, moduleName: string) {
-    if (!module.commands || !module.commands.length) return;
+    if (!module.commands || !module.commands.length) {
+      return;
+    }
 
     logger.log(
       `Trying to init ${moduleName} commands! To init: ${module.commands.length}`
@@ -42,7 +46,9 @@ export class AppFactory extends Base {
   }
 
   private initModuleEvents(module: ModuleAbstract, moduleName: string) {
-    if (!module.events || !module.events.length) return;
+    if (!module.events || !module.events.length) {
+      return;
+    }
 
     logger.log(
       `Trying to init ${moduleName} events! To init: ${module.events.length}`

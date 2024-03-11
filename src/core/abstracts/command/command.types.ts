@@ -3,7 +3,6 @@ import {
   ChatInputCommandInteraction,
   Message,
   SlashCommandBuilder,
-  SlashCommandSubcommandBuilder,
   SlashCommandSubcommandsOnlyBuilder,
 } from "discord.js";
 

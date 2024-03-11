@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { LogColorsEnum } from "@app/core/logger/constants/log-colors.const";
 import { LogLevelsEnum } from "@app/core/logger/constants/log-levels.const";
 import {
@@ -9,13 +10,6 @@ import chalk from "chalk";
 
 export class Logger {
   private __log = console.log;
-
-  private generatedColors = {
-    [LogLevelsEnum.info]: chalk.hex(LogColorsEnum.info),
-    [LogLevelsEnum.log]: chalk.hex(LogColorsEnum.log),
-    [LogLevelsEnum.warn]: chalk.hex(LogColorsEnum.warn),
-    [LogLevelsEnum.error]: chalk.hex(LogColorsEnum.error),
-  };
 
   private generatedIcons = {
     [LogLevelsEnum.info]: "i",
@@ -29,7 +23,10 @@ export class Logger {
   }
 
   public error(msg: any, options?: LogOptions) {
-    this._log(LogLevelsEnum.error, msg, options);
+    this._log(LogLevelsEnum.error, msg, {
+      trace: options?.trace ?? true,
+      ...options,
+    });
   }
 
   public warn(msg: any, options?: LogOptions) {
@@ -55,7 +52,7 @@ export class Logger {
   }
 
   private useColor(level: LogLevel, color?: CustomLogColor) {
-    return !color ? this.generatedColors[level] : chalk.hex(color);
+    return chalk.hex(color ?? LogColorsEnum[level]);
   }
 
   private _log(level: LogLevel, msg: string, opt?: LogOptions) {
@@ -63,7 +60,9 @@ export class Logger {
     const formdLog = this.formLogMessageByTemplate(level, msg, opt);
 
     this.__log(color(formdLog));
+    if (opt?.trace) {
+      console.trace();
+    }
   }
 }
-
 export const logger = new Logger();

@@ -1,5 +1,5 @@
 import { ValueOf } from "@app/common/types/valueOf";
-import { DefaultColors } from "@app/core/logger/constants/default-colors.const";
+import { DefaultColors } from "./constants/log-colors.const";
 
 export type _LogLevels = "log" | "error" | "warn" | "info";
 
@@ -17,6 +17,7 @@ export interface LogOptions {
   customColor?: CustomLogColor;
   prefix?: string;
   icon?: string;
+  trace?: boolean;
 }
 
 export type CustomLogColor = `#${string}`;

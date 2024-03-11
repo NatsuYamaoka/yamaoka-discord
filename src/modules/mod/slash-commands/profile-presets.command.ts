@@ -1,7 +1,6 @@
 import { BaseCommand } from "@abstracts/command/command.abstract";
 import { CmdArg, CmdType } from "@abstracts/command/command.types";
 import { ProfileCommandSubCommandsTypes } from "@app/common/types/commands.types";
-import { logger } from "@app/core/logger/logger-client";
 import { SlashCommand } from "@decorators/commands.decorator";
 import { ProfilePresetEntity } from "@entities/user/profile-preset.entity";
 import {
@@ -14,23 +13,28 @@ import {
   ButtonBuilder,
   ComponentType,
   EmbedBuilder,
+  GuildMember,
   SlashCommandBuilder,
+  resolveColor,
 } from "discord.js";
 import { isValidJson } from "@utils/json-validator.util";
+import { parsePresetTokens } from "@utils/embed-parser.util";
+import { gatherProfileTokens } from "@utils/gather-tokens.util";
+import { userService } from "@app/services/user.service";
 
 @SlashCommand({
   name: "profile-preset",
-  description: "Command for creating/editing/deleting profile presets",
+  description: "Манипуляция с пресетами профилей для модераторов",
   data: new SlashCommandBuilder()
     .addSubcommand((sub) =>
       sub
         .setName(ProfileCommandSubCommandsTypes.CREATE)
-        .setDescription("create preset")
+        .setDescription("Создать пресет")
         .addStringOption((opt) =>
           opt
             .setName("json")
             .setDescription(
-              "JSON representation of the embed. You can search for it on embed generators sites"
+              "Валидный JSON-объект, который будет использоваться для создания пресета"
             )
             .setRequired(true)
         )
@@ -38,58 +42,58 @@ import { isValidJson } from "@utils/json-validator.util";
     .addSubcommand((sub) =>
       sub
         .setName(ProfileCommandSubCommandsTypes.UPDATE)
-        .setDescription("update preset")
+        .setDescription("Обновить пресет")
         .addStringOption((opt) =>
-          opt.setName("id").setDescription("id of the preset").setRequired(true)
+          opt.setName("id").setDescription("Айди пресета").setRequired(true)
         )
         .addStringOption((opt) =>
           opt
             .setName("json")
-            .setDescription("stringified JSON representation of the embed")
+            .setDescription(
+              "Валидный JSON-объект, который будет использоваться для создания пресета"
+            )
             .setRequired(true)
         )
     )
     .addSubcommand((sub) =>
       sub
         .setName(ProfileCommandSubCommandsTypes.DELETE)
-        .setDescription("delete preset")
+        .setDescription("Удалить пресет")
         .addStringOption((opt) =>
-          opt.setName("id").setDescription("id of the preset").setRequired(true)
+          opt.setName("id").setDescription("Айди пресета").setRequired(true)
         )
     )
     .addSubcommand((sub) =>
       sub
         .setName(ProfileCommandSubCommandsTypes.LIST)
-        .setDescription("list all presets")
+        .setDescription("Получить список всех пресетов")
     )
     .addSubcommand((sub) =>
       sub
         .setName(ProfileCommandSubCommandsTypes.INFO)
-        .setDescription("Overall info on JSON etc.")
+        .setDescription("Информация о использовании команд для пресетов")
     ),
 })
 export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   async execute(arg: CmdArg<CmdType.SLASH_COMMAND>) {
-    try {
-      const subCommandName = arg.options.getSubcommand(true);
-      await arg.deferReply({ ephemeral: true });
-      const { CREATE, UPDATE, DELETE, LIST, INFO } =
-        ProfileCommandSubCommandsTypes;
+    const subCommandName = arg.options.getSubcommand(true);
 
-      switch (subCommandName) {
-        case CREATE:
-          return this.createPreset(arg);
-        case UPDATE:
-          return this.updatePreset(arg);
-        case DELETE:
-          return this.deletePreset(arg);
-        case LIST:
-          return this.listPresets(arg);
-        case INFO:
-          return this.infoPreset(arg);
-      }
-    } catch (err) {
-      logger.error(err);
+    await arg.deferReply({ ephemeral: true });
+
+    const { CREATE, UPDATE, DELETE, LIST, INFO } =
+      ProfileCommandSubCommandsTypes;
+
+    switch (subCommandName) {
+      case CREATE:
+        return this.createPreset(arg);
+      case UPDATE:
+        return this.updatePreset(arg);
+      case DELETE:
+        return this.deletePreset(arg);
+      case LIST:
+        return this.listPresets(arg);
+      case INFO:
+        return this.infoPreset(arg);
     }
   }
 
@@ -99,8 +103,13 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     isCustom = false
   ) {
     const json = arg.options.getString("json", true);
-    if (!isValidJson(json))
-      return await this.sendError("JSON you provided is not valid", arg);
+
+    if (!isValidJson(json)) {
+      return await this.sendError(
+        "JSON который вы предоставили невалиден",
+        arg
+      );
+    }
 
     const parsedJson = JSON.parse(json);
 
@@ -108,17 +117,23 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     // src: https://discordjs.guide/popular-topics/embeds.html#embed-limits
     if (!parsedJson.title || !parsedJson.description || !parsedJson.fields) {
       return this.sendError(
-        "JSON you provided is not valid. It should contain title or description or fields",
+        "JSON должен содержать title, description или fields",
         arg
       );
     }
 
-    // Normalize JSON for storing in db (remove spaces etc.)
-    const modifiedJson = JSON.stringify(JSON.parse(json));
+    // If color is a string, try to resolve it to number
+    if (parsedJson.color && typeof parsedJson.color !== "number") {
+      try {
+        parsedJson.color = resolveColor(parsedJson.color);
+      } catch (err) {
+        parsedJson.color = 0x2f3136; // Default color
+      }
+    }
 
     const data = {
       updated_by: arg.user.id,
-      json: modifiedJson,
+      json: JSON.stringify(parsedJson),
     };
 
     if (isCustom) {
@@ -127,31 +142,31 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       await ProfilePresetEntity.save({ ...data });
     }
 
-    return this.sendSuccess("New profile preset created!", arg);
+    return this.sendSuccess("Пресет создан!", arg);
   }
 
   public async updatePreset(arg: CmdArg<CmdType.SLASH_COMMAND>) {
     const id = arg.options.getString("id", true);
     const json = arg.options.getString("json", true);
 
-    if (!id.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/))
-      return this.sendError("Invalid ID", arg);
+    if (!id.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/)) {
+      return this.sendError("Невалидный ID", arg);
+    }
 
-    const foundPreset = await ProfilePresetEntity.findOne({
-      where: {
-        id,
-      },
+    const foundPreset = await ProfilePresetEntity.findOne({ where: { id } });
+
+    if (!foundPreset) {
+      return this.sendError("Не могу найти пресет по предоставленному ID", arg);
+    }
+
+    if (!isValidJson(json)) {
+      return this.sendError("JSON который вы предоставили невалиден", arg);
+    }
+
+    await ProfilePresetEntity.save({
+      ...foundPreset,
+      json: JSON.stringify(JSON.parse(json)), // Normalize JSON for storing in db (remove spaces etc.)
     });
-
-    if (!foundPreset)
-      return this.sendError("Can't find preset by ID you provide", arg);
-
-    if (!isValidJson(json))
-      return this.sendError("JSON you provided is not valid", arg);
-
-    // Normalize JSON for storing in db (remove spaces etc.)
-    foundPreset.json = JSON.stringify(JSON.parse(json));
-    await foundPreset.save();
 
     return this.sendSuccess("Preset updated!", arg);
   }
@@ -159,86 +174,99 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   public async deletePreset(arg: CmdArg<CmdType.SLASH_COMMAND>) {
     const id = arg.options.getString("id", true);
 
-    if (!id.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/))
-      return this.sendError("Invalid ID", arg);
+    if (!id.match(/^[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}$/)) {
+      return this.sendError("Невалидный ID", arg);
+    }
 
-    const foundPreset = await ProfilePresetEntity.findOne({
-      where: {
-        id,
-      },
-    });
+    const foundPreset = await ProfilePresetEntity.findOne({ where: { id } });
 
-    if (!foundPreset)
-      return this.sendError("Can't find preset by ID you provide", arg);
+    if (!foundPreset) {
+      return this.sendError("Не могу найти пресет по предоставленному ID", arg);
+    }
 
-    await foundPreset.remove();
+    await ProfilePresetEntity.remove(foundPreset);
 
-    return this.sendSuccess("Preset deleted!", arg);
+    return this.sendSuccess("Пресет удалён!", arg);
   }
 
-  public async listPresets(arg: CmdArg<CmdType.SLASH_COMMAND>) {
+  public async listPresets(interaction: CmdArg<CmdType.SLASH_COMMAND>) {
     const presets = await ProfilePresetEntity.find();
-
-    if (!presets.length)
-      return this.sendError(
-        `Unfortunatelly, we doesn't have any presets in the database`,
-        arg
-      );
 
     const { list } = getNavigationSetup();
     const actionRow = new ActionRowBuilder<ButtonBuilder>().addComponents(list);
+
+    if (!presets.length) {
+      return this.sendError(
+        "В базе данных нет пресетов для профиля",
+        interaction
+      );
+    }
+
     const paginationHelper = new PaginationHelper(presets, {
       elementsOnPage: 1,
     });
 
     const [firstPreset] = paginationHelper.createPage();
-    const componentCollector = arg.channel?.createMessageComponentCollector({
-      componentType: ComponentType.Button,
-      filter: (int) =>
-        int.user.id === arg.user.id && int.message.interaction?.id === arg.id,
-      time: 5 * 1000 * 60000, // 5 minutes
-    });
 
-    if (!componentCollector)
-      return this.sendError("Can't create component collector :(", arg);
+    const componentCollector =
+      interaction.channel?.createMessageComponentCollector({
+        componentType: ComponentType.Button,
+        filter: (int) =>
+          int.user.id === interaction.user.id &&
+          int.message.interaction?.id === interaction.id,
+        time: 5 * 1000 * 60000, // 5 minutes
+      });
 
-    await arg.editReply({
+    const userData = await userService.findOneByIdOrCreate(
+      interaction.user.id,
+      {
+        inventory: true,
+        wallet: true,
+        profile_presets: true,
+        selected_preset: true,
+      }
+    );
+
+    const { tokens } = gatherProfileTokens(
+      userData,
+      interaction.member as GuildMember,
+      this.client.voiceManager
+    );
+
+    await interaction.editReply({
       content: this.createContent(firstPreset, paginationHelper),
-      embeds: [this.createEmbedFromJson(firstPreset)],
+      embeds: [parsePresetTokens(tokens, firstPreset)],
       components: [actionRow],
     });
 
-    return componentCollector.on("collect", (int) => {
+    return componentCollector?.on("collect", (int) => {
+      let preset: ProfilePresetEntity | undefined;
+
       switch (int.customId) {
         case NavigationButtons.TO_LEFT:
+          preset = paginationHelper.prevPage().createPage()[0];
+          break;
         case NavigationButtons.TO_RIGHT:
-          const preset = {
-            [NavigationButtons.TO_LEFT]: () =>
-              paginationHelper.prevPage().createPage()[0],
-            [NavigationButtons.TO_RIGHT]: () =>
-              paginationHelper.nextPage().createPage()[0],
-          };
-
-          const getPreset = preset[int.customId]();
-          int.update({
-            content: this.createContent(getPreset, paginationHelper),
-            embeds: [this.createEmbedFromJson(getPreset)],
-          });
+          preset = paginationHelper.nextPage().createPage()[0];
           break;
         case NavigationButtons.TO_STOP:
           componentCollector.stop();
-          arg.deleteReply();
-          break;
+          interaction.deleteReply();
+          return;
       }
+
+      if (!preset) {
+        return;
+      }
+
+      int.update({
+        content: this.createContent(preset, paginationHelper),
+        embeds: [parsePresetTokens(tokens, preset)],
+      });
     });
   }
 
   public async infoPreset(arg: CmdArg<CmdType.SLASH_COMMAND>) {
-    const emptyField = {
-      name: " ",
-      value: " ",
-    };
-
     const embed = new EmbedBuilder()
       .setTitle("📂 Информация о пресетах")
       .setDescription(
@@ -246,30 +274,26 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       )
       .addFields([
         {
-          name: "Что такое пресеты?",
+          name: " ",
           value:
             "Пресеты - это предустановленные шаблоны для профиля, которые можно использовать для быстрого изменения внешнего вида профиля.",
         },
-        emptyField,
         {
           name: "Как создать пресет?",
           value:
             "Используйте сайт для геренации embed-объекта, например [Discord Embed Creator](https://embed.dan.onl/), и эскортируйте JSON-объект в команду.\n " +
-            '```/profile-preset create json:"{"title":"My Profile","description":"Hello, world!"}"```',
+            '```/profile-preset create json: {"title":"My Profile","description":"Hello, world!"}```',
         },
-        emptyField,
         {
           name: "Как получить список пресетов?",
           value:
             "С помощью команды `/profile-preset list` вы можете получить список всех пресетов в базе данных и их ID.",
         },
-        emptyField,
         {
           name: "Как обновить пресет?",
           value:
             "Команда `/profile-preset update id:uuid json:object` поможет вам обновить пресет по его ID.",
         },
-        emptyField,
         {
           name: "Как удалить пресет?",
           value:
@@ -279,14 +303,6 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       .setImage("https://i.imgur.com/Ut7zM46.png");
 
     return arg.editReply({ embeds: [embed] });
-  }
-
-  public createEmbedFromJson(preset: ProfilePresetEntity) {
-    var embedBuilder = new EmbedBuilder(JSON.parse(preset.json));
-    // Use .setColor function to convert color to number if it's a string
-    if (embedBuilder.data.color) embedBuilder.setColor(embedBuilder.data.color);
-
-    return embedBuilder;
   }
 
   public createContent(

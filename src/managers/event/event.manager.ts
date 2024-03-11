@@ -11,12 +11,16 @@ export class EventManager extends Base {
   }
 
   public loadEvents(module: ModuleAbstract) {
-    if (!module.events) return;
+    if (!module.events) {
+      return;
+    }
 
     for (const Event of module.events) {
       const eventInstance = new Event(this.client);
 
-      if (!eventInstance.name) continue;
+      if (!eventInstance.name) {
+        continue;
+      }
 
       this.client.on(eventInstance.name, (...arg) => {
         eventInstance.execute(arg);
