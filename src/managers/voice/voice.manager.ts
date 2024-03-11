@@ -50,11 +50,11 @@ export class VoiceManager extends Base {
         (userData.isAFK ? timeSpent / 2 : timeSpent) * 0.01
       );
 
-      userEntity.voice_time = timeSpent + (userEntity?.voice_time || 0);
-      userEntity.voice_exp = totalExp + (userEntity?.voice_exp || 0);
+      userEntity.voice_time = timeSpent + userEntity.voice_time;
+      userEntity.voice_exp = totalExp + userEntity.voice_exp;
       userEntity.wallet.voice_balance =
         Math.floor(timeSpent / (50 * 1000)) + // 50 seconds = 1 coin
-        (userEntity?.wallet.voice_balance || 0);
+        userEntity.wallet.voice_balance;
       userEntity.save();
 
       if (removeAfter) {
