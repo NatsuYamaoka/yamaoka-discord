@@ -1,1 +1,1 @@
-export default { prefix: "$", getUsersMessages: true };
+export default { prefix: "$", getUsersMessages: false };
