@@ -26,7 +26,7 @@ export class VoiceLeaveEvent extends BaseEvent {
     logger.log(`User ${member.displayName} left "${voice}" voice channel.`);
 
     const userData = this.client.voiceManager.getUserFromCollection(member.id);
-
+    
     if (!userData) {
       return;
     }
