@@ -1,8 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Base } from "@abstracts/client/client.abstract";
 import { CmdArg, CmdOpt, CmdType } from "@abstracts/command/command.types";
+import { IsSlashCommand } from "@app/common/types/guards.types";
 import { logger } from "@app/core/logger/logger-client";
 import { CustomClient } from "@client/custom-client";
-import { EmbedBuilder, InteractionType } from "discord.js";
+import { EmbedBuilder } from "discord.js";
+
+export type ExtendedMethods = {
+  sendError: (error: string, isExpected?: boolean) => void;
+  sendSuccess: (message: string) => void;
+};
 
 export class BaseCommand<K extends CmdType> extends Base {
   options?: CmdOpt<K>;
@@ -11,85 +18,64 @@ export class BaseCommand<K extends CmdType> extends Base {
     super(client);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   execute(arg: CmdArg<K>): Promise<unknown> | unknown {
     throw new Error("Cannot be invoked in parent class");
   }
 
-  sendError(error: string, arg: CmdArg<K>, isExpected = true) {
+  // Shortcut for methods that require interaction object
+  getMethods(arg: CmdArg<K>) {
+    return {
+      sendError: (error: string) => this.sendError(error, arg),
+      sendSuccess: (message: string) => this.sendSuccess(message, arg),
+    };
+  }
+
+  /** Don't use this method directly, use `getMethods` instead. */
+  sendError(error: string, arg: CmdArg<K>, image?: string) {
     try {
-      const isSlash = arg.type === InteractionType.ApplicationCommand;
-      const commandName = isSlash ? arg.commandName : arg.content;
-
-      // TODO: Redesing perchaps?
       const embed = new EmbedBuilder()
-        .setTitle("Возникла ошибка ❗")
+        .setTitle("🚨 Возникла ошибка ")
         .setColor("Red")
-        .setDescription(`Ниже приведена дополнительная информация:`)
-        .addFields([
-          {
-            name: "Ошибка 🚨",
-            value: `> ${error.slice(0, 1020)}`,
-          },
-          {
-            name: "Команда 📜",
-            value: `> ${commandName} ${
-              (isSlash && arg.options.getSubcommand(false)) || ""
-            }`,
-          },
-        ]);
+        .setDescription(error.slice(0, 1020))
+        .setTimestamp();
 
-      if (!isExpected) {
-        embed.setFooter({
-          text: "Это неожиданная ошибка! 😱\nПожалуйста, сообщите об этом разработчикам",
-        });
+      if (image) {
+        embed.setImage(image);
       }
 
-      const reply = {
-        content: "",
-        embeds: [embed],
-        components: [],
-      };
-
-      if (!isSlash) {
-        return arg.reply(reply);
-      }
-
-      if (arg.deferred) {
-        return arg.editReply(reply);
-      } else if (arg.replied) {
-        return arg.followUp({ ...reply, ephemeral: true });
-      } else {
-        return arg.reply({ ...reply, ephemeral: true });
-      }
+      this.sendEmbed(arg, embed);
     } catch (err) {
-      logger.error(`Error while sending error: ${err}`);
+      logger.error(`Error while sending error embed: ${err}`);
     }
   }
 
-  sendSuccess(message: string, arg: CmdArg<K>, isEphemeral = true) {
-    const isSlash = arg.type === InteractionType.ApplicationCommand;
+  /** Don't use this method directly, use `getMethods` instead. */
+  sendSuccess(message: string, arg: CmdArg<K>) {
     const embed = new EmbedBuilder()
       .setTitle("Успешно! ✅")
       .setColor("Green")
       .setDescription(message.slice(0, 1023));
 
+    this.sendEmbed(arg, embed);
+  }
+
+  private sendEmbed(arg: CmdArg<K>, embed: EmbedBuilder) {
     const reply = {
       content: "",
       embeds: [embed],
       components: [],
     };
 
-    if (!isSlash) {
+    if (!IsSlashCommand(arg)) {
       return arg.reply(reply);
     }
 
     if (arg.deferred) {
       return arg.editReply(reply);
     } else if (arg.replied) {
-      return arg.followUp({ ...reply, ephemeral: isEphemeral });
+      return arg.followUp(reply);
     } else {
-      return arg.reply({ ...reply, ephemeral: isEphemeral });
+      return arg.reply(reply);
     }
   }
 }

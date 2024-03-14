@@ -19,6 +19,7 @@ import { SlashCommandBuilder } from "discord.js";
 })
 export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   async execute(interaction: CmdArg<CmdType.SLASH_COMMAND>) {
+    const { sendError } = this.getMethods(interaction);
     await interaction.deferReply();
 
     const userOption = interaction.options.getUser("user") || interaction.user;
@@ -33,7 +34,7 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     const member = interaction.guild?.members.cache.get(userOption.id);
     if (!member) {
       // Since out command is guild only, we can assume that user is a member of the server
-      return this.sendError("Пользователь не участник сервера", interaction);
+      return sendError("Пользователь не участник сервера");
     }
 
     const { tokens } = GatherProfileTokens(
@@ -47,8 +48,7 @@ export class ProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     interaction
       .editReply({ embeds: [ParsePresetTokens(tokens, embed)] })
       .catch((err) => {
-        // I will be not surprised if users will find a way to make this error, so it's better to handle it
-        this.sendError(err.message, interaction, false);
+        sendError(err.message); // I will be not surprised if users will find a way to make this error, so it's better to handle it
         logger.error(err); // For future investigation
       });
   }
