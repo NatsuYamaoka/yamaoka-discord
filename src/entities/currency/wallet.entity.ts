@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToOne } from "typeorm";
+import { Column, Entity, JoinColumn, OneToOne, Relation } from "typeorm";
 import { PredefinedBaseEntity } from "../base/base.entity";
 import { UserEntity } from "../user/user.entity";
 
@@ -15,5 +15,5 @@ export class WalletEntity extends PredefinedBaseEntity {
     orphanedRowAction: "delete",
   })
   @JoinColumn()
-  user: UserEntity;
+  user: Relation<UserEntity>;
 }

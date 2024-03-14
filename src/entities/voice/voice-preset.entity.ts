@@ -1,6 +1,6 @@
 import { PredefinedBaseEntity } from "@entities/base/base.entity";
 import { UserEntity } from "@entities/user/user.entity";
-import { Column, Entity, JoinColumn, OneToOne } from "typeorm";
+import { Column, Entity, JoinColumn, OneToOne, Relation } from "typeorm";
 
 @Entity()
 export class VoicePresetEntity extends PredefinedBaseEntity {
@@ -15,7 +15,5 @@ export class VoicePresetEntity extends PredefinedBaseEntity {
     orphanedRowAction: "delete",
   })
   @JoinColumn()
-  user: UserEntity;
+  user: Relation<UserEntity>;
 }
-
-
