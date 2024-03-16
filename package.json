@@ -4,9 +4,9 @@
   "description": "Bot for Discord",
   "scripts": {
     "build": "rd /s /q .\\build && tsc",
-    "env": "cross-env TS_NODE_BASEURL=./src ts-node -r tsconfig-paths/register src/scripts/auto-execute/check-project-envs.ts",
-    "dev": "npm run env && cross-env NODE_ENV=dev TS_NODE_BASEURL=./src ts-node -r tsconfig-paths/register src/index.ts",
-    "prod": "npm run env && cross-env NODE_ENV=prod TS_NODE_BASEURL=./build node -r tsconfig-paths/register build/index.js",
+    "env": "npx cross-env TS_NODE_BASEURL=./src npx ts-node src/scripts/auto-execute/check-project-envs.ts",
+    "dev": "npm run env && npx cross-env NODE_ENV=dev TS_NODE_BASEURL=./src npx ts-node src/index.ts",
+    "prod": "npm run env && npx cross-env NODE_ENV=prod TS_NODE_BASEURL=./build node -r tsconfig-paths/register build/index.js",
     "build:prod": "npm run build && npm run prod"
   },
   "repository": {
