@@ -7,6 +7,7 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  Relation,
 } from "typeorm";
 
 @Entity()
@@ -25,9 +26,9 @@ export class ProfilePresetEntity extends PredefinedBaseEntity {
     nullable: true,
   })
   @JoinColumn()
-  user?: UserEntity;
+  user?: Relation<UserEntity>;
 
   @ManyToMany(() => UserEntity, (user) => user.selected_preset)
   @JoinTable()
-  selected_by: UserEntity;
+  selected_by: Relation<UserEntity>;
 }
