@@ -30,8 +30,6 @@ export default (async () => {
 
     updateVoiceCollection(client);
 
-    process.exit(0); // ! Remove before any PR's. Only for testing purposes
-
     process.on("SIGINT", handleExit.bind(null, client));
     process.on("SIGTERM", handleExit.bind(null, client));
     process.on("uncaughtException", (e) =>
