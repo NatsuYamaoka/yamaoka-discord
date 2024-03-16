@@ -112,7 +112,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
     // TODO: Add more checks for other fields (should create a helper for that)
     // src: https://discordjs.guide/popular-topics/embeds.html#embed-limits
-    if (!parsedJson.title || !parsedJson.description || !parsedJson.fields) {
+    if (!parsedJson.title && !parsedJson.description && !parsedJson.fields) {
       return this.sendError(
         "JSON должен содержать title, description или fields",
         arg

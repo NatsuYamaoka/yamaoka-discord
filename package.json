@@ -16,7 +16,7 @@
   "author": "secreori@gmail.com",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.27.2",
+    "axios": "^1.6.8",
     "chalk": "4.1.2",
     "cross-env": "^7.0.3",
     "discord.js": "^14.14.1",

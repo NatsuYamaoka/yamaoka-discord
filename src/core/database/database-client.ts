@@ -21,7 +21,11 @@ export class DatabaseClient extends DataSource {
   }
 
   public async _init() {
-    await this.initialize();
+    await this.initialize().catch((err) => {
+      logger.error("Failed to connect to db");
+      logger.error(err);
+      process.exit(1);
+    });
 
     logger.log("Connected to db");
   }
