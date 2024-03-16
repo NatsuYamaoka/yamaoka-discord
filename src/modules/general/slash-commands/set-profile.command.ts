@@ -29,6 +29,7 @@ const TO_PROCEED = "to-proceed-button";
 export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   async execute(interaction: CmdArg<CmdType.SLASH_COMMAND>) {
     await interaction.deferReply({ ephemeral: true });
+    const { sendError, sendSuccess } = this.getMethods(interaction);
 
     const userData = await userService.findOneByIdOrCreate(
       interaction.user.id,
@@ -41,9 +42,8 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     );
 
     if (!userData.profile_presets || userData.profile_presets?.length == 0) {
-      return this.sendError(
-        "У вас нет пресетов для профиля, обратитесь к администратору сервера", // Note: This is a temporary solution, until the shop system is released
-        interaction
+      return sendError(
+        "У вас нет пресетов для профиля, обратитесь к администратору сервера" // Note: This is a temporary solution, until the shop system is released
       );
     }
 
@@ -118,7 +118,7 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
           userData.selected_preset = preset.id !== "default" ? [preset] : []; // If default preset, then remove it
 
           await UserEntity.save(userData);
-          this.sendSuccess("Ваш профиль успешно обновлен! 🎉", interaction);
+          sendSuccess("Ваш профиль успешно обновлен! 🎉");
           return;
       }
 

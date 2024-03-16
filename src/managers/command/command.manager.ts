@@ -69,9 +69,9 @@ export class CommandManager extends Base {
     } catch (err) {
       logger.error(err);
       command?.sendError(
-        `Что-то пошло не так...\nНо не волнуйтесь, я уже сообщил об этом разработчику`,
-        cmdArg as CmdArg<CmdType.MESSAGE_COMMAND> &
-          CmdArg<CmdType.SLASH_COMMAND>
+        `Не волнуйтесь, в этот раз напортачили мы.\n\nУведомление о проблеме уже было отправлено и мы постараемся исправить её как можно скорее.`,
+        cmdArg as never,
+        "https://i.imgur.com/Mvk0XVh.png"
       );
     }
   }

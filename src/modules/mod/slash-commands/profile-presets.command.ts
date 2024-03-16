@@ -97,7 +97,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     }
   }
 
-  // ! We will reuse this method in another command when we will implement ability for generic users to buy custom profile presets.
+  // Possible to use this method for custom presets (for users)
   public async createPreset(
     arg: CmdArg<CmdType.SLASH_COMMAND>,
     isCustom = false
@@ -105,10 +105,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     const json = arg.options.getString("json", true);
 
     if (!IsValidJson(json)) {
-      return await this.sendError(
-        "JSON который вы предоставили невалиден",
-        arg
-      );
+      return this.sendError("JSON который вы предоставили невалиден", arg);
     }
 
     const parsedJson = JSON.parse(json);
