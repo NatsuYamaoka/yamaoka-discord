@@ -12,11 +12,12 @@ class UserService {
     });
 
     if (!foundUser) {
-      foundUser = await UserEntity.save({
+      foundUser = UserEntity.create({
         uid,
         wallet: {},
         inventory: {},
       });
+      await UserEntity.save(foundUser);
     }
 
     return foundUser;
