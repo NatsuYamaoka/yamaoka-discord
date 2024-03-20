@@ -75,13 +75,13 @@ export const defaultTemplate = {
     {
       name: "📨 Сообщения:",
       value:
-        "Отправлено сообщений: **{{user.messages}}**\nПолучено опыта: **{{user.message_exp}}** 🧪",
+        "Отправлено: **{{user.messages}}**\nПолучено опыта:\n**{{user.message_exp}}** 🧪",
       inline: true,
     },
     {
       name: "🎙️ Войс-чаты:",
       value:
-        "Проведено в войс-чатах: **{{user.voice_time}}**\nПолучено опыта: **{{user.voice_exp}}** 🧪",
+        "Проведено в войс-чатах:\n**{{user.voice_time}}**\nПолучено опыта:\n**{{user.voice_exp}}** 🧪",
       inline: true,
     },
     {
@@ -90,18 +90,15 @@ export const defaultTemplate = {
       inline: false,
     },
     {
-      name: "🖼️ Профилей: {{user.profile_presets}}",
-      value: " ",
+      name: "🎒 Инвентарь:",
+      value:
+        "- Профилей: **{{user.profile_presets}}** 🖼️\n- Предметов: **{{user.inventory_items}}** 📦",
       inline: true,
     },
     {
-      name: "📦 Предметов: {{user.inventory_items}}",
-      value: " ",
-      inline: true,
-    },
-    {
-      name: "💸 Баланс: {{user.balance}}",
-      value: " ",
+      name: "💰 Кошелёк:",
+      value:
+        "- Баланс: **{{user.balance}}** 💸\n- Войс баланс: **{{user.voice_balance}}** 🎙️🪙",
       inline: true,
     },
   ],
