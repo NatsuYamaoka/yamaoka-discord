@@ -81,11 +81,12 @@ export class LeaderboardCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     await interaction.deferReply();
     const category = interaction.options.getString("category", true);
 
-    const embed = await this.getEmbedForCategory(category);
+    const embed = await this.createEmbedForCategory(category);
     interaction.editReply({ embeds: [embed] });
   }
 
-  async getEmbedForCategory(category: string) {
+  async createEmbedForCategory(category: string) {
+    const emojis = ["🥇", "🥈", "🥉", "4️⃣.", "5️⃣."];
     const categoryList = this.topLists[category as keyof typeof this.topLists];
     const embed = new EmbedBuilder()
       .setTitle(`📊 Таблица по категории`)
@@ -93,10 +94,12 @@ export class LeaderboardCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
     let description = `Топ 5 по ${categoryList?.title}\n\n`;
 
+    const categoryData = await categoryList.data()
+    const categoryEntries = categoryData.entries()
+
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    for (const [index, user] of (await categoryList!.data()).entries()) {
+    for (const [index, user] of categoryEntries) {
       const value = user[category as never] as string | number;
-      const emojis = ["🥇", "🥈", "🥉", "4️⃣.", "5️⃣."];
 
       const username = `<@${
         user instanceof WalletEntity ? user.user.uid : user.uid
