@@ -12,14 +12,27 @@ class UserService {
     });
 
     if (!foundUser) {
-      foundUser = await UserEntity.save({
+      foundUser = UserEntity.create({
         uid,
         wallet: {},
         inventory: {},
       });
+      await UserEntity.save(foundUser);
     }
 
     return foundUser;
+  }
+
+  public async usersWithHighest(
+    field: keyof UserEntity,
+    limit: number,
+    relations: FindOptionsRelations<UserEntity> = {}
+  ) {
+    return UserEntity.find({
+      order: { [field]: "DESC" },
+      take: limit,
+      relations,
+    });
   }
 }
 

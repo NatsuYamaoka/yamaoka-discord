@@ -10,6 +10,9 @@ export class WalletEntity extends PredefinedBaseEntity {
   @Column({ default: 0 })
   voice_balance: number;
 
+  @Column()
+  userUid: string;
+
   @OneToOne(() => UserEntity, (user) => user.wallet, {
     onDelete: "CASCADE",
     orphanedRowAction: "delete",
