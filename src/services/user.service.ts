@@ -22,6 +22,18 @@ class UserService {
 
     return foundUser;
   }
+
+  public async usersWithHighest(
+    field: keyof UserEntity,
+    limit: number,
+    relations: FindOptionsRelations<UserEntity> = {}
+  ) {
+    return UserEntity.find({
+      order: { [field]: "DESC" },
+      take: limit,
+      relations,
+    });
+  }
 }
 
 export const userService = new UserService();
