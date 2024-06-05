@@ -1,43 +1,44 @@
 {
-  "dependencies": {
-    "axios": "^0.27.2",
-    "cross-env": "^7.0.3",
-    "discord.js": "^14.6.0",
-    "dotenv": "^16.0.2",
-    "glob": "^8.0.3",
-    "joi": "^17.6.1",
-    "nodemon": "^2.0.20",
-    "pg": "^8.8.0",
-    "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.3.10"
-  },
   "name": "yamaoka",
-  "version": "1.0.0",
-  "main": "index.js",
-  "devDependencies": {
-    "@types/glob": "^8.0.0",
-    "@types/node": "^18.7.20",
-    "eslint": "^8.27.0",
-    "eslint-config-prettier": "^8.5.0",
-    "typescript": "^4.8.3"
-  },
+  "version": "1.1.0",
+  "description": "Bot for Discord",
   "scripts": {
     "build": "rd /s /q .\\build && tsc",
-    "check:env": "ts-node ./src/scripts/envs.ts",
-    "start:dev": "yarn check:env && cross-env NODE_ENV=dev nodemon ./src/index.ts",
-    "start:prod": "yarn check:env && cross-env NODE_ENV=prod node ./build/index.js",
-    "run:build:prod": "yarn build && yarn start:prod"
+    "env": "npx cross-env TS_NODE_BASEURL=./src npx ts-node src/scripts/auto-execute/check-project-envs.ts",
+    "dev": "npm run env && npx cross-env NODE_ENV=dev TS_NODE_BASEURL=./src npx ts-node src/index.ts",
+    "prod": "npm run env && npx cross-env NODE_ENV=prod TS_NODE_BASEURL=./build node -r tsconfig-paths/register build/index.js",
+    "build:prod": "npm run build && npm run prod"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sekkure/Yamaoka.git"
   },
-  "keywords": [],
-  "author": "",
+  "author": "secreori@gmail.com",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/sekkure/Yamaoka/issues"
+  "dependencies": {
+    "axios": "^1.6.8",
+    "chalk": "4.1.2",
+    "cross-env": "^7.0.3",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.4.5",
+    "glob": "^8.1.0",
+    "joi": "^17.12.2",
+    "pg": "^8.11.3",
+    "reflect-metadata": "^0.1.14",
+    "typeorm": "^0.3.20"
   },
-  "homepage": "https://github.com/sekkure/Yamaoka#readme",
-  "description": ""
+  "devDependencies": {
+    "@swc/core": "^1.4.8",
+    "@types/glob": "^8.1.0",
+    "@types/node": "^18.19.18",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^8.10.0",
+    "nodemon": "^3.1.0",
+    "regenerator-runtime": "^0.14.1",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.3.3"
+  }
 }

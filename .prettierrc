@@ -4,5 +4,7 @@
   "arrowParens": "always",
   "semi": true,
   "bracketSameLine": true,
-  "bracketSpacing": true
+  "bracketSpacing": true,
+  "endOfLine": "lf",
+  "printWidth": 80
 }
