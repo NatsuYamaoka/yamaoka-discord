@@ -9,6 +9,7 @@ import {
 } from "@helpers/navigation.helper";
 import PaginationHelper from "@helpers/pagination.helper";
 import {
+  CheckIfEmbedIsValid,
   CreatePreviewPresetText,
   ParsePresetTokens,
 } from "@utils/embed-parser.util";
@@ -16,18 +17,22 @@ import { GatherProfileTokens } from "@utils/gather-tokens.util";
 import {
   ActionRowBuilder,
   ButtonBuilder,
+  ButtonInteraction,
   ButtonStyle,
   ComponentType,
+  EmbedBuilder,
   GuildMember,
+  ModalBuilder,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuInteraction,
+  TextInputBuilder,
+  TextInputStyle,
 } from "discord.js";
 
 enum SHOP_CATEGORIES {
-  ROLES = "roles",
   PROFILES = "profiles",
-  SERVICES = "services",
+  CREATE_PRESET = "create-preset",
 }
 
 const TO_PROCEED = "to-proceed-button";
@@ -40,7 +45,7 @@ const TO_PROCEED = "to-proceed-button";
 export class ShopCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   async execute(interaction: CmdArg<CmdType.SLASH_COMMAND>) {
     const { sendError } = this.getMethods(interaction);
-    await interaction.deferReply();
+    await interaction.deferReply({ ephemeral: true });
 
     const actionRowCategories =
       new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
@@ -52,12 +57,12 @@ export class ShopCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
               description: "Купить готовый пресет профиля",
               value: SHOP_CATEGORIES.PROFILES,
             },
-            // {
-            //   emoji: { name: "🔧" },
-            //   label: "Услуги",
-            //   description: "Купить услуги (создание профиля и т.д.)",
-            //   value: SHOP_CATEGORIES.SERVICES,
-            // },
+            {
+              emoji: { name: "🎨" },
+              label: "Создать профиль",
+              description: "Создать свой уникальный пресет профиля",
+              value: SHOP_CATEGORIES.CREATE_PRESET,
+            },
           ])
           .setCustomId("shop-categories")
           .setPlaceholder("Выберите категорию")
@@ -84,8 +89,8 @@ export class ShopCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       switch (category) {
         case SHOP_CATEGORIES.PROFILES:
           return this.handleProfilesCategory(int);
-        // case SHOP_CATEGORIES.SERVICES:
-        //   return this.handleServicesCategory(int);
+        case SHOP_CATEGORIES.CREATE_PRESET:
+          return this.handlePresetCreation(int);
         default:
           return sendError("Неизвестная категория");
       }
@@ -192,14 +197,166 @@ export class ShopCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     });
   }
 
-  async handleServicesCategory(arg: StringSelectMenuInteraction) {
-    // TODO: Implement this
-    arg.update({
-      content: "В разработке..",
-      components: [],
-      embeds: [],
+  async handlePresetCreation(arg: StringSelectMenuInteraction) {
+    const embed = new EmbedBuilder()
+      .setTitle("Вы приступаете к созданию пресета ❗")
+      .setDescription(
+        "Ниже указаны FAQ по пресетам. Если у вас есть дополнительные вопросы, обратитесь к администратору."
+      )
+      .addFields(
+        {
+          name: " ",
+          value:
+            "Пресет - это готовый шаблон профиля, который вы можете купить и применить к своему профилю. Пресеты содержат в себе различные поля, которые вы можете настроить под себя.",
+        },
+        {
+          name: "Как создать пресет?",
+          value:
+            "Используйте сайт для геренации embed-объекта, например [Discord Embed Creator](https://embed.dan.onl/), и эскортируйте JSON-объект в указанное поле.\n ",
+        },
+        {
+          name: "Сколько стоит создание пресета?",
+          value:
+            "Создание пресета стоит **1000** монет. После создания пресета, он будет доступен для покупки всем пользователям сервера. Вы же получите его бесплатно.",
+        },
+        {
+          name: `Что такое "токены" и почему они важны?`,
+          value:
+            "Токены - это переменные, которые вы можете использовать в вашем пресете. Например, {{user.display_name}} - это токен, который заменяется на ваше имя пользователя." +
+            "\nДоступные токены вы можете посмотреть через команду `/profile-tokens`. ",
+        },
+        {
+          name: `Какие токены обязательны?`,
+          value:
+            "Обязательными токенами являются: `{{user.display_name}}` и `{{user.balance}}`. Без них вы не сможете создать пресет.",
+        }
+      );
+
+    const actionRowProceed =
+      new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder()
+          .setCustomId("to-proceed-button")
+          .setStyle(ButtonStyle.Success)
+          .setEmoji("✅")
+          .setLabel("Я ознакомлен и готов начать создание пресета")
+      );
+
+    await arg.update({
+      embeds: [embed],
+      components: [actionRowProceed],
     });
+
+    const componentCollector = arg.channel?.createMessageComponentCollector({
+      componentType: ComponentType.Button,
+      filter: (int) =>
+        int.user.id === arg.user.id && int.message.id === arg.message.id,
+      time: 5 * 60000, // 5 minutes
+    });
+
+    componentCollector?.on("collect", async (int) => {
+      if (int.customId === TO_PROCEED) {
+        componentCollector.stop();
+        return this.handlePresetCreationProceed(int);
+      }
+    });
+
     return;
+  }
+
+  async handlePresetCreationProceed(arg: ButtonInteraction) {
+    let userData = await userService.findOneByIdOrCreate(arg.user.id, {
+      inventory: true,
+      wallet: true,
+      profile_presets: true,
+      selected_preset: true,
+    });
+
+    if (userData.wallet.balance < 1000) {
+      arg.update({
+        content: "",
+        components: [],
+        embeds: [
+          {
+            title: "Ошибка",
+            description: "У вас недостаточно средств для создания пресета",
+            color: 0xff0000,
+          },
+        ],
+      });
+      return;
+    }
+
+    const modal = new ModalBuilder()
+      .setTitle("Создание пресета")
+      .setCustomId("create-preset-modal");
+
+    const jsonEmbedInput = new TextInputBuilder()
+      .setCustomId("json-embed-input")
+      .setLabel("Введите JSON-объект с embed-данными.")
+      .setPlaceholder(
+        '{\n  "title": "Пример",\n  "description": "Пример",\n  "color": 0x2f3136\n}'
+      )
+      .setStyle(TextInputStyle.Paragraph);
+
+    modal.addComponents(
+      new ActionRowBuilder<TextInputBuilder>().addComponents(jsonEmbedInput)
+    );
+
+    await arg.showModal(modal);
+
+    await arg
+      .awaitModalSubmit({
+        time: 30 * 60000, // 30 minutes
+        filter: (int) => int.user.id === arg.user.id,
+      })
+      .then(async (int) => {
+        int.deferUpdate(); // Hide modal
+
+        if (int.customId !== "create-preset-modal") {
+          return;
+        }
+
+        const jsonString = int.fields.getTextInputValue("json-embed-input");
+
+        const { isValid, error, json } = CheckIfEmbedIsValid(jsonString);
+        if (!isValid) {
+          return arg.editReply({
+            content: "",
+            components: [],
+            embeds: [
+              {
+                title: "Ошибка",
+                description: error,
+                color: 0xff0000,
+              },
+            ],
+          });
+        }
+
+        userData.wallet.balance -= 1000; // Note: Placeholder price, should be taken from the preset entity
+        await UserEntity.save(userData);
+
+        await ProfilePresetEntity.save({
+          json,
+          user: { uid: arg.user.id },
+          updated_by: arg.user.id,
+        });
+
+        arg.editReply({
+          content: "",
+          components: [],
+          embeds: [
+            {
+              title: "Успех",
+              description:
+                "Пресет успешно создан и добавлен в магазин! 🎉\n\nВы можете применить его командой `/set-profile`!",
+              color: 0x2f3136,
+            },
+          ],
+        });
+
+        return;
+      });
   }
 
   private getPresetButtons(preset: ProfilePresetEntity, userData: UserEntity) {

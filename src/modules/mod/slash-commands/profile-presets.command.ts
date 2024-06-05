@@ -18,7 +18,10 @@ import {
   resolveColor,
 } from "discord.js";
 import { IsValidJson } from "@utils/json-validator.util";
-import { ParsePresetTokens } from "@utils/embed-parser.util";
+import {
+  CheckIfEmbedIsValid,
+  ParsePresetTokens,
+} from "@utils/embed-parser.util";
 import { GatherProfileTokens } from "@utils/gather-tokens.util";
 import { userService } from "@app/services/user.service";
 
@@ -102,35 +105,17 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     arg: CmdArg<CmdType.SLASH_COMMAND>,
     isCustom = false
   ) {
-    const json = arg.options.getString("json", true);
+    const jsonString = arg.options.getString("json", true);
 
-    if (!IsValidJson(json)) {
-      return this.sendError("JSON который вы предоставили невалиден", arg);
-    }
+    const { isValid, error, json } = CheckIfEmbedIsValid(jsonString);
 
-    const parsedJson = JSON.parse(json);
-
-    // TODO: Add more checks for other fields (should create a helper for that)
-    // src: https://discordjs.guide/popular-topics/embeds.html#embed-limits
-    if (!parsedJson.title && !parsedJson.description && !parsedJson.fields) {
-      return this.sendError(
-        "JSON должен содержать title, description или fields",
-        arg
-      );
-    }
-
-    // If color is a string, try to resolve it to number
-    if (parsedJson.color && typeof parsedJson.color !== "number") {
-      try {
-        parsedJson.color = resolveColor(parsedJson.color);
-      } catch (err) {
-        parsedJson.color = 0x2f3136; // Default color
-      }
+    if (!isValid) {
+      return this.sendError(error, arg);
     }
 
     const data = {
       updated_by: arg.user.id,
-      json: JSON.stringify(parsedJson),
+      json,
     };
 
     if (isCustom) {
