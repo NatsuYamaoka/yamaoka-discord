@@ -4,6 +4,7 @@ import { ProfileCommand } from "@modules/general/slash-commands/profile.command"
 import { SetProfileCommand } from "@modules/general/slash-commands/set-profile.command";
 import { LeaderboardCommand } from "@modules/general/slash-commands/leaderboard.command";
 import { ShopCommand } from "@modules/general/slash-commands/shop.command";
+import { ProfileTokens } from "@modules/general/slash-commands/profile-tokens.command";
 
 @Module({
   commands: [
@@ -11,6 +12,7 @@ import { ShopCommand } from "@modules/general/slash-commands/shop.command";
     SetProfileCommand,
     LeaderboardCommand,
     ShopCommand,
+    ProfileTokens,
   ],
 })
 export class GeneralModule extends Base {}
