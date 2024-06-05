@@ -17,7 +17,10 @@ import {
 
 import { defaultTemplate } from "./profile.command";
 import { GatherProfileTokens } from "@utils/gather-tokens.util";
-import { ParsePresetTokens } from "@utils/embed-parser.util";
+import {
+  CreatePreviewPresetText,
+  ParsePresetTokens,
+} from "@utils/embed-parser.util";
 import { userService } from "@app/services/user.service";
 
 const TO_PROCEED = "to-proceed-button";
@@ -29,7 +32,6 @@ const TO_PROCEED = "to-proceed-button";
 export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   async execute(interaction: CmdArg<CmdType.SLASH_COMMAND>) {
     await interaction.deferReply({ ephemeral: true });
-    const { sendError, sendSuccess } = this.getMethods(interaction);
 
     const userData = await userService.findOneByIdOrCreate(
       interaction.user.id,
@@ -42,13 +44,11 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     );
 
     if (!userData.profile_presets || userData.profile_presets?.length == 0) {
-      return sendError(
-        "У вас нет пресетов для профиля, обратитесь к администратору сервера" // Note: This is a temporary solution, until the shop system is released
+      return this.sendError(
+        "У вас нет пресетов для профиля, сходите в магазин и купите их или создайте свой пресет!",
+        interaction
       );
     }
-
-    // Note: This is a temporary solution, until the shop system is released
-    const profile_presets = await ProfilePresetEntity.find();
 
     // Creating pseudo preset list, to not mess with the original data
     const presets = [
@@ -56,8 +56,7 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
         id: "default",
         json: JSON.stringify(defaultTemplate),
       } as ProfilePresetEntity,
-      //...userData.profile_presets, // Note: Uncomment this on release of shop system
-      ...profile_presets,
+      ...userData.profile_presets,
     ];
 
     const { list } = GetNavigationSetup();
@@ -84,7 +83,7 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
         filter: (int) =>
           int.user.id === interaction.user.id &&
           int.message.interaction?.id === interaction.id,
-        time: 5 * 1000 * 60000, // 5 minutes
+        time: 5 * 60000, // 5 minutes
       });
 
     const { tokens } = GatherProfileTokens(
@@ -94,7 +93,7 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
     );
 
     await interaction.editReply({
-      content: this.createContent(paginationHelper),
+      content: CreatePreviewPresetText(paginationHelper),
       embeds: [ParsePresetTokens(tokens, firstPreset)],
       components: [actionRow, actionRowProceed],
     });
@@ -118,7 +117,7 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
           userData.selected_preset = preset.id !== "default" ? [preset] : []; // If default preset, then remove it
 
           await UserEntity.save(userData);
-          sendSuccess("Ваш профиль успешно обновлен! 🎉");
+          this.sendSuccess("Ваш профиль успешно обновлен! 🎉", interaction);
           return;
       }
 
@@ -127,21 +126,9 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
       }
 
       int.update({
-        content: this.createContent(paginationHelper),
+        content: CreatePreviewPresetText(paginationHelper),
         embeds: [ParsePresetTokens(tokens, preset)],
       });
     });
-  }
-
-  public createContent(
-    paginationHelper: PaginationHelper<ProfilePresetEntity>
-  ) {
-    return (
-      `### 📃 Текущий пресет: [${paginationHelper.page} | ${paginationHelper.totalPages}]\n` +
-      `Используйте стрелки ниже чтобы выбрать подходящий пресет\n` +
-      `Нажмите кнопку с ✅ чтобы выбрать текущий пресет\n` +
-      `Нажмите кнопку с ❌ чтобы закрыть меню\n` +
-      `### Превью пресета:`
-    );
   }
 }
