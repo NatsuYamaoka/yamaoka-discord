@@ -27,6 +27,7 @@ export function GatherProfileTokens(
   }
 
   // ? Add tokens if needed
+  // ! Edit `profile-tokens.command.ts` if you add new tokens
   const tokens = {
     "user.avatar": user.displayAvatarURL({ size: 4096 }),
     "user.name": user.globalName || user.username,
