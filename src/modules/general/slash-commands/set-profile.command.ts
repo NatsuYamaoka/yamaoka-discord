@@ -27,7 +27,7 @@ const TO_PROCEED = "to-proceed-button";
 
 @SlashCommand({
   name: "set-profile",
-  description: "sets your profile",
+  description: "Установить пресет профиля",
 })
 export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
   async execute(interaction: CmdArg<CmdType.SLASH_COMMAND>) {
@@ -45,7 +45,7 @@ export class SetProfileCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
 
     if (!userData.profile_presets || userData.profile_presets?.length == 0) {
       return this.sendError(
-        "You don't have any profile presets, please create one",
+        "У вас нет пресетов для профиля, сходите в магазин и купите их или создайте свой пресет!",
         interaction
       );
     }
