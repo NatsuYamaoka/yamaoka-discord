@@ -211,7 +211,7 @@ export class ProfilePresetsCommand extends BaseCommand<CmdType.SLASH_COMMAND> {
         filter: (int) =>
           int.user.id === interaction.user.id &&
           int.message.interaction?.id === interaction.id,
-        time: 5 * 1000 * 60000, // 5 minutes
+        time: 5 * 60000, // 5 minutes
       });
 
     const userData = await userService.findOneByIdOrCreate(
